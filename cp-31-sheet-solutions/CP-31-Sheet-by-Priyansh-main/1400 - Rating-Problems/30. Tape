@@ -1,0 +1,113 @@
+✅ B. Tape — Solution Notes
+Problem Summary
+
+You have broken segments on a stick.
+You want to cover all broken positions using at most k tape segments.
+
+A tape segment placed on position s with length t covers:
+
+s, s+1, ..., s+t−1
+
+
+Tapes can overlap.
+You may cover unbroken segments also.
+
+Your goal:
+
+➤ Use ≤ k tape pieces with minimum total length.
+✅ Key Insight
+
+If you use one big tape, it must cover:
+
+from b[0] to b[n−1] → length = (b[n−1] - b[0] + 1)
+
+But using k pieces, you can break the continuous covering into k parts.
+
+Where should we cut?
+→ At the largest gaps between broken segments.
+
+🧠 Why?
+
+Tape must cover continuous broken segments.
+If there is a big gap between two broken segments, it's beneficial to start a new tape after that gap.
+
+Example:
+
+Broken positions: 20, 30, 75, 80
+Gaps: 10, 45, 5
+Largest gap is 45, so cutting there divides into 2 groups.
+
+✔️ Steps to Solve
+
+Read broken positions array b[].
+
+Build array diff[i] = b[i] − b[i−1]
+(This gap includes the gap inside the tape, so do NOT subtract 1.)
+
+Sort gaps.
+
+We want k−1 cuts → remove the (k−1) largest gaps.
+
+The remaining smallest gaps must be covered by tape.
+Total length =
+
+1 + (sum of remaining gaps)
+
+
+The +1 accounts for the inclusive segment length.
+
+📌 Why +1 only once?
+
+Because even if you break into multiple tapes, the formula works like this:
+
+For a continuous group:
+
+length = last - first + 1
+
+
+When summing all groups using gaps:
+
+total = sum(gaps inside groups) + number_of_groups
+
+
+number_of_groups = k → but we started ans = k−1, and final +1 completes it.
+
+✅ Your Final Code (Correct Logic)
+#include <bits/stdc++.h>
+using namespace std;
+ 
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+ 
+    int n, m, k;
+    cin >> n >> m >> k;
+ 
+    vector<int> b(n);
+    for(int i = 0; i < n; i++) cin >> b[i];
+ 
+    vector<long long> diff;
+    for (int i = 1; i < n; i++) {
+        diff.push_back(b[i] - b[i - 1]);   // correct: no -1
+    }
+ 
+    sort(diff.begin(), diff.end());
+ 
+    long long ans = k - 1;   // initial cut count
+ 
+    int remain = diff.size() - (k - 1);
+ 
+    long long sum = 0;
+    for (int i = 0; i < remain; i++) {
+        sum += diff[i];
+    }
+ 
+    ans += sum + 1;  // +1 added ONCE at the end
+ 
+    cout << ans << "\n";
+}
+
+🎯 Final Note to Remember
+Always cut at the largest gaps — classic greedy grouping problem.
+
+Leftover (small) gaps determine tape length.

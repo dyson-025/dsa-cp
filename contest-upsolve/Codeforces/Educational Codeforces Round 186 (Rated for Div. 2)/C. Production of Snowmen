@@ -1,0 +1,211 @@
+🧊 C. Production of Snowmen — COMPLETE FINAL NOTES
+1️⃣ Problem in one line
+
+You have 3 circular belts of snowballs (head, body, legs).
+You choose starting positions (i, j, k) and build n snowmen.
+Each snowman must satisfy:
+
+head < body < legs
+
+
+👉 Count how many (i, j, k) make ALL snowmen stable.
+
+2️⃣ Why brute force fails
+
+i, j, k → n³ choices
+
+For each choice, check n snowmen
+→ O(n⁴) ❌ too slow
+
+We need to reduce dimensions.
+
+3️⃣ FIRST KEY IDEA — Rotation trick 🔁
+
+Belts are circular.
+
+If you rotate all three belts together,
+you get the same snowmen, only in different order.
+
+So:
+
+(i, j, k) ≡ (i-(j-1), 1, k-(j-1))
+
+🔥 Conclusion
+
+We can fix j = 0 (or j = 1) and:
+
+Count valid (i, k)
+
+Multiply final answer by n
+
+This removes one loop.
+
+4️⃣ Problem after fixing j
+
+Now we only need:
+
+A[i+t] < B[t] < C[k+t]   for all t
+
+5️⃣ SECOND KEY IDEA — Independence 🧠 (MOST IMPORTANT)
+
+Look carefully:
+
+i affects only:
+
+A[i+t] < B[t]
+
+
+k affects only:
+
+B[t] < C[k+t]
+
+
+🔥 i and k do NOT affect each other
+
+So instead of checking pairs (i, k):
+
+✔ Count valid i
+✔ Count valid k
+✔ Multiply
+
+6️⃣ What is a “valid i”?
+
+Fix j = 0.
+
+i is valid if for ALL positions:
+
+A[i+t] < B[t]
+
+
+If even one position fails, that i is bad.
+
+7️⃣ What is a “valid k”?
+
+Similarly, k is valid if for ALL positions:
+
+B[t] < C[k+t]
+
+8️⃣ Final counting formula ✅
+
+Let:
+
+goodI = number of valid i
+
+goodK = number of valid k
+
+Then:
+
+answer = goodI × goodK × n
+
+
+Why × n?
+→ Because j can be any rotation, all equivalent.
+
+9️⃣ Complexity (why this passes)
+
+Checking one shift = O(n)
+
+Total shifts = 2n
+
+Total = O(n²) per test case ✅
+Given total n ≤ 5000, this is safe.
+
+🔟 Tiny example (intuition lock 🔒)
+A = [1, 2]
+B = [3, 4]
+C = [5, 4]
+
+
+Valid i:
+
+i = 0 → OK
+
+i = 1 → OK
+→ goodI = 2
+
+Valid k:
+
+k = 0 → FAIL
+
+k = 1 → OK
+→ goodK = 1
+
+Answer:
+
+2 × 1 × 2 = 4
+
+1️⃣1️⃣ FINAL CLEAN C++ CODE (EDITORIAL STYLE)
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+
+    while (t--) {
+        int n;
+        cin >> n;
+
+        vector<int> A(n), B(n), C(n);
+        for (int &x : A) cin >> x;
+        for (int &x : B) cin >> x;
+        for (int &x : C) cin >> x;
+
+        int goodI = 0, goodK = 0;
+
+        // Count valid i (A vs B)
+        for (int i = 0; i < n; i++) {
+            bool ok = true;
+            for (int t = 0; t < n; t++) {
+                if (A[(i + t) % n] >= B[t]) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (ok) goodI++;
+        }
+
+        // Count valid k (B vs C)
+        for (int k = 0; k < n; k++) {
+            bool ok = true;
+            for (int t = 0; t < n; t++) {
+                if (B[t] >= C[(k + t) % n]) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (ok) goodK++;
+        }
+
+        long long answer = 1LL * goodI * goodK * n;
+        cout << answer << "\n";
+    }
+
+    return 0;
+}
+
+1️⃣2️⃣ ONE-LINE MEMORY TRICK 🧠
+
+Fix the middle belt.
+Slide left → count good i.
+Slide right → count good k.
+Multiply and rotate.
+
+🏆 Why this problem is GOLD
+
+This single problem teaches you:
+
+Circular arrays
+
+Rotation equivalence
+
+Dimension reduction
+
+Independent constraints
+
+Turning n³ → n²
+
+This is ~1500–1600 CF rating thinking.

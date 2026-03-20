@@ -1,0 +1,122 @@
+✅ Maximal AND — Final Notes
+🎯 Problem Summary
+link: https://codeforces.com/problemset/problem/1669/H
+You have an array of integers and you can perform at most k operations.
+
+One operation = choose an index i and set any bit j (0 ≤ j ≤ 30) in a[i] to 1.
+
+Goal:
+Maximize
+
+a1 & a2 & a3 & ... & an
+
+
+after at most k operations.
+
+💡 Key Insight
+
+For a bit to appear in the final AND:
+
+That bit must be 1 in ALL array elements
+
+If even 1 number has the bit = 0, the AND result's bit = 0.
+
+So we try to force as many high bits to 1 in all numbers as possible.
+
+🧠 Strategy
+
+For each bit b from 30 down to 0:
+
+Count how many numbers already have bit b = 1.
+
+Let:
+
+need = n - count 
+
+
+(how many numbers need this bit to be set)
+
+If need <= k
+→ we can make all elements have that bit
+→ include this bit in the answer
+→ decrease k by need
+
+Otherwise, skip that bit.
+
+We greedily take highest bits first because they contribute the most to the value.
+
+🔍 Example
+Input:
+n = 3, k = 2
+a = [2, 1, 1]
+
+
+Binary:
+
+010
+001
+001
+
+
+Try bit 1 (value 2):
+
+Already set in 1 number → need 2 ops
+
+k = 2 → possible → add bit → k = 0 → result = 2
+
+Try bit 0:
+
+Need 3 ops, k = 0 → skip
+
+Final AND = 2
+
+✅ Final Code (C++ Clean)
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while(t--){
+        long long n, k;
+        cin >> n >> k;
+        vector<long long> a(n);
+        for(auto &x : a) cin >> x;
+
+        long long ans = 0;
+
+        for(int bit = 30; bit >= 0; bit--){
+            long long cnt = 0;
+            for(long long x : a){
+                if(x & (1LL << bit)) cnt++;
+            }
+            long long need = n - cnt;
+
+            if(need <= k){
+                ans |= (1LL << bit);
+                k -= need;
+            }
+        }
+
+        cout << ans << "\n";
+    }
+}
+
+🧾 Time Complexity
+O(n * 31)
+
+
+Fast enough for constraints.
+
+📎 Takeaways
+
+AND requires bit to be set in all numbers
+
+We can only add bits, not remove
+
+Greedy from highest bit → lowest bit
+
+Count how many fixes needed per bit

@@ -1,0 +1,203 @@
+🧾 B. The Curse of the Frog — Notes
+🧩 Problem Essence
+
+Each jump type i:
+
+Normal jump → forward ai
+
+Every bi-th use → rollback ci first
+
+Goal:
+👉 Reach position ≥ x
+👉 Minimize rollbacks
+
+🚨 Constraint Signal
+x ≤ 1e18
+
+
+So:
+❌ No DP on position
+❌ No BFS simulation
+✅ Math / Greedy / Cycle analysis
+
+🧠 Core Intuition
+
+Movement happens in 2 phases:
+
+🟢 Phase 1 — Free Jumps
+
+Before first rollback:
+You can use each jump type:
+
+bi - 1 times
+
+
+Distance gained free:
+
+ai * (bi - 1)
+
+
+Since free → take from ALL types.
+
+Total free distance:
+
+start = Σ ai (bi - 1)
+
+🔴 Phase 2 — Rollback Cycles
+
+After first rollback:
+Pattern repeats:
+
+bi jumps → 1 rollback
+
+
+Net gain per rollback cycle:
+
+gain_i = ai * bi - ci
+
+⭐ Critical Insight
+
+After free phase →
+Always use jump type with maximum gain per rollback.
+
+Let:
+
+m = max(ai * bi - ci)
+
+
+Because:
+More gain per rollback → fewer rollbacks needed.
+
+🧮 Final Math
+
+Remaining distance after free phase:
+
+rem = x - start
+
+Case 1
+rem <= 0
+
+
+Answer:
+
+0 rollbacks
+
+Case 2
+m <= 0
+
+
+Meaning:
+After rollback → no forward progress
+
+Answer:
+
+-1
+
+Case 3
+Answer = ceil(rem / m)
+
+📌 Final Formula Summary
+start = Σ ai (bi - 1)
+m = max(ai bi - ci)
+
+rem = x - start
+
+if rem <= 0 → 0
+else if m <= 0 → -1
+else → ceil(rem / m)
+
+💻 Code (Clean CF Style)
+#include <bits/stdc++.h>
+using namespace std;
+
+#define int long long
+
+void solve() {
+    int n, x;
+    cin >> n >> x;
+
+    vector<int> a(n), b(n), c(n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> a[i] >> b[i] >> c[i];
+    }
+
+    int start = 0;          // total free distance
+    int mx = LLONG_MIN;     // best gain per rollback
+
+    for (int i = 0; i < n; i++) {
+        start += a[i] * (b[i] - 1);
+        mx = max(mx, a[i] * b[i] - c[i]);
+    }
+
+    int rem = x - start;
+
+    if (rem <= 0) {
+        cout << 0;
+        return;
+    }
+
+    if (mx <= 0) {
+        cout << -1;
+        return;
+    }
+
+    cout << (rem + mx - 1) / mx;
+}
+
+signed main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        solve();
+        cout << "\n";
+    }
+}
+
+🧠 Why Taking All Free Jumps Works
+
+Because:
+
+No rollback cost
+
+Only increases distance
+
+No downside
+
+So always optimal.
+
+🧠 Why Only Best Cycle After
+
+Because rollback = expensive
+So want:
+
+Max distance / rollback
+
+
+Classic efficiency optimization.
+
+🔥 Pattern Recognition
+
+When you see:
+✅ Huge target (1e18)
+✅ Repeating penalty
+✅ Want minimum penalty count
+✅ Periodic behavior
+
+Think:
+👉 Free phase + Best cycle gain
+
+🧊 Mental One-Liner
+Take all free distance
+Then use best gain-per-rollback cycle
+
+⭐ Difficulty Tags
+
+Greedy Math Optimization
+
+Cycle Gain Analysis
+
+Efficiency Maximization

@@ -1,0 +1,149 @@
+🧠 Problem Summary
+
+You are given:
+
+Array a[1..n]
+
+Integer k
+
+Count indices i such that:
+
+2^0 * a[i] < 2^1 * a[i+1] < 2^2 * a[i+2] < ... < 2^k * a[i+k]
+
+
+Equivalently:
+
+a[i] < 2*a[i+1] < 4*a[i+2] < ... < 2^k * a[i+k]
+
+
+Subarray length = k+1
+
+Key Simplification (Core Trick)
+
+We only need to check adjacent condition:
+
+From:
+
+2^j * a[j] < 2^(j+1) * a[j+1]
+
+
+Divide both sides by 2^j:
+
+a[j] < 2 * a[j+1]
+
+
+So the whole condition reduces to:
+
+For all adjacent pairs in the window:
+a[x] < 2 * a[x+1]
+
+Nothing else matters.
+
+Final Reduced Problem
+
+Count how many windows of length k+1 have:
+
+a[i] < 2*a[i+1]
+a[i+1] < 2*a[i+2]
+...
+a[i+k-1] < 2*a[i+k]
+
+
+So we need k consecutive valid adjacent pairs.
+
+Optimal Strategy (Sliding Window / Streak)
+
+We track a streak of valid inequalities.
+
+Implementation (One Pass O(n))
+void solve() {
+    int n, k;
+    cin >> n >> k;
+    vector<int> v(n);
+    for(auto &it : v) cin >> it;
+
+    int cnt = 0;   // current valid streak
+    int ans = 0;
+
+    for(int i = 1; i < n; i++) {
+        if(2 * v[i] > v[i-1]) cnt++;
+        else cnt = 0;
+
+        if(cnt >= k) ans++;
+    }
+
+    cout << ans << endl;
+}
+
+Why This Works
+
+Let:
+
+good[i] = (a[i] < 2*a[i+1])
+
+
+We need:
+
+good[i] & good[i+1] & ... & good[i+k-1]
+
+
+That’s exactly k consecutive true.
+
+So:
+
+Count lengths of continuous true
+
+For each segment of length L
+
+It contributes max(0, L - k + 1) answers
+
+The code does this implicitly.
+
+Example Walkthrough
+
+Input:
+
+9 3
+3 9 12 3 9 12 3 9 12
+
+
+Check:
+
+3 < 18 ✔
+9 < 24 ✔
+12 < 6 ❌
+3 < 18 ✔
+9 < 24 ✔
+12 < 6 ❌
+...
+
+
+Streaks:
+
+2, 2
+
+
+But need k=3 → no segment long enough → answer = 0
+
+Complexity
+Metric	Value
+Time	O(n)
+Memory	O(1)
+Passes	easily
+Typical Mistakes
+Mistake	Why wrong
+Checking whole powers	overflow
+Using nested loops	TLE
+Using long long powers	unnecessary
+Pattern Recognition (Important)
+
+This is a classic "chain of inequalities" problem:
+
+Whenever you see:
+
+c0*a0 < c1*a1 < c2*a2 < ...
+
+
+Always try:
+
+Divide consecutive terms to reduce to local condition.

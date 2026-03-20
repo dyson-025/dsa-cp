@@ -1,0 +1,155 @@
+A Perfectly Balanced String – Notes
+Problem Statement
+
+A string s is called perfectly balanced if:
+
+For every non-empty substring t of s, and for any two characters u and v present in s, the difference in the frequency of u and v in t is at most 1.
+
+Input:
+
+t test cases (1 ≤ t ≤ 2×10⁴)
+
+Each string s (1 ≤ |s| ≤ 2×10⁵)
+
+Sum of |s| over all test cases ≤ 2×10⁵
+
+Output:
+
+"YES" if string is perfectly balanced
+
+"NO" otherwise
+
+Examples:
+
+Input	Output
+aba	YES
+abb	NO
+abc	YES
+aaaaa	YES
+abcba	NO
+Key Observations
+
+Let k = number of distinct characters in s.
+
+For the string to be perfectly balanced:
+
+Characters must repeat in blocks of length k in the same order.
+
+This ensures that all substrings maintain frequency differences ≤ 1.
+
+If the above condition is violated:
+
+Some substring will have a character appearing more than 1 extra time compared to another → fails the rule.
+
+Algorithm
+
+Count the number of distinct characters → k.
+
+Check pattern repetition:
+
+For each index i (0 ≤ i + k < n):
+
+If s[i] != s[i+k] → pattern broken → NOT perfectly balanced.
+
+If the entire string passes → perfectly balanced.
+
+Time Complexity: O(n) per test case
+Space Complexity: O(1) extra (ignoring input storage)
+
+C++ Implementation
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        string s;
+        cin >> s;
+
+        // Step 1: Count distinct characters
+        set<char> st(s.begin(), s.end());
+        int k = st.size();
+
+        // Step 2: Check repeating pattern of length k
+        bool pos = true;
+        for (int i = 0; i + k < s.size(); i++) {
+            if (s[i] != s[i + k]) {
+                pos = false;
+                break;
+            }
+        }
+
+        // Step 3: Print result
+        cout << (pos ? "YES" : "NO") << "\n";
+    }
+}
+
+Explanation of the Code
+
+Count Distinct Characters:
+
+set<char> st(s.begin(), s.end()) → stores unique characters in s.
+
+k = st.size() → number of distinct characters.
+
+Check Pattern Repetition:
+
+Loop through i from 0 to n-k.
+
+Compare s[i] with s[i+k].
+
+If any mismatch → string is not perfectly balanced.
+
+Output Result:
+
+If pattern holds → "YES"
+
+Else → "NO"
+
+Why This Works
+
+Any substring of length ≥ k should contain all characters exactly once per block.
+
+The pattern s[i] == s[i+k] ensures each block of size k repeats in the same order.
+
+This guarantees that no substring can have one character with frequency differing by more than 1.
+
+Example Walkthrough
+
+String: "abcabc"
+
+Distinct characters: a, b, c → k = 3
+
+Pattern check:
+
+i = 0 → s[0] == s[3] → a == a ✅
+
+i = 1 → s[1] == s[4] → b == b ✅
+
+i = 2 → s[2] == s[5] → c == c ✅
+
+→ Pattern holds → perfectly balanced → YES
+
+String: "abcba"
+
+Distinct characters: a, b, c → k = 3
+
+Pattern check:
+
+i = 0 → s[0] == s[3] → a != b ❌
+
+→ Pattern broken → NO
+
+✅ Summary:
+
+Count distinct characters → k
+
+Check pattern repetition with step k
+
+If pattern holds → YES
+
+Else → NO

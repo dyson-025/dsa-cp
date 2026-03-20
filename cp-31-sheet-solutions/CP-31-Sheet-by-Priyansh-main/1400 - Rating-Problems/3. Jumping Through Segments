@@ -1,0 +1,268 @@
+This is a very good CF problem — it mixes:
+
+Binary search on answer
+
+Greedy interval simulation
+
+Range shrinking / reachable set idea
+
+I’ll explain it like contest intuition → math model → algorithm → why binary search → implementation idea.
+
+🧠 Problem Intuition (Story Form)
+
+You start at:
+
+position = 0
+
+
+Every move:
+
+You can go to any point within distance k
+
+
+Meaning if current position = x
+Next position must be in:
+
+[x - k , x + k]
+
+
+BUT after move i → you must be inside segment:
+
+[li , ri]
+
+🔥 Real Meaning
+
+After each move → you don’t have exact position
+👉 You have a range of possible positions
+
+Because you can choose any valid point.
+
+💡 Key Idea — Maintain Reachable Range
+
+Let:
+
+[L, R] = all positions you can be at after move i
+
+
+Start:
+
+[L, R] = [0, 0]
+
+
+After one move with distance k:
+You can reach:
+
+[L-k , R+k]
+
+
+But must be inside segment:
+
+[li , ri]
+
+
+So new range:
+
+L = max(li, L-k)
+R = min(ri, R+k)
+
+
+If:
+
+L > R
+
+
+👉 Impossible.
+
+🧠 Why This Works
+
+Because from any valid previous position, you can reach ±k.
+Union of all possibilities = expanded interval.
+
+Then segment restriction cuts it.
+
+🚀 Main Goal
+
+Find minimum k such that simulation succeeds.
+
+💥 Why Binary Search on k?
+
+If level possible with k →
+Then also possible with bigger k.
+
+Because bigger jump = more freedom.
+
+So feasibility is:
+
+k small → fail
+k bigger → maybe success
+k even bigger → always success
+
+
+👉 Monotonic → Binary search!
+
+📦 Final Algorithm
+
+For each test case:
+
+Step 1 — Binary search k
+low = 0
+high = 1e9
+
+Step 2 — Check if given k works
+
+Simulate range transitions.
+
+🧾 Check Function
+L = 0
+R = 0
+
+for each segment i:
+    L = max(li, L-k)
+    R = min(ri, R+k)
+
+    if L > R:
+        return false
+
+return true
+
+🧮 Complexity
+
+Check = O(n)
+Binary search = ~30 iterations
+
+Total:
+
+O(n log 1e9)
+≈ 30 * n
+
+
+Given total n ≤ 2e5 → FAST.
+
+⭐ Example Visual
+
+Suppose:
+
+Segment 1 = [3,8]
+Segment 2 = [10,18]
+Segment 3 = [6,11]
+
+
+k = 5
+
+Start:
+
+[0,0]
+
+
+Move 1:
+
+[-5,5]
+Intersect [3,8]
+→ [3,5]
+
+
+Move 2:
+
+[-2,10]
+Intersect [10,18]
+→ [10,10]
+
+
+Move 3:
+
+[5,15]
+Intersect [6,11]
+→ [6,11]
+
+
+Success.
+
+🧑‍💻 C++ Code (Clean Version)
+#include <bits/stdc++.h>
+using namespace std;
+
+bool can(long long k, vector<pair<long long,long long>>& seg) {
+    long long L = 0, R = 0;
+
+    for (auto &s : seg) {
+        long long l = s.first;
+        long long r = s.second;
+
+        L = max(l, L - k);
+        R = min(r, R + k);
+
+        if (L > R) return false;
+    }
+    return true;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+
+        vector<pair<long long,long long>> seg(n);
+        for (int i = 0; i < n; i++) {
+            cin >> seg[i].first >> seg[i].second;
+        }
+
+        long long lo = 0, hi = 1e9, ans = hi;
+
+        while (lo <= hi) {
+            long long mid = (lo + hi) / 2;
+            if (can(mid, seg)) {
+                ans = mid;
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
+        }
+
+        cout << ans << "\n";
+    }
+}
+
+🧠 Contest Thinking Pattern
+
+If you see:
+
+Minimum k → binary search
+
+Movement with range → interval simulation
+
+Can move anywhere → maintain reachable interval
+
+🔥 Mental Shortcut
+
+This is basically:
+
+Range DP compressed into greedy interval update
+
+⭐ Why Greedy Works
+
+Because:
+We only care about:
+
+Can we reach SOME point in next segment?
+
+
+Not exact point.
+
+🚀 Pattern Name (Very Important)
+
+You should remember this pattern as:
+
+👉 Binary Search + Reachable Interval Simulation
+
+Used in:
+
+Movement problems
+
+Jump constraints
+
+Range DP optimization

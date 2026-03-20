@@ -1,0 +1,193 @@
+🧾 B. Prinzessin der Verurteilung — Notes
+link: https://codeforces.com/problemset/problem/1536/B
+🧠 Problem Understanding
+
+We are given a string s of lowercase letters.
+We need to find the MEX of the string — the shortest string that does not appear as a contiguous substring in s.
+If multiple such strings exist, pick the lexicographically smallest one.
+
+📘 Definitions
+
+Substring: A contiguous sequence of characters from the string.
+
+Example: "abc" has substrings "a", "b", "c", "ab", "bc", "abc".
+
+MEX (Minimum Excluded):
+The shortest string not appearing as a substring.
+
+🧩 Examples
+Example 1:
+
+s = "abc"
+
+→ Single letters present: a, b, c
+→ Missing single letter: "d" ✅
+MEX = "d"
+
+Example 2:
+
+s = "qaabzwsxedcrfvtgbyhnujmiklop"
+
+All 1-letter substrings 'a'–'z' appear.
+
+Check 2-letter substrings:
+
+"aa" ✅ present
+
+"ab" ✅ present
+
+"ac" ❌ missing
+✅ MEX = "ac"
+
+Example 3:
+
+s = "aannttoonn"
+
+→ Missing "b" immediately
+✅ MEX = "b"
+
+⚙️ Approach / Logic
+
+We check substrings in increasing length order (1 → 2 → 3).
+
+Length 1:
+
+Check if all 'a' to 'z' appear.
+
+If any letter is missing → it’s the MEX.
+
+Length 2:
+
+Generate all 2-letter substrings from s (s[i:i+2]).
+
+Compare with all possible "aa" to "zz".
+
+First missing one is MEX.
+
+Length 3:
+
+Generate all 3-letter substrings.
+
+Compare with "aaa" to "zzz".
+
+First missing one is MEX.
+
+Because n ≤ 1000, we’ll always find MEX ≤ length 3.
+
+⏱️ Complexity Analysis
+Step	Time Complexity	Explanation
+Generate substrings	O(n) per length	Only 1000 max
+Check 1-letter	26 checks	Constant
+Check 2-letter	26² = 676 checks	Constant
+Check 3-letter	26³ = 17576 checks	Constant
+Total per test	O(1) practically	Very fast
+
+✅ Efficient even for 1000 test cases.
+
+💡 Why it works
+
+To contain all possible 3-letter combinations,
+a string would need ≥ 26³ + 2 = 17,578 characters.
+
+Since n ≤ 1000, such a string cannot exist.
+
+Hence, MEX will always have length ≤ 3.
+
+So brute-force on small fixed size is actually optimal.
+
+🧰 Implementation (C++ Version)
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        string s;
+        cin >> n >> s;
+
+        // Check 1-letter
+        set<string> sub;
+        for (int i = 0; i < n; i++)
+            sub.insert(s.substr(i, 1));
+        bool found = false;
+        for (char c = 'a'; c <= 'z'; c++) {
+            string t(1, c);
+            if (!sub.count(t)) {
+                cout << t << "\n";
+                found = true;
+                break;
+            }
+        }
+        if (found) continue;
+
+        // Check 2-letter
+        sub.clear();
+        for (int i = 0; i + 1 < n; i++)
+            sub.insert(s.substr(i, 2));
+        for (char a = 'a'; a <= 'z'; a++) {
+            for (char b = 'a'; b <= 'z'; b++) {
+                string t; t.push_back(a); t.push_back(b);
+                if (!sub.count(t)) {
+                    cout << t << "\n";
+                    found = true;
+                    break;
+                }
+            }
+            if (found) break;
+        }
+        if (found) continue;
+
+        // Check 3-letter
+        sub.clear();
+        for (int i = 0; i + 2 < n; i++)
+            sub.insert(s.substr(i, 3));
+        for (char a = 'a'; a <= 'z'; a++) {
+            for (char b = 'a'; b <= 'z'; b++) {
+                for (char c = 'a'; c <= 'z'; c++) {
+                    string t; t.push_back(a); t.push_back(b); t.push_back(c);
+                    if (!sub.count(t)) {
+                        cout << t << "\n";
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            if (found) break;
+        }
+    }
+}
+
+🧠 Key Takeaways
+
+The MEX of a string is shortest non-existing substring.
+
+Length ≤ 3 guaranteed due to alphabet size & input limit.
+
+So checking all "a" → "zzz" combinations is totally fine.
+
+This “brute-force” is actually the intended and optimal solution.
+
+🏁 Example I/O Recap
+
+Input
+
+3
+28
+qaabzwsxedcrfvtgbyhnujmiklop
+13
+cleanairactbd
+10
+aannttoonn
+
+
+Output
+
+ac
+f
+b

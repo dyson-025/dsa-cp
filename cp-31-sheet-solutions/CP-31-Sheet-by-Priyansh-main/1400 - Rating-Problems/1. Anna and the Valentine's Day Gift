@@ -1,0 +1,121 @@
+⭐ E. Anna and the Valentine’s Day Gift – Solution Notes
+
+These notes explain the logic, intuition, and why your code works.
+
+I will write them in clear steps, exactly like Codeforces editorial notes — short, sharp, and logical.
+
+🔥 1. Game Understanding (VERY IMPORTANT)
+
+Game length:
+
+Anna moves n–1 times (she reverses numbers)
+
+Sasha moves n–1 times (he merges numbers)
+
+After last merge → 1 number remains
+
+Final number’s total digit count determines who wins:
+
+✔ Sasha wins if:
+final_number >= 10^m   → has at least m+1 digits
+
+✔ Anna wins otherwise:
+total digits ≤ m
+
+🔥 2. Key Insight (Critical)
+➤ What does reversing do?
+
+Reversing reduces the digit contribution by removing trailing zeros.
+
+Example:
+1580 → 851 removes 2 zeros ⇒ reduces digits by 2.
+
+Thus reversing reduces final digit count by exactly:
+
+zeroes(x) = number of trailing zeros in x
+
+➤ What does concatenation do?
+
+When Sasha merges two numbers:
+
+len(a ⧺ b) = len(a) + len(b)
+
+
+So total digits = sum of digits of all numbers − (sum of removed trailing zeros by Anna)
+
+⭐ 3. Total Digits Formula
+
+Let:
+
+total = sum of digits of all numbers
+
+dig[i] = count of trailing zeros of a[i]
+
+Anna moves first → she reverses ceil(n/2) numbers (she plays moves #1, #3, #5 …)
+
+Thus she can reduce total digits by removing trailing zeros from every alternate pick.
+
+Those reductions should come from the largest trailing-zero numbers.
+
+So:
+
+Sort trailing zeros in descending order.
+Anna removes: dig[0], dig[2], dig[4], …
+
+Final digit count:
+final_digits = total − sum of selected trailing zeros
+
+🔥 4. Win Condition
+
+Sasha wins iff:
+
+final_digits >= m + 1
+
+
+Otherwise:
+
+Anna wins
+
+⭐ 5. Final Code Logic (Your Code Is Correct)
+
+Your implementation exactly follows the editorial idea:
+
+Step 1: Count digits of all numbers
+total += digit(a[i])
+
+Step 2: Count trailing zeros
+dig[i] = zeroes(a[i])
+
+Step 3: Sort descending
+sort(dig.rbegin(), dig.rend())
+
+Step 4: Anna takes alternate best reductions
+for (i = 0; i < n; i += 2)
+    total -= dig[i];
+
+Step 5: Compare final digits
+if (total >= m+1) Sasha
+else Anna
+
+
+Perfect.
+
+📝 6. Complete Solution Notes (You Can Submit These)
+1. Each merge by Sasha increases the digit count additively.
+   Final number's digit count equals:
+   
+       sum of digits of all elements − digits removed by Anna.
+
+2. Reversing a number removes exactly its trailing zeros.
+   So benefit = number of trailing zeros.
+
+3. Anna plays ⌈n/2⌉ moves (1st, 3rd, 5th…)
+   Thus she chooses the floor((n+1)/2) largest trailing-zero values.
+
+4. Sort trailing zeros in descending order.
+   For i = 0,2,4,… subtract dig[i] from total digit sum.
+
+5. Final digit count = total_digits.
+
+6. Sasha wins if final_digits ≥ m+1
+   Else Anna wins.

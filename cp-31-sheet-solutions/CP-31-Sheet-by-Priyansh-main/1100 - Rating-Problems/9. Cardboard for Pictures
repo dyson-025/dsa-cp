@@ -1,0 +1,151 @@
+🖼️ E. Cardboard for Pictures — Final Notes
+🔹 Problem Summary
+link: https://codeforces.com/problemset/problem/1850/E
+You have n square paintings,
+each of side s[i] cm.
+
+Each painting is mounted on a square cardboard having a border of width w on all sides.
+
+So cardboard side = s[i] + 2w.
+
+👉 Total cardboard area used:
+
+Total=∑𝑖=1𝑛(𝑠𝑖+2𝑤)2=𝑐Total=i=1∑n	​(si	​+2w)2=c
+
+Given all s[i] and total c, find integer w ≥ 1.
+
+🔹 Key Equation
+∑𝑖=1𝑛(𝑠𝑖+2𝑤)2=𝑐i=1∑n	​(si	​+2w)2=c
+
+Expand if you want intuition:
+
+∑(𝑠𝑖2+4𝑠𝑖𝑤+4𝑤2)=∑𝑠𝑖2+4𝑤∑𝑠𝑖+4𝑛𝑤2∑(si2	​+4si	​w+4w2)=∑si2	​+4w∑si	​+4nw2
+
+✅ This grows monotonically with w, so we can use binary search.
+
+🔹 Observation
+
+For small w, area is less than c.
+
+For large w, area is more than c.
+➡️ There’s a unique w where total == c.
+Hence binary search fits perfectly.
+
+🔹 Binary Search Steps
+
+Range: low = 1, high = 1e9 (safe upper bound)
+
+For each mid:
+
+Compute total = Σ (s[i] + 2*mid)^2
+
+Compare with c:
+
+If total == c → found answer
+
+If total < c → need larger w
+
+If total > c → need smaller w
+
+Print final w.
+
+🔹 Time Complexity
+
+Each check = O(n)
+
+Binary search ≈ O(log(1e9)) ≈ 30 steps
+
+Total per test: O(n log W)
+
+Works easily for n ≤ 2×10^5.
+
+🔹 Careful with Data Types
+
+(s[i] + 2w)^2 can overflow 64-bit.
+✅ Use __int128 (C++) or Python int (unlimited).
+
+🔹 C++ Code (clean & simple)
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        long long c;
+        cin >> n >> c;
+        vector<long long> s(n);
+        for (auto &x : s) cin >> x;
+
+        long long low = 1, high = 1e9, ans = -1;
+        while (low <= high) {
+            long long mid = (low + high) / 2;
+            __int128 total = 0;
+            for (auto x : s) {
+                __int128 val = x + 2 * mid;
+                total += val * val;
+                if (total > c) break;
+            }
+
+            if (total == c) {
+                ans = mid;
+                break;
+            } else if (total < c) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        cout << ans << "\n";
+    }
+    return 0;
+}
+
+🔹 Example Dry Run
+
+Input:
+
+3 50
+3 2 1
+
+
+Try w = 1
+
+(3+2)2+(2+2)2+(1+2)2=25+16+9=50
+✅
+(3+2)
+2
++(2+2)
+2
++(1+2)
+2
+=25+16+9=50✅
+
+→ Answer: w = 1
+
+🔹 Trick to Recognize This Pattern
+
+Whenever you see:
+
+“Find x such that sum(f(x)) = constant”
+and f(x) increases with x
+
+➡️ Binary search on x.
+
+🔹 Summary Table
+Symbol	Meaning
+n	number of paintings
+s[i]	side of i-th painting
+w	cardboard border width
+c	total cardboard area
+Formula	Σ (s[i] + 2w)² = c
+Technique	Binary Search
+Data Type	use __int128 for safety
+💥 Key Takeaway
+
+Hidden binary search pattern:
+Monotonic function + find point = constant → Binary Search!

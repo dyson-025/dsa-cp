@@ -1,0 +1,89 @@
+📝 NOTES — B. Shuffle
+Problem Summary
+
+You have an array of size n.
+
+Initially:
+
+a[x] = 1
+all other a[i] = 0
+
+
+You perform m operations.
+Each operation allows you to swap any two positions inside [l, r].
+
+Goal:
+
+For how many positions k is it possible that a[k] = 1 after all operations?
+
+⭐ Key Observation
+
+If a segment [l, r] touches the current interval where 1 can be located,
+then the entire intervals merge.
+
+Because inside [l, r], you can swap freely — so 1 can move anywhere in that segment.
+
+🔥 Core Idea (Very Important)
+
+We maintain the range [left, right] inside which 1 can possibly reach.
+
+Initially:
+
+left = right = x
+
+
+Every op gives a segment [l, r].
+
+If segment intersects with our current range in ANY of these ways:
+
+1. l <= left  <= r
+2. l <= right <= r
+3. left <= l  AND r <= right   (segment inside)
+4. l <= left AND r >= right    (segment covering)
+
+
+→ then the union happens:
+
+left = min(left, l)
+right = max(right, r)
+
+✔ Why this works
+
+Swapping inside [l, r] allows the 1 to move anywhere inside that segment.
+
+If this segment touches your current possible interval, then 1 can jump into the new segment, effectively expanding the possible zone.
+
+📌 Final Answer
+
+After all operations, the number of indices k where you can place 1 is:
+
+right - left + 1
+
+
+This is exactly the total reachable interval.
+
+⏱ Time Complexity
+O(m) per test
+m ≤ 100
+
+
+Very efficient.
+
+💯 Your Code Logic (Correct)
+if((x<=left && y>=left) || (x<=right && y>=right) || (left<=x && y<=right) || (x<=left && y>=right)) {
+    left=min({x,left,y,right});
+    right=max({x,right,y,left});
+}
+
+
+This checks all intersection types and merges correctly.
+
+📦 Final Notes Summary
+
+Track range [left, right] where 1 can be.
+
+Start at [x, x].
+
+For each [l, r], if it intersects current interval → merge.
+
+Final reach = right - left + 1.

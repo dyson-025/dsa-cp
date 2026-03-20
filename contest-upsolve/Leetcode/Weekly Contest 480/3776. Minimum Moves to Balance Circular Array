@@ -1,0 +1,172 @@
+🔍 Problem Restatement (Simple Words)
+
+People are sitting in a circle
+
+balance[i] = net balance of person i
+
+A move = transfer exactly 1 unit to left or right neighbor
+
+Goal: make all balances ≥ 0
+
+At most one person has negative balance initially
+
+Return minimum moves, else -1 if impossible.
+
+🧠 Key Observations
+1️⃣ Only ONE negative index exists
+
+So:
+
+Everyone else has 0 or positive balance
+
+All surplus must be routed towards that single deficit index
+
+This drastically simplifies the problem.
+
+2️⃣ Total sum check (VERY IMPORTANT)
+
+If
+
+sum(balance) < 0
+
+
+➡ Impossible, because you can’t create balance from nothing.
+
+✔ If sum ≥ 0 → solution may exist
+
+3️⃣ Cost depends on distance
+
+Sending 1 unit from distance d costs d moves
+
+Since the array is circular, distance is measured both left and right
+
+We must collect balance from nearest people first to minimize moves.
+
+💡 Core Idea (Greedy)
+
+Fix the negative index by pulling balance from neighbors,
+starting from distance 1, then 2, then 3, …
+
+Always take balance from closest available positions first.
+
+This is optimal because:
+
+Cost ∝ distance
+
+Greedy minimizes total distance × units transferred
+
+🧩 Step-by-Step Algorithm
+Step 1: Find total sum and negative index
+sum += balance[i]
+if balance[i] < 0 → idx = i
+
+
+If sum < 0 → return -1
+
+If no negative index → return 0
+
+Step 2: Expand outward from the negative index
+
+For distance d = 1 → ∞:
+
+Left neighbor = (idx - d + n) % n
+
+Right neighbor = (idx + d) % n
+
+Available balance:
+
+avail = balance[left] + balance[right]
+
+Step 3: Transfer balance
+
+Needed = -balance[idx]
+
+Can take = min(avail, needed)
+
+Cost added:
+
+moves += take * d
+
+
+Update:
+
+balance[idx] += take
+
+
+Stop when balance[idx] == 0
+
+✅ Final Code (Given Logic, Explained)
+class Solution {
+public:
+    long long minMoves(vector<int>& balance) {
+        long long sum = 0;
+        int n = balance.size();
+        int idx = -1;
+
+        // Step 1: Find total sum and negative index
+        for (int i = 0; i < n; i++) {
+            sum += balance[i];
+            if (balance[i] < 0) idx = i;
+        }
+
+        // Impossible case
+        if (sum < 0) return -1;
+
+        // Already balanced
+        if (idx == -1) return 0;
+
+        long long moves = 0;
+
+        // Step 2: Expand outward
+        for (long long d = 1; balance[idx] < 0; d++) {
+            long long left = (idx - d + n) % n;
+            long long right = (idx + d) % n;
+
+            long long avail = balance[left] + balance[right];
+            long long take = min(avail, -balance[idx]);
+
+            moves += take * d;
+            balance[idx] += take;
+        }
+
+        return moves;
+    }
+};
+
+🧪 Example Walkthrough
+Example 1
+balance = [5, 1, -4]
+idx = 2
+
+Distance	Source	Taken	Cost
+1	index 1	1	1
+2	index 0	3	6
+Total			4
+
+✔ Matches output
+
+⏱️ Time & Space Complexity
+
+Time: O(n)
+(Each index contributes at most once)
+
+Space: O(1)
+(In-place updates)
+
+❗ Important Pitfalls (Interview Gold)
+
+❌ Forgetting total sum check
+
+❌ Taking from far nodes before near ones
+
+❌ Ignoring circular indexing
+
+❌ Using BFS / simulation → TLE
+
+🎯 Why This Is Optimal
+
+Movement cost is linear in distance
+
+Greedy (closest first) minimizes weighted distance
+
+Single deficit ensures no conflicts

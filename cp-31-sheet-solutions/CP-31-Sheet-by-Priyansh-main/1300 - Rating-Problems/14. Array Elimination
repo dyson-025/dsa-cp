@@ -1,0 +1,114 @@
+✅ Problem Understanding
+link: https://codeforces.com/problemset/problem/1601/A
+You're given an array a[1…n] of non-negative integers.
+
+You choose a fixed k (1 ≤ k ≤ n).
+
+Operation (Elimination with k)
+
+Pick k distinct indices i1, i2, …, ik
+
+Compute x = a[i1] & a[i2] & ... & a[ik] (bitwise AND)
+
+Subtract x from each selected element
+
+Goal ✅: After finite operations, make the entire array 0.
+
+🧠 Key Insight
+
+Bitwise AND behaves as:
+
+A bit becomes 1 in x only when all chosen elements have that bit = 1
+
+So we only remove a bit when at least k numbers share that bit simultaneously
+
+Thus, for each bit position,
+
+count_of_this_bit % k == 0   must hold
+
+
+Otherwise, leftover bits remain and can't be cleared → impossible to make all zeros.
+
+So, for each k, check:
+
+For every bit, (count_of_set_bits_in_that_bit) % k == 0
+
+✨ Example Thought
+
+Array: [4, 4, 4, 4] → binary 100
+
+Each bit-1 count = 4.
+
+So valid k are divisors of 4 → 1, 2, 4.
+
+✅ Simplified Plan
+
+Count how many times each bit (0 to 30) is set across all numbers
+
+For each k = 1..n
+
+Check if every bit count is divisible by k
+
+If yes → print k
+
+📌 Time Complexity
+
+Counting bits: O(n * 30)
+
+Checking divisibility for each k: O(n * 30)
+
+n total across tests ≤ 200k → fast enough
+
+✅ Clean C++ Code
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while(t--){
+        int n;
+        cin >> n;
+        vector<int> a(n);
+        for(int &x: a) cin >> x;
+
+        vector<int> bit(31, 0);
+
+        // Count set bits at each position
+        for(int x : a) {
+            for(int b = 0; b < 31; b++) {
+                if(x & (1 << b)) bit[b]++;
+            }
+        }
+
+        // Find all valid k
+        for(int k = 1; k <= n; k++){
+            bool ok = true;
+            for(int cnt : bit){
+                if(cnt % k != 0){
+                    ok = false;
+                    break;
+                }
+            }
+            if(ok) cout << k << " ";
+        }
+        cout << "\n";
+    }
+}
+
+✨ Important Notes / Observations
+Concept	Explanation
+Bitwise AND &	Only keeps bits common in all chosen numbers
+Goal	Reduce bits until all become 0
+Necessity	Each bit count must be divisible by k
+Why at least one k exists?	k = 1 always works (subtract each individually)
+🎯 Tips for Interview / Contest
+
+If a bit is set m times, we must remove it in groups of k
+
+So m % k == 0
+
+Common pattern: bit frequency divisibility

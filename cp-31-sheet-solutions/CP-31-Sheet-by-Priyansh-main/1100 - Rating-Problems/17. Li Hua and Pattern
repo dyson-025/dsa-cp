@@ -1,0 +1,134 @@
+📘 Li Hua and Pattern – Notes
+🧩 Problem Statement
+link: https://codeforces.com/problemset/problem/1797/B
+You are given an n × n matrix (pattern) with cells colored red (1) or blue (0).
+You can perform exactly k operations, and in each operation:
+
+Choose any cell, and flip its color (0 → 1 or 1 → 0).
+
+Your goal:
+After performing exactly k operations, the pattern should look the same as its 180° rotation.
+
+🔁 180° Rotation Condition
+
+After 180° rotation,
+for every cell (i, j), it must hold that:
+
+
+v[i][j]=v[n−1−i][n−1−j]
+
+This means the cell and its opposite cell must have the same value.
+
+⚙️ Approach
+Step 1: Count mismatched pairs
+
+For each pair of symmetric cells (i, j) and (n-1-i, n-1-j):
+
+If v[i][j] != v[n-1-i][n-1-j],
+→ they form a mismatch pair → needs 1 flip to fix.
+
+Let cnt = total mismatched pairs.
+
+(Each mismatch counted twice → divide by 2 at the end.)
+
+Step 2: Decide possibility
+
+Minimum operations required to make it symmetric = cnt.
+
+You can use extra moves (k - cnt) only if:
+
+They don’t destroy symmetry, and
+
+You use exactly k operations.
+
+✅ Condition for "YES"
+Case	Condition	Explanation
+1️⃣	cnt > k	❌ Not enough operations
+2️⃣	(k - cnt) even	✅ You can flip symmetric pairs twice
+3️⃣	n odd	✅ Center cell allows one extra flip
+📘 Final Decision Rule
+
+If cnt>k⇒NO
+
+Else if (k−cnt)%2==0 or n%2==1⇒YES
+Else 
+⇒
+NO
+Else ⇒NO
+💻 Code Implementation
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n, k;
+        cin >> n >> k;
+        vector<vector<int>> v(n, vector<int>(n));
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                cin >> v[i][j];
+
+        int cnt = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                int ni = n - 1 - i, nj = n - 1 - j;
+                if (v[i][j] != v[ni][nj]) cnt++;
+            }
+        }
+
+        cnt /= 2; // each mismatch counted twice
+
+        if (cnt > k) cout << "NO\n";
+        else if ((k - cnt) % 2 == 0 || n % 2 == 1) cout << "YES\n";
+        else cout << "NO\n";
+    }
+}
+
+🧠 Example
+
+Input:
+
+3
+4 0
+1 1 1 1
+0 0 0 1
+1 0 1 0
+1 1 1 1
+4 3
+1 0 1 1
+1 0 0 0
+0 1 0 1
+1 1 0 1
+5 4
+0 0 0 0 0
+0 1 1 1 1
+0 1 0 0 0
+1 1 1 1 1
+0 0 0 0 0
+
+
+Output:
+
+NO
+YES
+YES
+
+🧾 Key Notes Summary
+Term	Meaning
+cnt	Number of mismatched symmetric pairs
+k	Total allowed operations
+n	Matrix size
+Rotation Symmetry	v[i][j] = v[n-1-i][n-1-j]
+Even (k - cnt)	Symmetry preserved
+Odd n	Center cell allows extra flip
+Time Complexity	O(n²)
+
+✅ In short:
+
+Make it symmetric first (needs cnt ops).
+Use leftover moves smartly — even leftovers always fine, odd leftover fine only for odd n.

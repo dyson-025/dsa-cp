@@ -1,0 +1,179 @@
+🧾 2193E — Product Queries (Proper Notes)
+🧩 Problem Summary
+
+Given array a (size = n).
+You can pick elements multiple times.
+
+For each i (1 → n) find:
+👉 Minimum elements needed so product = i
+👉 If impossible → -1
+
+At least 1 element must be chosen.
+
+🔑 Key Observations
+✅ Repetition Allowed
+
+So frequency doesn’t matter — only presence matters.
+
+✅ If number x exists in array
+
+Then:
+
+dp[x] = 1
+
+
+Because single element can form product.
+
+✅ Any number can be built using factorization
+
+If:
+
+x = y × z
+
+
+Then:
+
+dp[x] = dp[y] + dp[z]
+
+🧠 DP Definition
+dp[x] = minimum elements needed to make product = x
+
+
+Initialize:
+
+dp[x] = INF (1e9)
+
+⚡ Base Case
+
+If array contains value v:
+
+dp[v] = 1
+
+🔄 Transition
+
+For each divisor pair:
+
+If:
+
+j = i × (j/i)
+
+
+Then:
+
+dp[j] = min(dp[j], dp[i] + dp[j/i])
+
+🧮 Implementation Trick
+
+Instead of finding divisors →
+Loop multiples:
+
+for i from 1 → n
+    for j = i, 2i, 3i … ≤ n
+        dp[j] = min(dp[j], dp[i] + dp[j/i])
+
+📦 Final Step
+
+If:
+
+dp[x] == INF
+
+
+Then:
+
+answer = -1
+
+⏱ Complexity
+O(n log n)
+
+
+Because harmonic series of multiples.
+
+💡 Why This Works
+
+Because every number can be broken into:
+
+x = factor1 × factor2
+
+
+We try all possible splits → take minimum.
+
+🟢 Example
+
+Array:
+
+2 3
+
+
+Initial:
+
+dp[2]=1
+dp[3]=1
+
+
+Build:
+
+dp[4] = dp[2]+dp[2] = 2
+dp[6] = dp[2]+dp[3] = 2
+dp[8] = dp[2]+dp[4] = 3
+
+🔴 Edge Cases
+❌ If 1 not in array
+
+Then:
+
+dp[1] = INF → answer = -1
+
+❌ If number has factor not buildable
+
+Then remains impossible.
+
+🧠 Memory Trick (Very Important)
+
+👉 This is Multiplicative Coin Change
+
+Instead of:
+
+sum = coin1 + coin2
+
+
+We do:
+
+product = factor1 × factor2
+
+🏁 Code Template (Contest Memory)
+dp[x] = INF
+
+for each value v in array:
+    dp[v] = 1
+
+for i = 1 → n:
+    for j = i → n step i:
+        dp[j] = min(dp[j], dp[i] + dp[j/i])
+
+🚨 Common Mistakes
+
+❌ Forget to initialize dp with INF
+❌ Use frequency instead of presence
+❌ Forget dp[a[i]] = 1
+❌ Try greedy factor picking
+❌ Try prime factorization per query (TLE risk)
+
+🧊 Alternative View
+
+Graph shortest path:
+
+Nodes = numbers
+Edge = multiply by allowed number
+Cost = +1 step
+
+Find shortest path from base numbers.
+
+⭐ Difficulty Tag (For Your Brain)
+
+Multiplicative DP
+
+Number Theory + DP
+
+Divisor Optimization
+
+Harmonic Loop Trick

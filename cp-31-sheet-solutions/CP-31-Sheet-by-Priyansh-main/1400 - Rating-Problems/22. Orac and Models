@@ -1,0 +1,177 @@
+🧠 Problem Summary
+
+You are given:
+
+n models, indexed 1..n
+
+sizes s[i]
+
+You must choose a sequence of indices:
+
+i1 < i2 < i3 < ... < ik
+
+
+Such that for every adjacent pair:
+
+i(j+1) % i(j) == 0 (divisible indices)
+
+s[i(j+1)] > s[i(j)] (strictly increasing sizes)
+
+Goal: maximize k
+
+Graph Interpretation (Key Insight)
+
+This is a DAG (Directed Acyclic Graph):
+
+Node = index i
+
+Edge: i → j if
+j % i == 0 and s[j] > s[i]
+
+We need the longest path in this DAG.
+
+State Definition
+
+Let:
+
+dp[i] = longest beautiful sequence starting at index i
+
+
+Answer:
+
+max(dp[i]) for all i
+
+1️⃣ Recursive DP (Top-Down)
+Code
+vector<int> dp;
+
+int getmax(int i, vector<int>& v) {
+    if(dp[i] != -1) return dp[i];
+
+    int best = 1;
+    for(int j = 2*i; j < v.size(); j += i) {
+        if(v[j] > v[i]) {
+            best = max(best, 1 + getmax(j, v));
+        }
+    }
+    return dp[i] = best;
+}
+
+void solve() {
+    int n;
+    cin >> n;
+
+    vector<int> v(n+1);
+    for(int i = 1; i <= n; i++) cin >> v[i];
+
+    dp.assign(n+1, -1);
+
+    int ans = 1;
+    for(int i = 1; i <= n; i++) {
+        ans = max(ans, getmax(i, v));
+    }
+
+    cout << ans << endl;
+}
+
+How it works
+
+Try all multiples of i
+
+Recursively compute best path
+
+Memoize results in dp
+
+2️⃣ Tabulation (Bottom-Up) — Best Version
+Code (Recommended)
+void solve() {
+    int n;
+    cin >> n;
+
+    vector<int> v(n+1);
+    for(int i = 1; i <= n; i++) cin >> v[i];
+
+    vector<int> dp(n+1, 1);
+    int maxi = 1;
+
+    for(int i = n; i >= 1; i--) {
+        for(int j = 2*i; j <= n; j += i) {
+            if(v[j] > v[i]) {
+                dp[i] = max(dp[i], 1 + dp[j]);
+            }
+        }
+        maxi = max(maxi, dp[i]);
+    }
+
+    cout << maxi << endl;
+}
+
+Why Bottom-Up Is Better
+Recursion	Tabulation
+Stack risk	No recursion
+Hard to debug	Clean
+Same speed	Same speed
+Uses memo	Uses dp array
+
+Both are O(n log n).
+
+Time Complexity Proof
+
+For every i, we visit:
+
+n/i multiples
+
+
+Total work:
+
+∑
+𝑖
+=
+1
+𝑛
+𝑛
+𝑖
+=
+𝑛
+log
+⁡
+𝑛
+i=1
+∑
+n
+	​
+
+i
+n
+	​
+
+=nlogn
+
+Works for n = 100000 easily.
+
+Important Observations
+1. This is NOT LIS
+
+Because index order is fixed and transitions depend on divisibility.
+
+2. This is Longest Path in DAG
+
+Classic DP on graph.
+
+3. Brute force = TLE
+
+Nested loops over all pairs → O(n²) ❌
+
+Mental Model (Exam Gold)
+
+"Whenever transitions depend on divisibility → think for (j = 2*i; j <= n; j += i)"
+
+This trick appears in:
+
+Sieve
+
+Divisor DP
+
+Multiples graph
+
+CF problems a lot

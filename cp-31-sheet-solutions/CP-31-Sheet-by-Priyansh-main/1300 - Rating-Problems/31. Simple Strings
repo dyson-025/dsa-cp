@@ -1,0 +1,146 @@
+🧩 Problem Summary
+link: https://codeforces.com/problemset/problem/665/C
+You’re given a string s of lowercase letters.
+We must change the minimum number of characters so that no two adjacent characters are the same.
+
+A string is simple if:
+
+∀ i: s[i] != s[i+1]
+
+
+You can change characters arbitrarily, but must use lowercase English letters only.
+
+🎯 Goal
+
+Make the string simple with minimum changes.
+
+🧠 Intuition & Logic
+
+If two consecutive letters are equal → that’s bad, we must change one of them.
+
+Let’s say:
+
+s = a a b
+
+
+At index 1 (0-based):
+
+s[0] = a, s[1] = a → conflict
+
+Change s[1] to something else.
+
+But be careful:
+
+It must not equal s[i-1] (previous char)
+
+It must not equal s[i+1] (next char) — otherwise we create a new duplicate later.
+
+So for each position i (starting from left):
+
+If s[i] == s[i-1], change s[i].
+
+Choose the smallest character c ∈ 'a'..'z' such that:
+
+c != s[i-1] and (i+1 < n ? c != s[i+1] : true)
+
+
+This guarantees minimal and safe replacement.
+
+⚙️ Implementation Strategy
+
+Iterate from i = 1 to n-1
+
+Whenever s[i] == s[i-1]:
+
+Pick replacement char from 'a'..'z'
+
+Skip chars that equal s[i-1] or s[i+1]
+
+Replace s[i]
+
+🧮 Complexity
+Operation	Time
+Scan string	O(n)
+Each replacement check (constant alphabet 26)	O(1)
+✅ Total	O(n)
+
+Efficient even for |s| ≤ 2×10⁵.
+
+✅ Full C++ Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+#define fast_io ios::sync_with_stdio(false); cin.tie(nullptr);
+#define ll long long
+#define endl '\n'
+
+void solve() {
+    string s;
+    cin >> s;
+    int n = s.size();
+
+    for (int i = 1; i < n; i++) {
+        if (s[i] == s[i - 1]) {
+            for (char c = 'a'; c <= 'z'; c++) {
+                if (c != s[i - 1] && (i + 1 == n || c != s[i + 1])) {
+                    s[i] = c;
+                    break;
+                }
+            }
+        }
+    }
+
+    cout << s << endl;
+}
+
+int main() {
+    fast_io;
+    solve();
+    return 0;
+}
+
+🧩 Example Walkthrough
+Example 1
+Input:  aab
+
+
+Steps:
+
+i = 1 → s[1] == s[0] ('a')
+   → Try c='a' ❌ same as prev
+   → Try c='b' ✅ != 'a' and != next ('b')
+Result: "bab"
+
+
+✅ Output → bab
+
+Example 2
+Input:  caaab
+
+
+Steps:
+
+i=1: 'a' == 'c'? ❌
+i=2: 'a' == 'a'? ✅ change
+   Try 'a' ❌ same
+   Try 'b' ✅ (next is 'a')
+→ c a b a b
+i=3: 'a' == 'b'? ❌
+i=4: ok
+
+
+✅ Output → cabab
+
+Example 3
+Input: zscoder
+
+
+No duplicates → unchanged ✅
+Output → zscoder
+
+💡 Key Insights to Remember
+Concept	Explanation
+Greedy fix left-to-right	ensures minimal replacements
+Only check 3 letters	current, prev, next
+Constant alphabet	ensures O(n) total
+Any valid solution	acceptable (not unique)

@@ -1,0 +1,144 @@
+🧠 Problem Summary
+LINK: https://codeforces.com/contest/1904/problem/B
+You’re given an array a of n positive integers.
+
+You pick one element a[i], set your score = a[i].
+
+Then, as long as your score ≥ some element x,
+you can remove x, increase your score by x, and repeat.
+
+For each index i, find how many additional elements you can remove
+if you start with score = a[i].
+
+⚡ Core Idea
+
+If we sort the array in increasing order,
+then the “collecting” process becomes monotonic —
+you’ll always collect smaller elements first.
+
+We can then determine, for each element, how far (to the right)
+you can go after combining everything smaller than or equal to it.
+
+🧩 Step-by-step Logic (as in your code)
+Step 1 — Sort with indices
+vector<pair<ll,ll>> v(n);
+for (int i = 0; i < n; i++) {
+    v[i].first = arr[i];
+    v[i].second = i + 1;  // store original index
+}
+sort(v.begin(), v.end());
+
+
+➡️ Sorting helps simulate collecting from smallest → largest.
+
+Step 2 — Prefix Sum
+vector<ll> pf(n);
+pf[0] = v[0].first;
+for (int i = 1; i < n; i++)
+    pf[i] = pf[i-1] + v[i].first;
+
+
+➡️ pf[i] = total of first (i+1) smallest elements.
+This will help decide if the sum of smaller elements is big enough to “collect” the next one.
+
+Step 3 — Calculate Reachable Range from Right to Left
+vector<ll> ans(n + 1);
+ans[v[n-1].second] = n - 1;
+for (int i = n - 2; i >= 0; i--) {
+    if (pf[i] >= v[i + 1].first)
+        ans[v[i].second] = ans[v[i + 1].second];
+    else
+        ans[v[i].second] = i;
+}
+
+
+Let’s break it down 👇
+
+Case 1️⃣: pf[i] >= v[i+1].first
+
+Meaning:
+“Sum of all elements up to index i is enough to reach the next one.”
+
+So, this element v[i] can also collect everything the next one can.
+
+Hence:
+
+ans[v[i].second] = ans[v[i+1].second];
+
+
+→ Both belong to the same collectable cluster.
+
+Case 2️⃣: pf[i] < v[i+1].first
+
+Meaning:
+“Even if you take all smaller elements, you still can’t reach the next value.”
+
+So, this marks a new cluster boundary.
+
+ans[v[i].second] = i;
+
+Step 4 — Output
+for (int i = 1; i <= n; i++) cout << ans[i] << " ";
+cout << endl;
+
+
+Here,
+ans[i] = index (in sorted array) of the last element you can collect.
+So the value itself represents “how many total elements you can take - 1” (excluding yourself).
+
+🪶 Intuitive Meaning
+
+Imagine the sorted array as rising hills 🌄.
+You start on a hill v[i].
+If the sum of everything behind you is enough to “climb” the next hill,
+you merge into a larger hill group.
+Otherwise, you start a new hill group.
+
+At the end, every element’s ans tells which “hill group” it belongs to.
+All elements in the same group can reach the same maximum right endpoint.
+
+🧮 Example
+a = [20, 5, 1, 4, 2]
+
+
+Sorted:
+
+v = [(1,3), (2,5), (4,4), (5,2), (20,1)]
+pf = [1, 3, 7, 12, 32]
+
+
+Processing from right → left:
+
+i	v[i]	pf[i]	v[i+1]	pf[i] ≥ next?	ans
+4	(20,1)	32	—	—	ans[1] = 4
+3	(5,2)	12	20	❌	ans[2] = 3
+2	(4,4)	7	5	✅	ans[4] = ans[2] = 3
+1	(2,5)	3	4	❌	ans[5] = 1
+0	(1,3)	1	2	❌	ans[3] = 0
+
+Final (in original order):
+
+ans = [4, 3, 0, 3, 1]
+
+
+✅ Matches sample output.
+
+⚙️ Complexity
+Step	Time
+Sorting	O(n log n)
+Prefix Sum	O(n)
+Reverse Pass	O(n)
+Total	O(n log n)
+🧭 Key Takeaways
+
+Sorting makes the "collecting" process linear and predictable.
+
+Prefix sum lets you test if total “score” can reach the next element.
+
+Reverse pass merges ranges efficiently (like DSU logic).
+
+ans[i] represents the farthest point that element can reach when collecting.
+
+✅ One-line Intuition:
+
+“If the sum of all smaller elements ≥ the next value, merge the groups; otherwise, start a new one.”

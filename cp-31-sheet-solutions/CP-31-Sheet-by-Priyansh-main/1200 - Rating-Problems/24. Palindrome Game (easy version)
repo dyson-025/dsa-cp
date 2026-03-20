@@ -1,0 +1,203 @@
+🧩 Problem Name:
+link: https://codeforces.com/problemset/problem/1527/B1
+B1. Palindrome Game (easy version)
+
+🎯 Problem Summary
+
+You are given a binary string s (containing only 0 and 1), which is initially a palindrome.
+
+Two players, Alice and Bob, play alternately — Alice starts first.
+
+They can do two types of operations:
+
+1️⃣ Flip Operation (costs 1 dollar):
+
+Choose any index i where s[i] == '0' and change it to '1'.
+
+You pay 1 dollar.
+
+2️⃣ Reverse Operation (costs 0 dollars):
+
+You can reverse the string only if:
+
+It is not currently a palindrome, and
+
+The last operation was not reverse.
+
+(Reversal just reverses the order of the string.)
+
+Game ends when all characters become '1'.
+👉 The winner is the one who spends less money.
+If both spend equal money → it's a draw.
+
+⚙️ Given Constraints
+
+1 ≤ t ≤ 10^3
+
+1 ≤ n ≤ 10^3
+
+String s is always a palindrome initially.
+
+String s always contains at least one '0'.
+
+No limit on total n across test cases.
+
+🧠 Intuition + Step-by-Step Thinking
+Step 1: What happens when you flip?
+
+Since the given string s is a palindrome, flipping a single '0' to '1' might break the symmetry only temporarily.
+
+But since reversal is allowed only when the string is not a palindrome,
+and every move starts from a palindrome (or quickly returns to one),
+the reverse operation rarely matters in this “easy” version.
+So we can ignore reversal completely here.
+
+✅ Hence, we only need to track who flips which zeros.
+
+Step 2: Each flip costs $1
+
+Each '0' must eventually be flipped → costs 1 dollar.
+
+The game is purely turn-based flipping.
+
+So if there are cnt0 zeros, total cost = cnt0 dollars.
+Each player alternates flips, so they share those costs.
+
+Step 3: When does someone win?
+
+The player who spends less wins.
+That depends on:
+
+Who flips the last zero (since the game ends after that).
+
+The parity (odd/even) of total zeros.
+
+🔍 Case Analysis
+
+Let cnt0 = number of '0' characters.
+
+🟢 Case 1: cnt0 == 1
+
+Only one zero.
+
+Alice goes first → must flip it → pays 1 dollar.
+
+Game ends immediately.
+
+Bob spends 0 dollars.
+
+🧾 Result:
+
+Alice spends more → Bob wins.
+
+✅ Winner: BOB
+
+🟢 Case 2: cnt0 is even
+
+Example: s = 1001, cnt0 = 2
+
+Alice flips one 0 → 1 dollar
+
+Bob flips next 0 → 1 dollar
+
+Game ends. Both spent equal.
+
+But in optimal play, the second player (Bob) can always mirror Alice’s move,
+ensuring equal spending or a slightly better position (since he moves last in even cases).
+
+✅ Winner: BOB
+
+🟢 Case 3: cnt0 is odd (> 1)
+
+Example: s = 01010, cnt0 = 3
+
+Alice flips → 1 dollar
+
+Bob flips → 1 dollar
+
+Alice flips last 0 → 1 dollar
+
+Total: Alice = 2$, Bob = 1$.
+
+But now the game ends — Alice spent more, but she made the final move,
+meaning Bob can’t reduce his spending anymore, and
+due to the nature of alternating moves and symmetry, odd count gives Alice an advantage.
+
+✅ Winner: ALICE
+
+🧮 Final Formula / Decision
+Condition	Winner
+cnt0 == 1	BOB
+cnt0 is odd	ALICE
+cnt0 is even	BOB
+💻 Final C++ Code (Concise + Fast)
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int t;
+    cin >> t;
+    while (t--) {
+        int n; 
+        string s;
+        cin >> n >> s;
+
+        int cnt0 = count(s.begin(), s.end(), '0');
+
+        if (cnt0 == 1) cout << "BOB\n";
+        else if (cnt0 % 2 == 1) cout << "ALICE\n";
+        else cout << "BOB\n";
+    }
+}
+
+🧩 Example Walkthrough
+Input
+2
+4
+1001
+1
+0
+
+Step-by-step:
+
+Test 1:
+s = 1001 → cnt0 = 2 (even) → BOB
+
+Test 2:
+s = 0 → cnt0 = 1 → BOB
+
+✅ Output:
+
+BOB
+BOB
+
+⚡ Key Takeaways
+Concept	Explanation
+Game Type	Turn-based cost minimization
+Given String	Always palindrome initially
+Reverse	Irrelevant in easy version
+Main Factor	Count of ‘0’s
+Result Pattern	Depends on parity of zeros
+Odd count	Alice wins
+Even count or single zero	Bob wins
+🧠 Why No Need to Check Middle Zero
+
+Because if the number of zeros is odd,
+then in a palindrome there is always a central zero automatically.
+So explicitly checking s[n/2] == '0' is redundant.
+
+That’s why our logic simplifies beautifully to just:
+
+if (cnt0 == 1) BOB
+else if (cnt0 % 2 == 1) ALICE
+else BOB
+
+🏁 Final Summary
+
+Ignore reversals in easy version.
+
+Count zeros.
+
+Apply simple parity rule.
+
+Boom 💥 — done in O(n) per test.

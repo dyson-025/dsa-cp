@@ -1,0 +1,263 @@
+🧩 Problem: 3714. Longest Balanced Substring II
+ link: https://leetcode.com/problems/longest-balanced-substring-ii/
+🔍 Statement:
+
+You are given a string s consisting only of the characters 'a', 'b', and 'c'.
+
+A substring of s is called balanced if all distinct characters in it appear the same number of times.
+
+Return the length of the longest balanced substring of s.
+
+🧠 Example:
+Input	Output	Explanation
+"abbac"	4	"abba" → both a and b occur twice
+"aabcc"	3	"abc" → each of a, b, c occurs once
+"aba"	2	"ab" or "ba" both are balanced
+⚙️ Constraints:
+
+1 ≤ s.length ≤ 10^5
+
+s contains only 'a', 'b', and 'c'
+
+🎯 Intuition Behind the Solution
+
+We must find the longest substring where all distinct characters appear equally often.
+Let’s break this into 3 logical cases, because balance can exist between:
+
+Single character (like "aaa")
+
+Two characters (like "abba")
+
+Three characters (like "abcabc")
+
+💡 Step-by-Step Breakdown of Solution
+
+We handle these 3 cases separately.
+
+🧱 Case 1: All characters are same (like "aaaa")
+
+This is the simplest case.
+We just need to find the longest consecutive streak of the same character.
+
+👉 Logic:
+
+Keep a count of consecutive equal characters.
+
+🧩 Code:
+void findlongest1(string &s, int &maxi, int n) {
+    int cnt = 1;
+    for (int i = 1; i < n; i++) {
+        if (s[i] == s[i-1]) cnt++;
+        else cnt = 1;
+        maxi = max(maxi, cnt);
+    }
+}
+
+🧠 Example:
+
+s = "abbac"
+
+→ Longest same-character substring: "bb" → length = 2
+This case helps when substring has only one unique char.
+
+⚖️ Case 2: Only Two Characters (like "abba" or "aabb")
+
+We need to find the longest substring where the count of two chosen characters is equal.
+
+💭 Idea:
+
+Use prefix sums + hash map trick:
+
+When the difference of counts between two letters repeats,
+it means the substring between those positions is balanced for those two characters.
+
+We can apply this for all pairs:
+
+('a', 'b')
+
+('b', 'c')
+
+('a', 'c')
+
+👉 Logic:
+
+Traverse the string with a running variable sum
+
++1 when you see the first letter
+
+-1 when you see the second letter
+
+Reset if you meet a third character
+
+Use a hashmap to store first index of each prefix sum.
+
+When same sum is seen again → substring between those indices has equal a and b.
+
+🧩 Code:
+void findlongest2(string &s, char a, char b, int &maxi, int n) {
+    unordered_map<int, int> mpp;
+    int sum = 0;
+    mpp[sum] = -1; // prefix sum base
+
+    for (int i = 0; i < n; i++) {
+        if (s[i] == a) sum += 1;
+        else if (s[i] == b) sum -= 1;
+        else {
+            // reset when third character appears
+            mpp.clear();
+            sum = 0;
+            mpp[sum] = i;
+            continue;
+        }
+
+        if (mpp.find(sum) != mpp.end()) {
+            maxi = max(maxi, i - mpp[sum]);
+        } else {
+            mpp[sum] = i;
+        }
+    }
+}
+
+🧠 Example:
+
+s = "abbac"
+Pair = ('a', 'b')
+
+i	char	sum	map	max_len
+0	a	+1	{0:-1, +1:0}	0
+1	b	0	found before → length = 1 - (-1) = 2	
+2	b	-1	add	
+3	a	0	found again → length = 3 - (-1) = 4 ✅	
+
+→ Longest balanced substring between a,b is "abba" length 4.
+
+⚖️ Case 3: Three Characters (a, b, c all appear equal times)
+
+Now we want substring where:
+
+count(a) = count(b) = count(c)
+
+
+That’s equivalent to:
+
+count(a) - count(b) = 0  AND  count(a) - count(c) = 0
+
+
+We can track these two differences as a pair:
+(a - b, a - c)
+
+Whenever this pair repeats → substring between them is balanced among all three.
+
+👉 Logic:
+
+Maintain prefix counts of a, b, c.
+
+Store first occurrence of each (a-b, a-c) pair.
+
+🧩 Code:
+void findlongest3(string &s, int &maxi, int n) {
+    map<pair<int, int>, int> mpp;
+    mpp[{0, 0}] = -1; // base prefix
+
+    int a = 0, b = 0, c = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (s[i] == 'a') a++;
+        else if (s[i] == 'b') b++;
+        else c++;
+
+        pair<int, int> diff = {a - b, a - c};
+
+        if (mpp.find(diff) != mpp.end()) {
+            maxi = max(maxi, i - mpp[diff]);
+        } else {
+            mpp[diff] = i;
+        }
+    }
+}
+
+🧠 Example:
+
+s = "aabcc"
+
+i	char	a	b	c	(a-b, a-c)	first seen	length
+0	a	1	0	0	(1,1)	store	
+1	a	2	0	0	(2,2)	store	
+2	b	2	1	0	(1,2)	store	
+3	c	2	1	1	(1,1)	found before! len = 3-0 = 3 ✅	
+
+→ substring "abc" is balanced.
+
+🧩 Final Integration Code
+class Solution {
+public:
+    void findlongest1(string &s, int &maxi, int n) {
+        int cnt = 1;
+        for (int i = 1; i < n; i++) {
+            if (s[i] == s[i-1]) cnt++;
+            else cnt = 1;
+            maxi = max(maxi, cnt);
+        }
+    }
+
+    void findlongest2(string &s, char a, char b, int &maxi, int n) {
+        unordered_map<int, int> mpp;
+        int sum = 0;
+        mpp[sum] = -1;
+        for (int i = 0; i < n; i++) {
+            if (s[i] == a) sum += 1;
+            else if (s[i] == b) sum -= 1;
+            else {
+                mpp.clear();
+                sum = 0;
+                mpp[sum] = i;
+                continue;
+            }
+            if (mpp.find(sum) != mpp.end()) maxi = max(maxi, i - mpp[sum]);
+            else mpp[sum] = i;
+        }
+    }
+
+    void findlongest3(string &s, int &maxi, int n) {
+        map<pair<int,int>, int> mpp;
+        mpp[{0,0}] = -1;
+        int a = 0, b = 0, c = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (s[i] == 'a') a++;
+            else if (s[i] == 'b') b++;
+            else c++;
+
+            pair<int,int> diff = {a - b, a - c};
+            if (mpp.find(diff) != mpp.end())
+                maxi = max(maxi, i - mpp[diff]);
+            else
+                mpp[diff] = i;
+        }
+    }
+
+    int longestBalanced(string s) {
+        int n = s.size();
+        int maxi = 1;
+
+        findlongest1(s, maxi, n);          // single character case
+        findlongest2(s, 'a', 'b', maxi, n); // two-char cases
+        findlongest2(s, 'b', 'c', maxi, n);
+        findlongest2(s, 'a', 'c', maxi, n);
+        findlongest3(s, maxi, n);           // three-char case
+
+        return maxi;
+    }
+};
+
+🧩 Time and Space Complexity
+Case	Time	Space
+Case 1	O(n)	O(1)
+Case 2	O(3n) = O(n)	O(n)
+Case 3	O(n)	O(n)
+Overall	O(n)	O(n)
+✅ Summary Notes
+Case	Meaning	Key Idea	Method
+1	Only one char repeated	Consecutive count	Simple loop
+2	Two chars same count	Prefix sum difference	HashMap
+3	Three chars same count	Track (a−b, a−c)	Map with pair key

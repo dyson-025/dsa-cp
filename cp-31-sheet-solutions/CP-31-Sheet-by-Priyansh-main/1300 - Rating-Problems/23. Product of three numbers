@@ -1,0 +1,234 @@
+📘 Concept Notes: Product of Three Numbers (Codeforces)
+Goal:
+
+Given an integer n (2 ≤ n ≤ 10^9), find three distinct integers
+a, b, c ≥ 2 such that:
+
+a * b * c = n
+
+
+If impossible → print "NO".
+
+You must solve up to 100 test cases.
+
+🎯 Key Insight
+
+To represent n = a · b · c, you just need:
+
+Find the first small factor a.
+
+Divide: n = n / a.
+
+Find a second factor b, different from a.
+
+The remaining number c = n / b must be:
+
+≥ 2
+
+distinct from a and b
+
+If all 3 are distinct → YES
+Else → NO
+
+🔥 Why this works?
+
+Because any composite number ≤ 10^9 will have at least one factor ≤ √n.
+So checking only up to √n is enough.
+
+This gives a very fast solution: O(√n) per test case.
+
+✅ Steps to Solve (Important Logic)
+Step 1 — Find a (first factor)
+
+Loop i = 2 → √n
+If n % i == 0:
+→ a = i
+→ n = n / i
+→ break
+
+If no factor found → n is prime → NO
+
+Step 2 — Find b (second factor)
+
+Start from i = a + 1 → √n
+If n % i == 0:
+→ b = i
+→ n = n / i
+→ break
+
+If no second factor → NO
+
+Step 3 — remaining number is c
+c = n
+
+
+Now check:
+
+c > 1
+
+c != a
+
+c != b
+
+If yes → YES, print a b c
+Else → NO
+
+📌 Example Walkthrough
+Example: n = 64
+
+First factor a = 2
+
+n = 64 / 2 = 32
+
+Second factor b = 4
+
+n = 32 / 4 = 8
+
+Third factor c = 8
+
+All distinct and ≥ 2
+✔ Answer: 2 4 8
+
+Example: n = 32
+
+a = 2
+
+n = 16
+
+b = 4
+
+n = 4
+
+c = 4
+But c == b → NOT distinct → ❌
+Answer: NO
+
+Example: n = 97
+
+97 is prime → no factor
+Answer: NO
+
+Example: n = 12345
+
+a = 3
+
+n = 4115
+
+b = 5
+
+n = 823
+
+c = 823 (distinct)
+
+✔ Answer: 3 5 823
+
+💡 Important Observations
+
+You don’t need sieve.
+
+You don’t need prime list.
+
+Factorization up to √n is enough (≈ 31622).
+
+Only need two loops; third factor is automatic.
+
+Distinctness is the only tricky part.
+
+🚀 Final Complexity
+Time:  O(√n)
+Space: O(1)
+code ::
+#include <bits/stdc++.h>
+using namespace std;
+
+/*
+------------------------------------------------------------
+                PRODUCT OF THREE NUMBERS
+------------------------------------------------------------
+Goal:
+Given n, find 3 DISTINCT integers a, b, c >= 2 such that:
+        a * b * c = n
+If impossible → print NO
+
+Idea:
+1) Find first small factor 'a'      → loop till sqrt(n)
+2) Divide n = n / a
+3) Find second factor 'b' != a      → loop till sqrt(n)
+4) Remaining value = c
+5) Check all three are distinct and >= 2
+
+Time complexity: O(sqrt(n)) per test case
+------------------------------------------------------------
+*/
+
+void solve() {
+    long long n;
+    cin >> n;
+
+    vector<long long> v;   // will store a, b, c
+
+    // ------------------ Step 1: Find first factor 'a' ------------------
+    long long a = -1;
+    for (long long i = 2; i * i <= n; i++) {
+        if (n % i == 0) {
+            a = i;
+            n /= i;        // reduce n
+            v.push_back(a);
+            break;
+        }
+    }
+
+    // if no factor found → n was prime → cannot split into 3
+    if (v.empty()) {
+        cout << "NO\n";
+        return;
+    }
+
+    // ------------------ Step 2: Find second factor 'b' ------------------
+    long long b = -1;
+    for (long long i = a + 1; i * i <= n; i++) {   // start from a+1 → ensure distinct
+        if (n % i == 0) {
+            b = i;
+            n /= i;        // reduce n again
+            v.push_back(b);
+            break;
+        }
+    }
+
+    // if no 2nd factor → can't form 3 distinct numbers
+    if (v.size() < 2) {
+        cout << "NO\n";
+        return;
+    }
+
+    // ------------------ Step 3: Third factor 'c' ------------------
+    long long c = n;
+
+    // Conditions:
+    // c must be >= 2
+    // c must be distinct from a and b
+    if (c <= 1 || c == v[0] || c == v[1]) {
+        cout << "NO\n";
+        return;
+    }
+
+    // Everything valid → YES
+    v.push_back(c);
+
+    cout << "YES\n";
+    cout << v[0] << " " << v[1] << " " << v[2] << "\n";
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) solve();
+
+    return 0;
+}
+
+
+Passes easily within 2 seconds.

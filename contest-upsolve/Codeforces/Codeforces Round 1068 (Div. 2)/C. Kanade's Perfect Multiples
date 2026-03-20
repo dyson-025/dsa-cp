@@ -1,0 +1,157 @@
+🌟 KANADÉ’S PERFECT MULTIPLES — FULL NOTES (BASED ON YOUR CODE)
+🔷 Problem Requirement (Simple Words)
+
+We want a set B such that:
+
+1) Coverage Condition
+
+Every array element ai must have at least one divisor in B.
+
+2) Multiples Condition
+
+If we take any b ∈ B,
+then every multiple of b (≤ k) must appear in the array.
+
+Our goal:
+✔ Find smallest possible B
+❌ If impossible, print -1.
+
+🌟 Key Observations
+Observation 1 — If b ∈ B
+
+We must check all y = b, 2b, 3b, … ≤ k.
+Each y must exist in array.
+
+Observation 2 — Picking smaller b is better
+
+Because:
+
+Smaller b has more multiples → covers more numbers.
+
+Ensures minimal B size.
+
+This is why GREEDY works.
+
+🌟 Your Strategy (100% Correct Logic)
+
+We use:
+
+s = sorted set of all unique elements in array
+
+covered = set of numbers already covered by some previously chosen b
+
+ans = our B set
+
+🔷 ALGORITHM (WHAT YOUR CODE DOES EXACTLY)
+Step 1 — Insert all elements into sorted set s
+
+Because duplicates don’t matter.
+
+Step 2 — Iterate over s in increasing order
+
+For each number x:
+
+✔ If x is already in covered, skip X
+
+Because some smaller divisor already covered it.
+
+✔ Else, choose x as a B candidate
+
+Add x into ans.
+
+Why?
+Because x is the smallest uncovered number — best choice greedy-wise.
+
+Step 3 — Validate x by checking all multiples
+
+Check all y = 2x, 3x, 4x … ≤ k
+
+If y ∈ s → mark y as covered
+
+Else → INVALID → no solution exists → print -1
+
+This enforces:
+
+“All multiples of b must appear in array”
+
+Step 4 — If loop ends normally
+
+Then ans contains the minimal complete B.
+
+🌟 Why This Works (Proof in 3 Lines)
+
+A valid b must have all its multiples in the array → you check this.
+
+Greedy: choosing smallest b gives maximum coverage → minimal B.
+
+Any number that can be covered by smaller b gets auto-skipped → optimal.
+
+🌟 FINAL COMPLETELY CLEAN CODE (YOUR LOGIC, POLISHED)
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) {
+
+        int n, k;
+        cin >> n >> k;
+
+        set<int> s; // unique sorted array values
+        for (int i = 0; i < n; i++) {
+            int x;
+            cin >> x;
+            s.insert(x);
+        }
+
+        bool ok = true;
+        set<int> covered;
+        vector<int> ans;
+
+        // iterate over unique sorted values
+        for (int x : s) {
+
+            // already covered by smaller divisor
+            if (covered.count(x)) 
+                continue;
+
+            // choose x in B
+            ans.push_back(x);
+
+            // check all multiples of x
+            for (long long y = 1LL * x * 2; y <= k; y += x) {
+                if (s.count(y))
+                    covered.insert(y);
+                else {
+                    ok = false;        // missing multiple → invalid
+                    break;
+                }
+            }
+
+            if (!ok) break;
+        }
+
+        if (!ok) {
+            cout << -1 << "\n";
+            continue;
+        }
+
+        cout << ans.size() << "\n";
+        for (int x : ans) cout << x << " ";
+        cout << "\n";
+    }
+}
+
+🌟 Short Revision Notes (One Page Summary)
+✔ Choose smallest uncovered number x → put in B
+✔ Check all multiples y = x2, x3 … ≤ k
+
+If y missing → no B possible
+
+✔ Mark y as covered
+✔ Move to next x
+✔ Result = minimal valid B

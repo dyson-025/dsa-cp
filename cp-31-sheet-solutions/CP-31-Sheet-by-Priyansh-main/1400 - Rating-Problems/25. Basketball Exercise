@@ -1,0 +1,194 @@
+🧠 Problem idea (short)
+
+2 rows, each with n students and heights.
+
+You pick students left → right (index strictly increasing).
+
+You cannot pick two consecutive from same row.
+
+Goal: maximize total height.
+These are the exact constraints from the statement.
+
+🔍 Key observation
+
+At column i you have 3 choices:
+
+1️⃣ Pick from top row
+2️⃣ Pick from bottom row
+3️⃣ Pick none
+
+Because:
+
+If you pick top at i, previous pick must be bottom (or skip)
+
+Symmetric for bottom
+
+Increasing index means we process left→right
+
+This screams DP on index.
+
+🧩 DP State (clean version)
+
+Let:
+
+a[i] = top height
+
+b[i] = bottom height
+
+Define:
+
+dpTop[i]    = best sum if we pick top at i
+dpBottom[i] = best sum if we pick bottom at i
+dpSkip[i]   = best sum if we pick none at i
+
+🔄 Transitions
+Pick top
+
+Previous must NOT be top:
+
+dpTop[i] = max(dpBottom[i-1], dpSkip[i-1]) + a[i]
+
+Pick bottom
+dpBottom[i] = max(dpTop[i-1], dpSkip[i-1]) + b[i]
+
+Skip
+dpSkip[i] = max(dpTop[i-1], dpBottom[i-1], dpSkip[i-1])
+
+
+This matches editorial intuition — we always extend from the opposite row or skipped state.
+
+✅ Answer
+ans = max(dpTop[n], dpBottom[n], dpSkip[n])
+
+⚡ Even simpler (most common CF solution)
+
+We can compress states to just two:
+
+dpTop[i] = max(dpBottom[i-1], dpBottom[i-2]) + a[i]
+dpBottom[i] = max(dpTop[i-1], dpTop[i-2]) + b[i]
+
+
+(because skipping is implicitly handled)
+
+This is the zig-zag DP described in editorial.
+
+🧾 Clean C++ solution
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n;
+    cin >> n;
+
+    vector<long long> a(n+1), b(n+1);
+    for(int i=1;i<=n;i++) cin >> a[i];
+    for(int i=1;i<=n;i++) cin >> b[i];
+
+    vector<long long> dpTop(n+1,0), dpBottom(n+1,0);
+
+    dpTop[1] = a[1];
+    dpBottom[1] = b[1];
+
+    for(int i=2;i<=n;i++){
+        dpTop[i] = max(dpBottom[i-1], dpBottom[i-2]) + a[i];
+        dpBottom[i] = max(dpTop[i-1], dpTop[i-2]) + b[i];
+    }
+
+    cout << max(dpTop[n], dpBottom[n]) << "\n";
+}
+
+
+Time: O(n)
+Memory: O(n) (can compress to O(1))
+
+🎯 Intuition to remember (important for you as CPer)
+
+This problem is basically:
+
+“2 tracks, move forward, can’t take same track twice — maximize sum”
+
+Whenever you see:
+
+2 rows / 2 options
+
+alternating restriction
+
+maximize sum
+
+Think:
+✅ DP with “last chosen type” state
+
+This pattern repeats A LOT in 1300–1500 CF.  
+🧠 Recall the idea
+
+At column i we only need:
+
+top[i-1], top[i-2]
+
+bottom[i-1], bottom[i-2]
+
+So we store 4 variables and roll them forward.
+
+Transitions:
+
+newTop    = max(bottom1, bottom2) + a[i]
+newBottom = max(top1, top2) + b[i]
+
+
+Then shift:
+
+top2 = top1
+top1 = newTop
+bottom2 = bottom1
+bottom1 = newBottom
+
+
+Answer:
+
+max(top1, bottom1)
+
+✅ O(1) C++ solution
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n;
+    cin >> n;
+
+    vector<long long> a(n+1), b(n+1);
+    for(int i=1;i<=n;i++) cin >> a[i];
+    for(int i=1;i<=n;i++) cin >> b[i];
+
+    long long top1 = a[1], bottom1 = b[1];
+    long long top2 = 0, bottom2 = 0;
+
+    for(int i=2;i<=n;i++){
+        long long newTop = max(bottom1, bottom2) + a[i];
+        long long newBottom = max(top1, top2) + b[i];
+
+        top2 = top1;
+        top1 = newTop;
+        bottom2 = bottom1;
+        bottom1 = newBottom;
+    }
+
+    cout << max(top1, bottom1) << "\n";
+}
+
+🎯 Intuition to lock in
+
+You’re basically doing:
+
+“zig-zag max sum between two rows”
+
+And since each state depends only on last two columns → arrays unnecessary → rolling vars = O(1).
+
+This trick shows up everywhere in CF DP — once you see
+dp[i] depends on dp[i-1] and dp[i-2]
+👉 immediately think state compression.

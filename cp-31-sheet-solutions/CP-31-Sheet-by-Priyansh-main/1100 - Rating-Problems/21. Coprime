@@ -1,0 +1,167 @@
+🧾 Notes – Coprime Indices Problem
+ link: https://codeforces.com/problemset/problem/1742/D
+📘 Problem Statement
+
+You are given an array v of size n.
+You need to find the maximum possible sum of indices (1-indexed) i + j such that:
+
+gcd
+(
+𝑣
+[
+𝑖
+]
+,
+𝑣
+[
+𝑗
+]
+)
+=
+1
+gcd(v[i],v[j])=1
+
+If no such pair exists, print -1.
+
+🔍 Example
+
+Input:
+
+1
+4
+2 3 4 6
+
+
+Output:
+
+5
+
+
+Explanation:
+
+gcd(2, 3) = 1 → i+j = 1+2 = 3
+
+gcd(3, 4) = 1 → i+j = 2+3 = 5 ✅ (maximum)
+
+gcd(4, 6) = 2 ❌
+
+gcd(2, 6) = 2 ❌
+→ Answer = 5
+
+🚫 Naive Approach (O(n²))
+
+Check all pairs (i, j):
+
+for (int i = 0; i < n; i++) {
+    for (int j = i; j < n; j++) {
+        if (gcd(v[i], v[j]) == 1)
+            ans = max(ans, i + j + 2); // +2 because 1-based
+    }
+}
+
+
+⏱️ Time Complexity = O(n²) → Too slow for n = 1e5
+
+⚡ Optimized Approach (O(n + 1000²))
+🧩 Key Idea
+
+The array values are bounded: 1 ≤ v[i] ≤ 1000
+
+So there are only 1000 possible distinct values
+
+Instead of checking all pairs of indices, we check all pairs of values (1..1000)
+
+💡 Observation
+
+If two numbers a and b are coprime (gcd(a, b) == 1),
+then any occurrence of a and b in the array forms a valid pair.
+
+So we only need:
+
+The last index of each value (to get maximum i+j)
+
+To loop over all (a, b) in [1..1000]
+
+✅ Algorithm Steps
+
+Initialize an array last[1001] with zeros.
+
+For each element v[i], set:
+
+last[v[i]] = i + 1; // store last (1-based) index
+
+
+Initialize ans = -1.
+
+For each pair (a, b) in [1..1000]:
+
+If both appear (last[a] > 0 and last[b] > 0)
+
+And gcd(a, b) == 1
+
+Update:
+
+ans = max(ans, last[a] + last[b]);
+
+
+Output ans.
+
+🧮 Code Implementation
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        vector<int> v(n);
+        for (int i = 0; i < n; i++) cin >> v[i];
+
+        vector<int> last(1001, 0);
+        for (int i = 0; i < n; i++)
+            last[v[i]] = i + 1; // store last 1-based index
+
+        int ans = -1;
+        for (int a = 1; a <= 1000; a++) {
+            for (int b = 1; b <= 1000; b++) {
+                if (last[a] && last[b] && gcd(a, b) == 1) {
+                    ans = max(ans, last[a] + last[b]);
+                }
+            }
+        }
+
+        cout << ans << "\n";
+    }
+}
+
+🧠 Concept Recap
+Concept	Meaning
+GCD	Greatest Common Divisor
+Coprime	Two numbers whose gcd = 1
+1-indexed	Problem’s index starts from 1 (so add +1 to 0-based index)
+Optimization Trick	Replace n² index loop with limited (value range) loop
+⏱️ Complexity Analysis
+Step	Complexity
+Build last array	O(n)
+Double loop on values (1–1000)	O(1000²) = 1e6
+GCD computation	O(log(max(a,b))) per pair
+Total	≈ O(n + 1e6) → Fast enough
+
+✅ Works up to n = 1e5
+
+🏁 Final Notes
+
+The trick of using value frequency / last index is very useful whenever array elements are bounded by a small constant (like 1000 or 10⁵).
+
+Commonly used in Codeforces problems like:
+
+Coprime Indices (1742C)
+
+Coprime Array
+
+Beautiful Array Variants

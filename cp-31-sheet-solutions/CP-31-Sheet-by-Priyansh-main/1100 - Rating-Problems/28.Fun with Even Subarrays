@@ -1,0 +1,100 @@
+🧾 Revision Notes – B. Fun with Even Subarrays
+🔹 Problem Summary
+
+You are given an array a of n elements.
+You can choose an even-sized subarray of length 2*k and:
+
+for i = 0 to k−1:
+   a[l + i] = a[l + k + i]
+
+
+→ Copy right half onto left half.
+
+Goal:
+👉 Make all elements equal using minimum operations.
+
+🔹 Key Observation (Main Trick 💡)
+
+Each operation copies right part → left part,
+so the last element (a[n−1]) can be used to make the whole array equal.
+
+Start from the end, and keep expanding the segment of equal elements (same as last value).
+
+🔹 Algorithm Steps
+
+Initialize:
+
+target = a[n-1] (last element)
+
+len = 1 (segment length already equal)
+
+ops = 0
+
+While len < n:
+
+If element before this segment (a[n - len - 1]) ≠ target
+→ perform one operation
+→ ops++
+→ len *= 2 (segment doubles)
+
+Else (same value), just extend segment:
+→ len++
+
+Print total ops.
+
+🔹 Intuition
+
+You spread the last element to the left side each time.
+
+One operation doubles the area that is equal to the target.
+
+Stop when the entire array is equal.
+
+🔹 Time Complexity
+
+Each step roughly doubles segment size ⇒ O(log n) per test.
+
+Over all test cases: O(t log n) ✅
+
+🔹 Example Walkthrough
+
+Example: a = [4, 4, 4, 2, 4]
+
+Step	len	element checked	same as last?	operation?	new len	ops
+1	1	a[3]=2	❌	✅	2	1
+2	2	a[2]=4	✅	❌	3	1
+→ All covered						✅ ans = 1
+🔹 Edge Cases
+Case	Example	Answer	Why
+All equal	[1,1,1]	0	Already same
+Only 1 element	[1]	0	Nothing to do
+All different	[4,2,1,3]	2	Need 2 operations
+🔹 C++ Code (Final)
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n; cin >> n;
+        vector<int> a(n);
+        for (int &x : a) cin >> x;
+
+        int target = a[n - 1], len = 1, ops = 0;
+        while (len < n) {
+            if (a[n - len - 1] != target) {
+                ops++;
+                len *= 2;
+            } else len++;
+        }
+        cout << ops << "\n";
+    }
+}
+
+🧩 Summary (1-line)
+
+“Spread the last element to the left — each operation doubles the equal segment until the whole array matches.”

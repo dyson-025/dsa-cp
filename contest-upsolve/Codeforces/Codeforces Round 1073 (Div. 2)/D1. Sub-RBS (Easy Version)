@@ -1,0 +1,110 @@
+🧠 D1. Sub-RBS (Easy)
+1️⃣ Problem Rephrasing
+
+You are given a regular bracket sequence s.
+
+You must pick a non-empty subsequence t such that:
+
+t is also a regular bracket sequence
+
+t is lexicographically better than s under this rule:
+
+Comparison:
+
+Longer prefix wins
+
+Or, at first different position, '(' is better than ')'
+
+So '(' > ')'.
+
+Goal:
+👉 Maximize |t| such that t > s.
+
+2️⃣ When is it Impossible?
+
+If s is already the best possible sequence, i.e.:
+
+(((((.....)))))
+
+
+All opening brackets first, then all closing.
+
+This is the lexicographically maximum RBS for its length.
+
+In this case:
+
+Any subsequence will be ≤ s
+
+So answer = -1
+
+Example:
+
+()
+(())()
+
+3️⃣ Key Observation
+
+To be better than s, at the first position where we differ:
+
+t[i] = '('
+s[i] = ')'
+
+
+So in s, we need a ')' somewhere, after which there exists '(' later
+(otherwise we can’t replace it by '(' in subsequence order).
+
+So we need the pattern:
+
+... ) ... (
+
+
+If such a pattern does NOT exist → answer = -1.
+
+4️⃣ How to Maximize Length?
+
+Once we find that a ')(' pattern exists, the best strategy is:
+
+👉 Remove exactly one matching pair "()" in the middle,
+so the resulting subsequence is:
+
+(original length n) - 2
+
+
+And it will still be a valid RBS and better than s.
+
+So answer = n - 2
+
+But only if such improvement is possible.
+
+5️⃣ Implementation Logic
+
+Scan string:
+
+found = false → have we seen a ')'?
+
+cnt = 0 → number of '(' after first ')'
+
+For each char:
+
+If ')' → found = true
+
+If '(' and found → cnt++
+
+If cnt > 1 → print n - 2
+Else → print -1
+
+Why >1?
+We need at least two '(' after some ')' to maintain RBS validity after deletion.
+
+6️⃣ Time & Space
+
+Time: O(n) per test
+
+Total: O(2e5) ✅
+
+Space: O(1)
+
+7️⃣ Final Insight
+Condition in s	Result
+No ")(" pattern	-1
+Exists and safe	n - 2

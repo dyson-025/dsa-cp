@@ -1,0 +1,134 @@
+✅ Problem Summary
+link: https://leetcode.com/problems/stable-subarrays-with-equal-boundary-and-interior-sum/description/
+You are given an array capacity[].
+
+A subarray capacity[l..r] is stable if:
+
+Length ≥ 3
+
+capacity[l] = capacity[r]
+
+capacity[l + 1] + ... + capacity[r-1] = capacity[l]
+
+Which means:
+
+first element = last element = sum of interior
+
+✅ Key Observation Using Prefix Sum
+
+Let pre[i] = prefix sum from index 0 to i.
+
+Interior sum from (l+1) to (r−1) is:
+
+pre[r−1] − pre[l]
+
+
+Stable condition:
+
+capacity[l] = capacity[r]
+capacity[l] = pre[r−1] − pre[l]
+
+
+Rearranging:
+
+pre[r−1] = capacity[l] + pre[l]
+
+
+So for each r, we want earlier l such that:
+
+capacity[l] == capacity[r]
+pre[l] == pre[r-1] - capacity[r]
+
+✅ Strategy
+
+We maintain a map:
+
+m[val][prefixSum]
+= count of indices seen so far where a[i] = val and prefix = prefixSum
+
+
+For current index i:
+
+Let targetPrefix = pre[i-1] - a[i]
+
+If m[a[i]][targetPrefix] exists → add to result
+
+Update hashmap: m[a[i]][pre[i]]++
+
+✅ Edge Case: [0,0]
+
+Array [0,0,0] will incorrectly count subarray (0,1) (length = 2).
+So whenever:
+
+a[i] == 0 and a[i−1] == 0
+
+
+We subtract 1 since subarray length must be ≥ 3.
+
+✅ Final C++ Code (Clean Version)
+class Solution {
+public:
+    using ll = long long;
+    
+    long long countStableSubarrays(vector<int>& a) {
+        ll n = a.size();
+        ll res = 0, pre = 0;
+        
+        // map[value][prefixSum] = frequency
+        unordered_map<ll, unordered_map<ll, ll>> mp;
+        
+        for(int i = 0; i < n; i++) {
+            
+            // check if previous matching prefix exists
+            if (mp.count(a[i]) && mp[a[i]].count(pre - a[i])) {
+                res += mp[a[i]][pre - a[i]];
+            }
+            
+            // update prefix sum
+            pre += a[i];
+            
+            // store current prefix for this value
+            mp[a[i]][pre]++;
+            
+            // remove invalid count for subarray of length 2 like [0,0]
+            if(i > 0 && a[i] == 0 && a[i-1] == 0) {
+                res--;
+            }
+        }
+        return res;
+    }
+};
+
+✅ Complexity
+Metric	Value
+Time	O(n) average (hash lookups)
+Space	O(n)
+✅ Example Walkthrough
+Input
+[9,3,3,3,9]
+
+Valid subarrays
+
+[9,3,3,3,9] → 9 = 3+3+3
+
+[3,3,3] → 3 = 3
+
+Answer = 2
+
+🧠 Intuition Recap
+
+Convert problem to prefix sum form
+
+Count matching prefix patterns
+
+Ensure boundary values match
+
+Avoid length-2 zero subarrays
+
+🎯 Tips for Interviews
+
+Prefix sum trick is common in "subarray sum conditions"
+
+Think in form: “transform condition → prefix eqn”
+
+Use hashmap for past prefix states

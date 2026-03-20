@@ -1,0 +1,119 @@
+📝 SOLUTION NOTES — A. Strange Birthday Party
+🎯 Problem Summary
+
+For each friend i:
+
+They allow gifts up to type ki (so you may give present 1…ki)
+
+Present j costs c[j]
+
+Instead of a present, you may directly give them c[ki] dollars
+
+You cannot buy the same present twice.
+
+Goal: minimize total cost.
+
+⭐ KEY IDEA (Greedy)
+1️⃣ Sort friends by ki descending
+
+Meaning: process friends with larger demands first.
+
+Why?
+
+Because:
+
+A friend with large k can accept expensive gifts
+
+But can also accept cheap ones → flexible
+
+A friend with small k is very limited
+
+To minimize cost, we use cheapest available gifts for flexible friends first.
+
+⭐ 2️⃣ Use an index idx pointing to the cheapest available present
+
+idx = 0 initially → refers to c[0], the cheapest gift.
+
+When giving this present:
+
+Increase idx++ (because each present can be used only once)
+
+⭐ 3️⃣ Decision for each friend
+
+Let id = k[i] - 1 (0-based index)
+
+We check:
+
+✔ If cheapest available present idx is allowed (idx <= id)
+
+Use the cheap present:
+
+ans += c[idx]
+idx++
+
+✔ Else
+
+We cannot use any cheaper present (idx > id) → must pay direct money:
+
+ans += c[id]
+
+📌 Why this works?
+
+We assign the cheapest possible item first
+
+Large-ki friends get the cheapest presents
+
+Small-ki friends only get expensive options, but we postpone them
+
+Greedy works because sorted ki ensures optimal matching
+
+This is the official editorial logic.
+
+⏱ Complexity
+
+Sorting k: O(n log n)
+
+Loop: O(n)
+
+Total: O(n log n)
+
+Fits constraints easily (3e5 per test sum).
+
+💻 Final Accepted Code (Your Code)
+void solve() {
+    ll n, m;
+    cin >> n >> m;
+
+    vector<ll> k(n), c(m);
+    for (auto &it : k) cin >> it;
+    for (auto &it : c) cin >> it;
+
+    sort(k.rbegin(), k.rend());  // sort descending
+
+    long long idx = 0, ans = 0;
+
+    for (int i = 0; i < n; i++) {
+        int id = k[i] - 1;
+
+        if (idx <= id) {
+            ans += c[idx];
+            idx++;
+        } else {
+            ans += c[id];
+        }
+    }
+
+    cout << ans << "\n";
+}
+
+🧠 Summary
+
+Sort friends by ki descending
+
+Give cheapest present possible (idx)
+
+If not allowed, pay the direct cost c[ki]
+
+Maintain idx for unused presents
+
+Greedy ensures minimal total cost

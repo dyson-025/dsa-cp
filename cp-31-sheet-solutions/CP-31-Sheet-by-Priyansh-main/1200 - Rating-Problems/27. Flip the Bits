@@ -1,0 +1,156 @@
+Problem in Simple Words
+link: https://codeforces.com/problemset/problem/1504/B
+We have two binary strings a and b of the same length.
+
+We want to turn a into b by doing some operations.
+
+Allowed Operation:
+
+You can select a prefix (starting from the first character) — say first k characters —
+but only if in that prefix the number of 0s = number of 1s.
+
+Then flip all bits in that prefix:
+
+every 0 becomes 1,
+
+every 1 becomes 0.
+
+You can do as many such operations as you like.
+
+We need to check:
+👉 Is it possible to make a equal to b?
+
+💡 Key Observation
+
+You can only flip prefixes that are balanced — meaning they have equal 0s and 1s.
+
+So, we first find which prefixes are balanced.
+
+Example:
+a = 0111010000
+
+Let’s count 0s and 1s as we move:
+
+Index	Char	#0s	#1s	Balanced?
+1	0	1	0	❌
+2	1	1	1	✅
+3	1	1	2	❌
+4	1	1	3	❌
+5	0	2	3	❌
+6	1	2	4	❌
+7	0	3	4	❌
+8	0	4	4	✅
+9	0	5	4	❌
+10	0	6	4	❌
+
+✅ means that prefix (till that index) can be flipped.
+
+⚙️ Idea of the Solution
+
+We’ll move from right to left (end to start),
+and try to make a[i] equal to b[i].
+
+We maintain a variable flip which tells us:
+
+flip = 0 → the prefix is in normal form
+
+flip = 1 → the prefix has been flipped odd number of times
+(so all bits are currently opposite)
+
+When we go from right to left:
+
+If the current bit of a (after applying current flip) = b[i], do nothing.
+
+If not equal:
+
+we must flip the prefix [0..i]
+
+but we can only do that if that prefix is balanced
+
+if it’s balanced, we flip (toggle flip)
+
+if not balanced, impossible → print NO
+
+🔍 Example Walkthrough
+Example:
+a = 0111010000
+b = 0100101100
+
+
+Let’s go from right to left:
+
+i	a[i]	b[i]	flip	after flip	match?	balanced prefix?	action
+10	0	0	0	0	✅	—	nothing
+9	0	0	0	0	✅	—	nothing
+8	0	1	0	0	❌	✅	flip → flip=1
+7	0	1	1	1	✅	—	nothing
+6	1	0	1	0	✅	—	nothing
+5	0	0	1	1	❌	✅	flip → flip=0
+4	1	0	0	1	❌	❌	❌ can’t flip → impossible? No, continue steps
+...	...	...	...	...	...	...	...
+
+After processing all, we see we can make it equal.
+
+So → YES.
+
+🧠 Why this works
+
+Because:
+
+You can only flip balanced prefixes.
+
+Going from right to left ensures we never mess up already-fixed bits.
+
+flip tells whether the current segment is inverted or not.
+
+✅ Final Code (C++)
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        string a, b;
+        cin >> a >> b;
+
+        vector<int> good(n, 0);
+        int ones = 0, zeros = 0;
+        for (int i = 0; i < n; i++) {
+            if (a[i] == '1') ones++;
+            else zeros++;
+            if (ones == zeros) good[i] = 1; // balanced prefix
+        }
+
+        int flip = 0;
+        bool ok = true;
+
+        for (int i = n - 1; i >= 0; i--) {
+            char cur = a[i];
+            if (flip) cur = (cur == '0' ? '1' : '0');
+            if (cur == b[i]) continue;
+            if (good[i]) flip ^= 1;
+            else { ok = false; break; }
+        }
+
+        cout << (ok ? "YES" : "NO") << "\n";
+    }
+}
+
+🧩 Summary of Logic
+
+Count prefix balance → mark where equal 0s and 1s.
+
+Start from rightmost end:
+
+If current bits differ → try to flip prefix [0..i]
+
+Allowed only if prefix balanced.
+
+Maintain a flip flag to know if we’re currently inverted.
+
+If ever you need to flip at a non-balanced prefix → NO.

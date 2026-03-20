@@ -1,0 +1,102 @@
+📝 Tactical Conversion — Final Notes (Contest-Ready)
+🔹 Problem Recap
+
+Binary string S of length N
+
+Operation: choose index i with S[i]=1 and flip it to 0
+
+Restriction: you cannot perform two consecutive operations on adjacent indices
+
+Goal: make the string all 0
+
+🔑 Key Insight (MOST IMPORTANT)
+
+The restriction is only about consecutive operations,
+❌ NOT about whether an index was used earlier.
+
+So:
+
+Adjacent indices can be flipped
+
+Just not back-to-back
+
+This allows us to reorder operations smartly using other indices as buffers.
+
+❌ When is it IMPOSSIBLE?
+
+Only in these two exact situations:
+
+Exactly two 1s and they are adjacent
+
+"11"
+
+
+Any order → second operation is adjacent to the first
+
+❌ No buffer index available
+
+Exactly three 1s and they are all consecutive
+
+"111"
+
+
+Middle 1 always becomes adjacent to the previous operation
+
+❌ No valid ordering
+
+✅ When is it POSSIBLE?
+
+In all other cases, because:
+
+Extra 1s can act as buffers
+
+We can reorder operations so that no two consecutive ones are adjacent
+
+Example:
+
+11100111
+Operations: 1 → 3 → 6 → 8 → 2 → 7
+(All consecutive differences > 1)
+
+🧠 Final Rule (Very Precise)
+
+Let:
+
+cnt = total number of '1'
+
+maxLen = maximum length of consecutive '1' block
+
+Then:
+
+If (cnt == 2 AND maxLen == 2) → NO
+If (cnt == 3 AND maxLen == 3) → NO
+Else → YES
+
+✅ Why this works
+
+For 11 and 111, no extra index exists to separate operations
+
+For any larger or split configuration, buffer operations exist
+
+Since adjacency is checked only for consecutive steps, reordering solves it
+
+🧪 Examples
+String	cnt	maxLen	Answer
+00	0	0	YES
+1	1	1	YES
+11	2	2	❌ NO
+111	3	3	❌ NO
+101	2	1	YES
+11100111	6	3	YES
+110011	4	2	YES
+🧑‍💻 Accepted Logic (Code Idea)
+if (cnt == 0) YES;
+else if ((cnt == 2 && maxLen == 2) || (cnt == 3 && maxLen == 3))
+    NO;
+else
+    YES;
+
+🎯 One-Line Takeaway
+
+Only pure blocks of 11 or 111 with no extra 1 outside them are impossible.
+Everything else can be solved by reordering operations.

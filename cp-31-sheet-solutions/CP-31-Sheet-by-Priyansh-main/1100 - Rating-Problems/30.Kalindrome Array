@@ -1,0 +1,127 @@
+Kalindrome Array – Notes
+Problem Definition
+
+Palindrome: An array [b1, b2, ..., bm] is a palindrome if bi = bm+1-i for all i.
+
+Kalindrome: An array [a1, ..., an] is kalindrome if you can choose some integer x and delete some (or none) elements equal to x to make the array a palindrome.
+
+Goal: Determine if a given array is kalindrome.
+
+Observations
+
+If the array is already a palindrome → kalindrome = YES.
+
+If the array is not a palindrome, find the first mismatch:
+
+Suppose a[l] != a[r].
+
+To fix it, either:
+
+Ignore/delete all elements equal to a[l]
+
+Or ignore/delete all elements equal to a[r]
+
+Check if either choice produces a palindrome.
+
+Only one integer x can be chosen for deletion.
+
+Approach
+
+Two-pointer technique:
+
+Initialize l = 0, r = n-1.
+
+While l < r:
+
+If a[l] == a[r], move pointers: l++, r--.
+
+Else, mismatch occurs:
+
+Option 1: Ignore a[l] and check remaining subarray.
+
+Option 2: Ignore a[r] and check remaining subarray.
+
+If either works → YES, otherwise → NO.
+
+Helper function: is_palindrome_after_deletion(a, l, r, x)
+
+Skips all elements equal to x between l and r.
+
+Returns true if remaining array is a palindrome.
+
+Complexity
+
+Time: O(n) per test case
+
+Each element is checked at most twice.
+
+Space: O(1) extra (only pointers and helper variables).
+
+Given Constraint: sum(n) ≤ 2×10⁵ → Efficient.
+
+Example
+
+Array: [1, 4, 4, 1, 4]
+
+l=0, r=4 → mismatch 1 != 4
+
+Option 1: Ignore 1 → [4, 4, 4] → palindrome ✅
+
+Option 2: Ignore 4 → [1, 4, 4, 1] → palindrome ✅
+
+Result → YES
+
+C++ Implementation
+#include <bits/stdc++.h>
+using namespace std;
+
+bool check(vector<int>& a, int l, int r, int x) {
+    while (l < r) {
+        if (a[l] == a[r]) {
+            l++; r--;
+        } else if (a[l] == x) {
+            l++;
+        } else if (a[r] == x) {
+            r--;
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool is_kalindrome(vector<int>& a) {
+    int l = 0, r = a.size() - 1;
+    while (l < r) {
+        if (a[l] == a[r]) {
+            l++; r--;
+        } else {
+            // Try ignoring left or right element
+            return check(a, l+1, r, a[l]) || check(a, l, r-1, a[r]);
+        }
+    }
+    return true;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int t; cin >> t;
+    while (t--) {
+        int n; cin >> n;
+        vector<int> a(n);
+        for (int i = 0; i < n; i++) cin >> a[i];
+        cout << (is_kalindrome(a) ? "YES\n" : "NO\n");
+    }
+}
+
+Key Takeaways
+
+Use two-pointer approach for palindrome-related problems.
+
+On mismatch, consider ignoring/deleting one of the mismatched elements.
+
+This strategy handles the kalindrome condition efficiently.
+
+Many seemingly complex problems are solved by carefully following the problem statement literally.

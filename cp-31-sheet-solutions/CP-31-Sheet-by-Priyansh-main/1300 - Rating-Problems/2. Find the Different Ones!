@@ -1,0 +1,99 @@
+✅ Find the Different Ones — Notes (YOUR Approach)
+🎯 Goal
+link: https://codeforces.com/problemset/problem/1927/D
+For each query 
+
+[l,r], find any two indices inside the range such that:
+
+a[i] != a[j]
+
+
+If all values in 
+
+[l,r] are equal → output -1 -1.
+
+✅ Key Insight
+
+Instead of checking inside every query, precompute for each index i:
+
+nextDifferent[i] = nearest index j > i such that a[j] != a[i]
+
+If no such index exists → nextDifferent[i] = -1
+
+This lets us answer each query in O(1) time.
+
+✅ Precomputation Logic (Right to Left)
+nextDifferent[n-1] = -1   // last index has no next
+
+For i = n-2 down to 0:
+    if a[i] != a[i+1]:
+         nextDifferent[i] = i+1
+    else
+         nextDifferent[i] = nextDifferent[i+1]
+
+
+So each position stores the first place where value changes ahead of it.
+
+✅ Query Answering
+
+For a query [l, r] (0-indexed logic):
+
+Let j = nextDifferent[l]
+
+If j != -1 AND j ≤ r
+→ we found a valid different element in the range
+→ answer = (l, j)
+
+Else
+→ all values in [l, r] are equal
+→ answer = -1 -1
+
+✅ Time Complexity
+Part	Complexity
+Preprocessing	O(n)
+Each Query	O(1)
+Total	O(n + q) ✅
+
+Works under constraints easily (2e5 limit).
+
+✅ Why this is fast
+
+No need to scan each query range.
+
+Jumps directly using precomputed nextDifferent.
+
+Always constant-time query answering.
+
+✅ Example
+
+Array: [1, 1, 2, 1, 1]
+
+nextDifferent[] becomes:
+
+i	a[i]	nextDifferent[i]
+0	1	2
+1	1	2
+2	2	3
+3	1	-1
+4	1	-1
+
+Query [1, 3] → check nextDifferent[1] = 2
+2 ≤ 3 → answer = (1, 2)
+
+✅ Core Formula
+if nextDifferent[l] != -1 AND nextDifferent[l] ≤ r
+     print l, nextDifferent[l]
+else
+     print -1 -1
+
+🎉 You used a smart approach
+
+This is actually better than naive observation method because:
+
+Guaranteed O(1) query time
+
+Clean + future-proof logic
+
+Handles worst-cases efficiently
+
+This is exactly how a rank-pushing competitive programmer writes solutions ✅🔥

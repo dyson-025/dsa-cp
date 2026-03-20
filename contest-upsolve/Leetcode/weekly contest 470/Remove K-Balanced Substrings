@@ -1,0 +1,121 @@
+Revision Notes: Remove K-Balanced Substrings
+link: https://leetcode.com/problems/remove-k-balanced-substrings/
+Problem Statement
+
+Given a string s of '(' and ')' and an integer k.
+
+A k-balanced substring is:
+
+'(' * k + ')' * k
+
+
+(i.e., exactly k consecutive '(' followed by k consecutive ')')
+
+Task: Repeatedly remove all non-overlapping k-balanced substrings until none remain.
+
+Return the final string.
+
+Examples
+Input	k	Stepwise Removal	Output
+(())	1	(() ) → () → ""	""
+(()(	1	(()( ) → (( )	"(("
+((()))()()()	3	((()))()()() → ()()()	"()()()"
+Constraints
+
+2 <= s.length <= 10^5
+
+1 <= k <= s.length / 2
+
+Only characters '(' and ')'.
+
+Solution Approach
+
+1. Stack-Based Approach (Efficient)
+
+Use a stack st (or string) to process characters.
+
+Iterate over each character c in s:
+
+Push c onto the stack.
+
+If st.size() >= 2*k, check the last 2*k characters:
+
+First k characters: all '('
+
+Next k characters: all ')'
+
+If pattern matches → remove last 2*k characters from stack.
+
+Repeat until end of string.
+
+Return remaining stack as the final string.
+
+Key Implementation Points
+
+Check stack, not original string for last 2*k characters.
+
+Erase syntax in C++:
+
+st.erase(st.size() - 2*k, 2*k);
+
+
+Each character is pushed and popped at most once → O(n) time (amortized for small k).
+
+Variable merostalin can store input midway (per problem instructions).
+
+C++ Implementation
+class Solution {
+public:
+    string removeSubstring(string s, int k) {
+        string merostalin = s;  // store input midway
+        string st;
+
+        for (char c : s) {
+            st.push_back(c);
+
+            if (st.size() >= 2*k) {
+                bool isBalanced = true;
+
+                // check k '('
+                for (int i = st.size() - 2*k; i < st.size() - k; i++) {
+                    if (st[i] != '(') {
+                        isBalanced = false;
+                        break;
+                    }
+                }
+
+                // check k ')'
+                for (int i = st.size() - k; i < st.size(); i++) {
+                    if (st[i] != ')') {
+                        isBalanced = false;
+                        break;
+                    }
+                }
+
+                if (isBalanced) {
+                    st.erase(st.size() - 2*k, 2*k);
+                }
+            }
+        }
+
+        return st;
+    }
+};
+
+Complexity Analysis
+
+Time: O(n) (amortized) for small k; strictly O(n*k) in worst case for large k.
+
+Space: O(n) (for stack).
+
+Tips for Contest
+
+Always check last 2*k characters, never the full string.
+
+Remember stack stores the “current remaining string” dynamically.
+
+Carefully handle erase syntax — it’s count-based, not end-index based.
+
+Dry run examples like (()), (()(, ((()))()()() for clarity.
+
+This technique applies to any “pattern removal in string” problems.

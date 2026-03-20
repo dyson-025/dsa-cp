@@ -1,0 +1,181 @@
+📘 Problem: B. JoJo’s Incredible Adventures
+🎯 Goal
+link: https://codeforces.com/problemset/problem/1820/B
+You are given a binary string s of length n.
+Build an n × n table of cyclic right shifts of s.
+Find the maximum rectangular area consisting of only 1s.
+
+🧠 Key Observation (Your Code’s Core Idea)
+
+You realized something brilliant:
+👉 The actual n×n table does not need to be built!
+
+Why?
+
+Because every row is just a rotation of s.
+So the table’s pattern of 1s is periodic — repeating cyclically both row-wise and column-wise.
+
+Thus, instead of a 2D problem,
+we can reduce it to 1D by focusing only on consecutive 1s in cyclic order.
+
+🔍 Step 1: Handle the Cyclic Nature
+
+In a cyclic string, consecutive 1s can wrap around the end → beginning.
+So we can simulate this by checking s + s.
+
+Example:
+
+s = 1101
+s+s = 11011101
+Longest consecutive 1s = 3 (wraps around end)
+
+🔢 Step 2: Find Longest Consecutive 1s (maxcons)
+
+You looped through 2*n positions:
+
+for (int i = 0; i < 2 * n; i++) {
+    if (s[i % n] == '1') cons++;
+    else cons = 0;
+    maxcons = max(maxcons, cons);
+}
+
+
+💡 Why modulo % n?
+To “wrap” the string cyclically — mimicking s + s without extra memory.
+
+Result → maxcons = length of the longest block of 1s (considering wrap-around).
+
+🧩 Step 3: Handle Full 1s Case
+
+If all characters are 1:
+
+maxcons >= n
+
+
+Then the entire matrix is filled with 1s.
+→ The largest rectangle is the whole matrix.
+
+✅ Area = n × n.
+
+⚙️ Step 4: Partial 1s Case
+
+When not all are 1s, you find the maximum rectangular area that can be formed diagonally due to cyclic shifting.
+
+🔸 Why diagonal effect?
+
+Each cyclic shift moves the block of 1s one step to the right,
+so the rectangle can “extend” both horizontally and vertically — like a staircase.
+
+To find the largest rectangle in that diagonal band of 1s:
+You test all possible rectangle shapes formed by choosing a width and height within maxcons.
+
+🔢 Step 5: Try All Possible Width × Height Combinations
+
+You iterate for i = 1 to maxcons:
+
+for (ll i = 1; i <= maxcons; i++) {
+    ans = max(ans, i * (maxcons - i + 1));
+}
+
+
+Here:
+
+i → possible height
+
+(maxcons - i + 1) → possible width (remaining part of the consecutive block)
+
+You’re effectively checking every possible rectangle dimension that can fit inside that maximum 1-block zone.
+
+🧮 Step 6: Output Final Answer
+
+If full 1s → output n * n
+Otherwise → output the maximum area from the loop.
+
+✅ Example Dry Run
+Example: s = "011110"
+n = 6
+s+s = 011110011110
+maxcons = 4 (four consecutive 1s)
+
+
+Loop:
+
+i	height	width	area
+1	1	4	4
+2	2	3	6
+3	3	2	6
+4	4	1	4
+
+✅ Max area = 6
+Matches sample output.
+
+💡 Formula Derived from Loop
+
+That loop effectively computes:
+
+max area = max over i [ i × (maxcons - i + 1) ]
+
+This can also be seen as the product of two parts of a rectangle diagonally aligned due to cyclic shifts.
+
+🧾 Final Code (Your version, neatly formatted)
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        string s;
+        cin >> s;
+        ll n = s.size();
+
+        ll cons = 0, maxcons = 0;
+        for (int i = 0; i < 2 * n; i++) {
+            if (s[i % n] == '1') {
+                cons++;
+                maxcons = max(maxcons, cons);
+            } else {
+                cons = 0;
+            }
+        }
+
+        if (maxcons >= n) {
+            cout << n * n << "\n";
+        } else {
+            ll ans = maxcons;
+            for (ll i = 1; i <= maxcons; i++) {
+                ans = max(ans, i * (maxcons - i + 1));
+            }
+            cout << ans << "\n";
+        }
+    }
+}
+
+🧮 Time Complexity
+
+Finding longest 1s: O(2n)
+
+Looping up to maxcons (≤ n): O(n)
+
+Total per test: O(n)
+
+Sum of n ≤ 2×10⁵ → ✅ efficient
+
+🧠 Concept Summary
+Step	Concept	Meaning
+1	Extend cyclic string	Handle wrap-around 1s
+2	Count longest consecutive 1s	Find maxcons
+3	Full 1s case	Entire matrix = n²
+4	Partial 1s case	Rectangle grows diagonally
+5	Try all rectangle sizes	Maximize area i × (maxcons - i + 1)
+6	Output maximum area	Final answer
+🏁 Final Takeaway
+
+✅ You reduced a 2D cyclic geometry problem → 1D linear counting
+✅ Handled cyclic wrap-around elegantly with % n
+✅ Discovered the rectangle formula by pure logic and iteration
+✅ Your approach matches the editorial idea but is simpler and more intuitive.

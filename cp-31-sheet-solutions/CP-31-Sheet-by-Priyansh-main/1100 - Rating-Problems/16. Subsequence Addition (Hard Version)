@@ -1,0 +1,200 @@
+📘 Problem: G2. Subsequence Addition (Hard Version)
+🧩 Problem Recap
+link: https://codeforces.com/problemset/problem/1807/G2
+We start with an array:
+
+a = [1]
+
+
+We can repeatedly choose any subsequence of a, take its sum, and insert that sum anywhere in a.
+
+We are given a final array c (of size n), and we need to check:
+
+Can we obtain c from [1] using some number of operations?
+
+🧠 Key Insight
+
+Let’s understand how the process evolves.
+
+Initially:
+a = [1]
+
+
+Sum of all elements = 1.
+
+After one operation, possible new elements we can insert:
+
+Using subsequence [1] → sum = 1
+So we can add another 1 → a = [1, 1].
+
+Now, total sum = 2.
+
+Next, possible sums we can create:
+
+Using [1] → 1
+
+Using [1,1] → 2
+So we can create up to sum = 2.
+
+Now array can have elements: [1, 1, 2].
+
+You can see that:
+✅ Any new element you insert must be ≤ current total sum of array.
+
+Why?
+
+Because every new number is a sum of some subset of already-existing elements.
+So the largest sum we can ever make = total sum so far.
+
+🔍 Condition for Possibility
+
+If you sort the final array c in ascending order:
+
+c₁ ≤ c₂ ≤ c₃ ≤ ... ≤ cₙ
+
+
+Then to be valid:
+
+c₁ must be 1 (because we start with [1]).
+
+For every next element cᵢ,
+it must be less than or equal to the sum of all previous elements.
+
+Formally:
+
+prefix_sum >= c[i]
+
+
+for all i > 1.
+
+Otherwise, c[i] cannot be formed from existing numbers — because it would be larger than any possible sum of subsets so far.
+
+🧮 Algorithm (your logic exactly)
+
+Sort the array c.
+
+If c[0] != 1 → immediately print “NO”.
+
+Maintain a running sum sum = 1.
+
+Iterate from i = 1 to n-1:
+
+If c[i] > sum → “NO” (impossible).
+
+Else sum += c[i].
+
+If all checks pass → “YES”.
+
+🧾 Implementation (your code, with explanations)
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+ 
+    int t; 
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        vector<ll> v(n);
+        for (auto &it : v) cin >> it;
+
+        // Step 1: Sort the array
+        sort(v.begin(), v.end());
+
+        // Step 2: First element must be 1
+        if (v[0] != 1) {
+            cout << "NO\n";
+            continue;
+        }
+
+        ll sum = v[0]; // current total sum
+        bool possible = true;
+
+        // Step 3: Check each next element
+        for (int i = 1; i < n; i++) {
+            if (v[i] > sum) {
+                possible = false;
+                break;
+            }
+            sum += v[i];
+        }
+
+        cout << (possible ? "YES\n" : "NO\n");
+    }
+
+    return 0;
+}
+
+✅ Example Walkthroughs
+Example 1:
+c = [5, 1, 3, 2, 1]
+Sorted → [1, 1, 2, 3, 5]
+
+
+Start: sum = 1
+
+i=1 → 1 ≤ 1 ✅ sum=2
+
+i=2 → 2 ≤ 2 ✅ sum=4
+
+i=3 → 3 ≤ 4 ✅ sum=7
+
+i=4 → 5 ≤ 7 ✅ ✅ ✅
+
+✅ YES
+
+Example 2:
+c = [7, 1, 5, 2, 1]
+Sorted → [1, 1, 2, 5, 7]
+
+
+sum = 1
+
+i=1 → 1 ≤ 1 ✅ sum=2
+
+i=2 → 2 ≤ 2 ✅ sum=4
+
+i=3 → 5 > 4 ❌
+
+❌ NO
+
+Example 3:
+c = [1, 1, 4, 2, 1]
+Sorted → [1, 1, 1, 2, 4]
+sum=1  
+→ 1 ≤ 1 ✅ sum=2  
+→ 1 ≤ 2 ✅ sum=3  
+→ 2 ≤ 3 ✅ sum=5  
+→ 4 ≤ 5 ✅
+✅ **YES**
+
+⚙️ Time Complexity
+Operation	Cost
+Sorting	O(n log n)
+Single pass check	O(n)
+Total per test	O(n log n)
+
+Sum of n ≤ 2×10⁵ ⇒ ✅ Efficient for given constraints.
+
+🧠 Key Concepts Learned
+Concept	Explanation
+Subsequence sum limit	Each new element must be ≤ total of previous elements
+Greedy ordering	Sorting ensures we always use smallest available numbers first
+Prefix accumulation	Simulates the growth of possible subset sums
+Fail-fast logic	If sum < c[i] → impossible immediately
+🏁 Summary Table
+Step	What you check	Why
+1	Sort the array	Greedy order ensures smallest first
+2	Check first element == 1	Must start with base [1]
+3	If v[i] > sum → NO	Can’t form this element yet
+4	Else sum += v[i]	Accumulate total subset sum capacity
+5	All passed → YES	Constructible sequence
+🏆 Final Notes
+
+✅ Your logic is exactly the official editorial logic.
+✅ Code is clean, O(n log n), and works for both easy and hard versions.
+✅ Very common greedy technique — shows up in subset-sum construction and prefix-check problems.

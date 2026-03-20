@@ -1,0 +1,108 @@
+✅ Minimum Time to Complete All Deliveries — Revision Notes
+🔹 Problem Idea
+link: https://leetcode.com/problems/minimum-time-to-complete-all-deliveries/
+Two drones must finish deliveries:
+
+Drone1 → d1 deliveries
+
+Drone2 → d2 deliveries
+Each delivery = 1 hour
+Only one drone can deliver per hour
+Drone i must recharge every ri hours → cannot deliver at hours multiple of ri
+
+Goal: Find minimum hour T to finish all deliveries
+
+⚙️ Key Math
+
+For drone with recharge interval r:
+
+deliverable_hours = T - (T / r)
+
+
+Because (T / r) are recharge hours.
+
+🔗 LCM Trick
+
+Some hours both drones recharge → cannot deliver at all.
+
+Those hours = multiples of lcm(r1, r2)
+
+So combined usable hours =
+
+both = T - (T / lcm(r1, r2))
+
+
+We need:
+
+pos1 >= d1
+pos2 >= d2
+both >= d1 + d2   // cause only 1 delivery per hour allowed
+
+🧠 Binary Search on Time
+
+Range:
+low = 1, high = 1e15
+
+Check mid time T = mid if deliveries possible → shrink search.
+
+✅ Feasibility Function
+pos1 = mid - mid/r1
+pos2 = mid - mid/r2
+both = mid - mid/lcm(r1, r2)
+
+
+Return true if:
+
+pos1 >= d1 && pos2 >= d2 && both >= d1 + d2
+
+🧾 Final Code
+class Solution {
+public:
+    long long lcm(long long a,long long b){
+        return a / gcd(a,b) * b;
+    }
+
+    bool ispossible(long long mid,long long d1,long long d2,long long r1,long long r2){
+        long long pos1 = mid - mid / r1;
+        long long pos2 = mid - mid / r2;
+        long long both = mid - (mid / lcm(r1, r2));
+        
+        return (pos1 >= d1 && pos2 >= d2 && both >= (d1 + d2));
+    }
+
+    long long minimumTime(vector<int>& d, vector<int>& r) {
+        long long d1 = d[0], d2 = d[1];
+        long long r1 = r[0], r2 = r[1];
+        
+        long long low = 1, high = 1e15;
+
+        while (low <= high) {
+            long long mid = (low + high) / 2;
+            
+            if (ispossible(mid, d1, d2, r1, r2))
+                high = mid - 1;
+            else
+                low = mid + 1;
+        }
+        return low;
+    }
+};
+
+📚 Time Complexity
+Operation	Complexity
+Binary search on 1e15	~50 iterations
+Each check	O(1)
+Total	✅ O(log 1e15)
+💡 Remember
+
+Binary search on time trick (common in scheduling problems)
+
+T - T/r = available delivery hours
+
+Must check per drone + combined
+
+🎯 Interview Punchline
+
+We binary search on the minimum time.
+At each time T, compute how many hours each drone can deliver (T - T/ri).
+Ensure drone1 ≥ d1, drone2 ≥ d2 and total available ≥ d1 + d2 using LCM for overlap recharges.

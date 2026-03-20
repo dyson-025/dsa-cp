@@ -1,0 +1,167 @@
+🧩 Array Game — Problem Notes
+1. Core Intuition
+
+You are given an array a and an integer k.
+In one operation, you pick any two elements a[i], a[j] and insert:
+
+|a[i] - a[j]|
+
+
+Your goal:
+👉 After exactly k operations, what is the minimum possible value in the array?
+
+2. The Three Critical Cases
+🔹 Case 1: k ≥ 3 → Answer is always 0
+
+Why?
+
+Let initial numbers be a and b.
+
+Op 1: insert x = |a - b|
+
+Op 2: insert x again
+
+Op 3: insert |x - x| = 0
+
+So with 3 operations, 0 is guaranteed.
+
+No smaller value than 0 exists.
+So:
+
+if k >= 3 → answer = 0
+
+🔹 Case 2: k = 1
+
+We can only create one difference.
+
+So minimum possible value is:
+
+Either the smallest original element
+
+Or the smallest difference between any two elements
+
+After sorting:
+
+min(a[i+1] - a[i]) for all i
+
+
+So:
+
+answer = min( a[0], min adjacent difference )
+
+🔹 Case 3: k = 2 (The only tricky one)
+
+Now we can create:
+
+Original element
+
+One difference: |a[i] - a[j]|
+
+Difference of a difference:
+
+||a[i] - a[j]| - a[l]|
+
+
+So strategy:
+
+Generate all possible diff = a[j] - a[i]
+
+For each diff, find closest element in array
+
+Minimize |diff - a[l]|
+
+This gives the best possible number in two steps.
+
+3. Algorithm Summary
+k	Strategy	Time
+k ≥ 3	Always 0	O(1)
+k = 1	Min adjacent diff	O(n log n)
+k = 2	Try all pairs + binary search	O(n² log n)
+
+Given constraint:
+
+Σ n² ≤ 4 × 10⁶
+
+
+So n² is safe.
+
+4. Final Optimized C++ Implementation
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+void solve() {
+    ll n, k;
+    cin >> n >> k;
+    vector<ll> a(n);
+    for (int i = 0; i < n; i++) cin >> a[i];
+
+    // Case 1: k >= 3 → always 0
+    if (k >= 3) {
+        cout << 0 << endl;
+        return;
+    }
+
+    sort(a.begin(), a.end());
+
+    // Base minimum = smallest element
+    ll mini = a[0];
+
+    // Case k = 1 → smallest adjacent difference
+    for (int i = 0; i < n - 1; i++) {
+        mini = min(mini, a[i+1] - a[i]);
+    }
+
+    if (k == 1) {
+        cout << mini << endl;
+        return;
+    }
+
+    // Case k = 2 → difference of difference
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            ll diff = a[j] - a[i];
+
+            auto it = lower_bound(a.begin(), a.end(), diff);
+
+            if (it != a.end())
+                mini = min(mini, *it - diff);
+
+            if (it != a.begin())
+                mini = min(mini, diff - *prev(it));
+        }
+    }
+
+    cout << mini << endl;
+}
+
+int main() {
+    int t;
+    cin >> t;
+    while (t--) solve();
+}
+
+5. Why This Works (Mental Model)
+
+This problem is really about:
+
+How close can we bring two numbers after k transformations?
+
+With 1 move → closest original gap
+
+With 2 moves → gap between a gap and another number
+
+With 3 moves → zero is inevitable
+
+6. Key CP Takeaways
+🟢 Pattern Recognition
+Situation	Insight
+Repeated differences	0 becomes inevitable
+Differences problem	Always sort
+k small (≤2)	brute force allowed
+k ≥ 3	stop thinking, answer = 0
+🟢 Golden Rules
+
+Don’t fear n² when n ≤ 2000
+
+Always check trivial cases first

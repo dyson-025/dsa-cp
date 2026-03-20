@@ -1,0 +1,93 @@
+🧠 Problem Summary
+
+You are given a string s of lowercase letters.
+You must do exactly one of these operations:
+
+Reverse first k characters (for some 1 ≤ k ≤ n), OR
+
+Reverse last k characters.
+
+After that, return the lexicographically smallest possible string.
+
+⚙️ Intuition (Logic)
+
+We just need to try all possible k (1 to n) and perform both operations:
+
+Reverse prefix → s[:k][::-1]
+
+Reverse suffix → s[-k:][::-1]
+
+Then keep the smallest string seen so far.
+
+Why this works:
+
+Each operation gives a new possible string.
+
+Lexicographic comparison tells which is smallest.
+
+Since n ≤ 1000, we can safely test all possibilities (O(n²)).
+
+💻 C++ Code (Final Version)
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    string lexicographicallySmallestString(string s) {
+        int n = s.size();
+        string ans = s;
+
+        for (int k = 1; k <= n; k++) {
+            // Reverse first k characters
+            string first = s;
+            reverse(first.begin(), first.begin() + k);
+            ans = min(ans, first);
+
+            // Reverse last k characters
+            string last = s;
+            reverse(last.end() - k, last.end());
+            ans = min(ans, last);
+        }
+
+        return ans;
+    }
+};
+
+int main() {
+    Solution sol;
+    cout << sol.lexicographicallySmallestString("dcab") << endl; // acdb
+    cout << sol.lexicographicallySmallestString("abba") << endl; // aabb
+    cout << sol.lexicographicallySmallestString("zxy") << endl;  // xzy
+}
+
+🪄 Step-by-Step Example
+
+Input → "dcab"
+
+k	Operation	Result
+1	reverse first 1 → "dcab"	
+2	reverse first 2 → "cdab"	
+3	reverse first 3 → "acdb" ✅	
+4	reverse first 4 → "bacd"	
+3	reverse last 3 → "dabc"	
+4	reverse last 4 → "bacd"	
+
+✅ Final answer → "acdb"
+
+⏱️ Complexity
+
+Time: O(n²)
+
+Space: O(n)
+
+Perfectly fine for n ≤ 1000.
+
+📘 Key Takeaways
+
+Always test both prefix and suffix reversals.
+
+Lexicographic comparison is just normal < comparison between strings.
+
+You can brute force safely when n is small (~1000).
+
+This pattern (try all prefix/suffix modifications) appears often in string manipulation problems.

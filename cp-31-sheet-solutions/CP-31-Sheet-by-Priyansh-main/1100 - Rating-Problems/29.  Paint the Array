@@ -1,0 +1,170 @@
+C. Paint the Array — Notes
+Problem Statement (Simplified)
+
+Given an array a of n positive integers.
+
+Choose a positive integer d and paint elements:
+
+Red → divisible by d
+
+Blue → not divisible by d
+
+A coloring is beautiful if no two adjacent elements have the same color.
+
+Task: Find any suitable d, or report 0 if impossible.
+
+Observations / Key Idea
+
+Beautiful coloring → adjacent elements alternate in color.
+
+To alternate colors:
+
+Split array by indices:
+
+even-indexed elements (0,2,4,...)
+
+odd-indexed elements (1,3,5,...)
+
+One group will be divisible by d, the other group must not be divisible by d.
+
+Use GCD:
+
+Let g1 = GCD of even-indexed elements
+
+Let g2 = GCD of odd-indexed elements
+
+Why GCD? Because if d divides the whole group, it must be ≤ GCD of that group.
+
+Check feasibility:
+
+If g1 does not divide any element in odd positions → d = g1 works.
+
+Else if g2 does not divide any element in even positions → d = g2 works.
+
+Else → impossible (0).
+
+Step-by-Step Solution
+Step 1: Split array by indices
+even_indices = [a0, a2, a4, ...]
+odd_indices = [a1, a3, a5, ...]
+
+Step 2: Compute GCD
+g1 = gcd(even_indices)
+g2 = gcd(odd_indices)
+
+Step 3: Check divisibility
+if g1 does NOT divide any odd-indexed element → answer = g1
+else if g2 does NOT divide any even-indexed element → answer = g2
+else → answer = 0
+
+Example 1
+a = [1, 2, 3, 4, 5]
+even indices → [1, 3, 5], GCD = 1
+odd indices → [2, 4], GCD = 2
+
+Check g1=1 → divides odd indices? YES → cannot use
+Check g2=2 → divides even indices? NO ✅ → answer = 2
+
+
+Answer: 2
+
+Example 2
+a = [10, 5, 15]
+even → [10, 15], GCD = 5
+odd → [5], GCD = 5
+
+Check g1=5 → divides odd? YES ❌
+Check g2=5 → divides even? YES ❌
+Answer = 0
+
+Algorithm
+
+Read t test cases
+
+For each test case:
+
+Read n and array a
+
+Split array by indices: even and odd
+
+Compute g1 = GCD(even) and g2 = GCD(odd)
+
+If g1 divides none of odd → print g1
+
+Else if g2 divides none of even → print g2
+
+Else print 0
+
+Time Complexity
+
+Split array → O(n)
+
+Compute GCD → O(n)
+
+Check divisibility → O(n)
+
+✅ Total per test case → O(n)
+✅ Total for all test cases → O(t * n) → fast enough
+
+C++ Implementation
+#include <bits/stdc++.h>
+using namespace std;
+
+long long gcd(long long a,long long b){
+    while(b!=0){
+        long long temp=b;
+        b=a%b;
+        a=temp;
+    }
+    return a;
+}
+
+long long findgcd(vector<long long>& v){
+    long long ans= v[0];
+    for(int i=1;i<v.size();i++)
+        ans = gcd(ans,v[i]);
+    return ans;
+}
+
+bool check(long long a, vector<long long> &v){
+    for(auto x : v)
+        if(x % a == 0) return true;
+    return false;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t; 
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vector<long long> v(n);
+        for(int i=0;i<n;i++) cin >> v[i];
+
+        vector<long long> even, odd;
+        for(int i=0;i<n;i++){
+            if(i % 2 == 0) even.push_back(v[i]);
+            else odd.push_back(v[i]);
+        }
+
+        long long g1 = findgcd(even);
+        long long g2 = findgcd(odd);
+
+        if(!check(g1,odd)) cout << g1 << endl;
+        else if(!check(g2,even)) cout << g2 << endl;
+        else cout << 0 << endl;
+    }
+}
+
+Tips / Takeaways
+
+Always split by index, not by value!
+
+GCD is very useful when you want a number that divides all elements in a group.
+
+Check the opposite group to ensure no two adjacent elements have the same color.
+
+Works efficiently even for large numbers (1 ≤ ai ≤ 10^18).

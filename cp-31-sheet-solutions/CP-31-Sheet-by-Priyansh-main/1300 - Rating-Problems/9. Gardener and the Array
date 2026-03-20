@@ -1,0 +1,130 @@
+✅ B. Gardener and the Array — Notes
+🎯 Goal
+link: https://codeforces.com/problemset/problem/1775/B
+
+Given an array 
+𝑐1,𝑐2,…,𝑐𝑛c1	​,c2	​,…,cn
+	​
+
+ represented by their set bits, determine if there exist two different subsequences whose bitwise OR is equal.
+
+Two subsequences are different if indices differ (values don't matter).
+
+🧠 Key Insight
+
+Let’s define:
+
+f(x) = OR of elements in subsequence x.
+
+We need two different subsequences a and b such that:
+
+f(a)=f(b)
+💡 Fundamental Observation
+
+A bit that appears only once in the whole array makes that element essential to form the full OR.
+
+If an element has a bit that no other element has, that element is mandatory for any OR that includes that bit.
+
+If every element contains at least one unique bit, then OR value forces a unique subsequence → answer = NO.
+
+But if there exists at least one element where all its bits appear ≥ 2 times, then:
+
+We can include that element or exclude it
+
+OR result stays the same
+
+So two subsequences exist → YES
+
+✅ Condition to check
+
+For each element 
+𝑐
+𝑖
+c
+i
+	​
+
+:
+
+If all bits of c_i appear in ≥ 2 elements → c_i is non-essential
+
+
+If any non-essential element exists → print YES
+Else → NO
+
+🧪 Example
+2
+1 1
+1 2
+
+
+Bits:
+
+element1 → {1} (unique)
+
+element2 → {2} (unique)
+→ No removable element → NO
+
+✅ Edge Case Understanding
+
+Even subsequences like:
+
+{x}
+
+{x, y}
+
+can have same OR if x is redundant.
+
+We just need one removable element.
+
+🚀 Complexity
+
+Each bit processed once → 
+𝑂(∑𝑘𝑖)O(∑ki	​)
+
+Works within limits: 
+10
+5
+10
+5
+
+✅ Code (Final, Editorial Style)
+void solve() {
+    int n;
+    cin >> n;
+
+    vector<vector<int>> bits(n);
+    unordered_map<int,int> freq;
+
+    for(int i = 0; i < n; i++) {
+        int k;
+        cin >> k;
+        bits[i].resize(k);
+        for(int j = 0; j < k; j++){
+            cin >> bits[i][j];
+            freq[bits[i][j]]++;
+        }
+    }
+
+    bool ok = false;
+
+    for(int i = 0; i < n; i++){
+        bool canSkip = true;
+        for(int b : bits[i]){
+            if(freq[b] == 1){
+                canSkip = false;
+                break;
+            }
+        }
+        if(canSkip){
+            ok = true;
+            break;
+        }
+    }
+
+    cout << (ok ? "YES\n" : "NO\n");
+}
+
+📝 One-Line Memory Trick
+
+If some element’s bits are all shared, we can remove it → same OR → YES

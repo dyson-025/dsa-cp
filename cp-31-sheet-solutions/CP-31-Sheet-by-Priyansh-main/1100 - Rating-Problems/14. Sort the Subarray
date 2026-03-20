@@ -1,0 +1,235 @@
+📘 Problem: Sort the Subarray
+🧩 Statement
+link: https://codeforces.com/problemset/problem/1821/B
+You are given two arrays:
+
+a → original array
+
+a′ → array obtained by sorting exactly one contiguous subarray (from l to r) of a in non-decreasing order.
+
+Your task:
+Find the indices l and r (1-based) such that sorting a[l..r] gives a′.
+
+If multiple possible pairs exist:
+
+Choose the one with maximum length.
+
+If still multiple, any one is fine.
+
+📥 Input Format
+t                → number of test cases
+n                → size of array
+a1 a2 ... an     → original array
+a′1 a′2 ... a′n  → modified array after sorting subarray
+
+
+Constraints:
+
+1 ≤ t ≤ 10^4
+
+2 ≤ n ≤ 2×10^5
+
+Sum of all n ≤ 2×10^5
+
+It is guaranteed that a′ can be formed by sorting one subarray of a.
+
+📤 Output Format
+
+Print l r for each test case.
+
+🧠 Intuition & Thought Process
+
+We know:
+
+Only one continuous subarray was sorted.
+
+Everything outside that subarray must be unchanged.
+
+So, differences between a and a′ will appear only inside that range.
+
+🔍 Step 1: Find the first mismatch
+
+Let
+l = first index (from left) where a[i] != a′[i]
+
+Because before that index, everything is identical (sorting didn’t affect them).
+
+🔍 Step 2: Find the last mismatch
+
+Let
+r = last index (from right) where a[i] != a′[i]
+
+Because after that index, everything is identical again.
+
+Now we have a minimal range [l, r] where sorting likely occurred.
+
+⚙️ Step 3: Expand the range
+
+Sometimes sorting affects a slightly larger region —
+especially when adjacent values are already sorted and equal.
+
+So we expand the range while it still forms a non-decreasing sequence in a′.
+
+while (l > 0 && a′[l-1] <= a′[l]) l--;
+while (r + 1 < n && a′[r] <= a′[r+1]) r++;
+
+
+This ensures we cover the longest valid subarray that keeps a′ sorted.
+
+🧾 Final Algorithm
+
+1️⃣ Read t.
+2️⃣ For each test case:
+
+Read n, a[], a′[].
+
+Find first mismatch index l.
+
+Find last mismatch index r.
+
+Expand left and right boundaries.
+
+Print (l+1, r+1) (1-based).
+
+💻 Code Implementation
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t; 
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        vector<int> a(n), b(n);
+        for (int i = 0; i < n; i++) cin >> a[i];
+        for (int i = 0; i < n; i++) cin >> b[i];
+
+        int l = -1, r = -1;
+
+        // Step 1: Find first mismatch
+        for (int i = 0; i < n; i++) {
+            if (a[i] != b[i]) {
+                l = i;
+                break;
+            }
+        }
+
+        // Step 2: Find last mismatch
+        for (int i = n - 1; i >= 0; i--) {
+            if (a[i] != b[i]) {
+                r = i;
+                break;
+            }
+        }
+
+        // Step 3: Expand both sides
+        while (l > 0 && b[l - 1] <= b[l]) l--;
+        while (r + 1 < n && b[r] <= b[r + 1]) r++;
+
+        cout << l + 1 << " " << r + 1 << "\n";
+    }
+}
+
+🧩 Dry Run Example
+Example 1
+a  = [6, 7, 3, 4, 4, 6, 5]
+a′ = [6, 3, 4, 4, 7, 6, 5]
+
+Index	a[i]	a′[i]	Same?
+1	6	6	✅
+2	7	3	❌
+3	3	4	❌
+4	4	4	✅
+5	4	7	❌
+6	6	6	✅
+7	5	5	✅
+
+First mismatch → l = 2
+
+Last mismatch → r = 5
+
+Check expansion:
+
+a′[1]=6 ≤ a′[2]=3 ❌ → no expand left
+
+a′[5]=7 ≤ a′[6]=6 ❌ → no expand right
+
+✅ Final Answer: (2, 5)
+
+Example 2
+a  = [1, 2, 1]
+a′ = [1, 1, 2]
+
+
+Mismatch at positions 2 and 3.
+
+l = 2, r = 3
+
+Expand:
+
+left → a′[1]=1 ≤ a′[2]=1 ✅ → l = 1
+
+right → no expand
+
+✅ Final Answer: (1, 3)
+
+Example 3
+a  = [2, 2, 1]
+a′ = [2, 1, 2]
+
+
+Mismatch:
+
+l = 2
+
+r = 3
+
+Expand:
+
+a′[1]=2 ≤ a′[2]=1 ❌ → no expand left
+
+a′[3]=2 → last → stop
+
+✅ Final Answer: (2, 3)
+
+🧮 Time Complexity
+
+Each test case → O(n)
+
+Total sum of n ≤ 2×10⁵
+✅ Efficient for given constraints.
+
+💡 Important Observations
+
+Matching indices can exist inside [l..r] — sorting still affects them.
+
+Expanding based on sorted order in a′ ensures you get the longest possible valid subarray.
+
+The approach is deterministic and minimal — works even for edge cases.
+
+🏁 Final Tips
+
+Always compare a and a′ index by index to find mismatches.
+
+Use 1-based indices in final output.
+
+Be careful with array bounds when expanding l and r.
+
+Test your solution with:
+
+Already sorted cases.
+
+Duplicate values.
+
+Small n (like 2 or 3).
+
+✅ Summary Table
+Step	What to do	Purpose
+1	Find first mismatch l	Start of sorted subarray
+2	Find last mismatch r	End of sorted subarray
+3	Expand left/right	Ensure longest valid region
+4	Output l+1, r+1	Convert to 1-based

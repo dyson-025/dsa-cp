@@ -1,0 +1,103 @@
+✅ Solution Notes — Alyona and a Narrow Fridge
+🔍 Problem Summary
+
+You have a fridge of height h, width 2 columns.
+You have bottles 1..n, each with height a[i].
+
+You can place shelves wherever you want.
+Each shelf creates space above it, and in that space you can place at most 2 bottles (because width = 2).
+
+Goal:
+Find maximum k such that bottles 1..k can be placed together.
+
+✅ Key Insight
+
+For the first k bottles:
+
+Shelves allow grouping bottles in pairs, because width = 2.
+
+In each pair, the taller bottle decides the needed height for that shelf.
+
+So to minimize height needed:
+→ Sort the first k bottles in non-decreasing order
+→ Take the heights of positions: k, k-2, k-4, ...
+→ Sum those = height needed.
+
+Because in each shelf-section, only the tallest bottle matters.
+
+🔑 Approach
+
+We check each prefix 1..i:
+
+Sort the first i bottles.
+
+Start from the tallest, take every 2nd element:
+
+total_height = a[i] + a[i-2] + a[i-4] + ...
+
+
+If total_height > h → stop.
+
+Otherwise, we can fit first i bottles → cnt++
+
+This works because:
+
+Bottles are placed in pairs.
+
+Height is minimized by pairing taller bottles together.
+
+Shelves can be placed arbitrarily.
+
+✔️ Time Complexity
+
+n <= 1000, sorting prefixes gives roughly:
+
+O(n * n log n) = 10^6 * log(1000) → OK
+
+🧠 Explanation of Code Logic
+for (int i = 0; i < n; i++) {
+    sort(v.begin(), v.begin() + i + 1);  // sort prefix [0..i]
+
+    ll space = h;  // remaining fridge height
+
+    // take every 2nd bottle from the back (largest, third largest, ...)
+    for (int j = i; j >= 0; j -= 2) {
+        space -= v[j];
+        if (space < 0) {
+            pos = false;
+            break;
+        }
+    }
+
+    if (!pos) break;  // can't fit this prefix
+    cnt++;             // successfully fit bottles 1..i
+}
+
+Why j -= 2?
+
+Width = 2 cells.
+
+Thus:
+
+Shelf 1 → can hold v[i], v[i-1]
+Shelf 2 → v[i-2], v[i-3]
+
+
+But only the taller in each pair counts → v[i], v[i-2], v[i-4]...
+
+⭐ Final Output
+
+The variable cnt stores how many bottles from prefix can be fitted.
+
+📌 Final Notes (Interview-Style Key Points)
+
+Bottles are placed in layers; each layer can contain at most 2 bottles.
+
+Shelves can be placed anywhere → we choose grouping optimally.
+
+Only tallest bottle in each pair contributes to height.
+
+For prefix 1..k:
+→ sort heights
+→ pick a[k], a[k-2], a[k-4], ...
+→ check if sum ≤ h

@@ -1,0 +1,210 @@
+🧩 Problem Summary — “Cat Cycle”
+link: https://codeforces.com/problemset/problem/1487/B
+We have two cats: A and B, and n spots arranged in a circle.
+
+Movement Rules:
+
+Cat A moves backward cyclically:
+
+n, n-1, n-2, ..., 2, 1, n, n-1, ...
+
+
+Cat B moves forward cyclically:
+
+1, 2, 3, ..., n-1, n, 1, 2, ...
+
+Rule of Conflict:
+
+If both cats want the same spot, Cat A gets it (since A is older),
+and Cat B moves to the next spot in its increasing order.
+
+🧠 What’s Asked
+
+We must determine which spot Cat B is on after k hours.
+
+⚙️ Example Walkthrough
+
+Let’s understand with small examples first.
+
+Example 1:
+n = 2, k = 1
+A’s order: 2, 1, 2, 1, ...
+B’s order: 1, 2, 1, 2, ...
+
+
+At hour 1:
+
+A → spot 2
+
+B → spot 1
+✅ So, answer = 1
+
+At hour 2:
+
+A → spot 1
+
+B → wants 2 → not occupied → sits on 2
+✅ So, answer = 2
+
+Example 2:
+n = 3
+A’s order: 3, 2, 1, 3, 2, 1, ...
+B’s order: 1, 2, 3, 1, 2, 3, ...
+
+
+Hour 1:
+
+A → 3
+
+B → 1
+✅ no clash → B = 1
+
+Hour 2:
+
+A → 2
+
+B → wants 2, but A is there → moves to next spot (3)
+✅ B = 3
+
+Hour 3:
+
+A → 1
+
+B → wants 1, but A is there → moves to next (2)
+✅ B = 2
+
+So, the pattern for B (n=3):
+1, 3, 2, 1, 3, 2, ...
+
+📊 Pattern Observation
+
+When n is even:
+There is no extra shift for B — both cats complete full cycles in sync.
+So Cat B’s position is just (k % n).
+
+When n is odd:
+There’s an extra shift every n/2 hours.
+
+Why?
+Because when n is odd, both cats will collide once in every half cycle.
+This forces Cat B to move one step ahead extra each time that happens.
+
+📐 Mathematical Formula Derivation
+
+Let’s analyze this carefully.
+
+Case 1: n is even
+
+✅ They never clash periodically.
+So Cat B’s position is simple:
+
+B_pos=(k−1)modn+1
+Case 2: n is odd
+
+Let’s define:
+
+mid = n / 2 (integer division)
+
+Every mid hours, B gets pushed one step further because of conflicts.
+
+Hence, in k hours:
+
+The number of “pushes” B faced = k / mid (integer division)
+
+So total extra shifts = k / mid
+
+Thus the formula becomes:
+
+B_pos=((k−1)+⌊(k−1)/mid⌋)modn+1
+🧩 Final Code Explanation (line by line)
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+
+→ Includes all standard headers and defines long long as ll.
+
+int main() {
+    int t;
+    cin >> t;
+
+
+→ Input number of test cases.
+
+    while (t--) {
+        int n, k;
+        cin >> n >> k;
+        k--; // convert to 0-based indexing for easier modulo calculation
+
+
+→ Decrement k by 1 to make it zero-based (since hour 1 corresponds to index 0).
+
+Case 1: Even n
+        if (n % 2 == 0) {
+            int ans = (k % n);
+            cout << ans + 1 << "\n";
+        }
+
+
+→ For even n, there’s no extra shift.
+→ Just print (k % n) + 1.
+
+Case 2: Odd n
+        else {
+            int mid = n / 2;
+            int ans = ((k / mid) + k) % n;
+            cout << ans + 1 << "\n";
+        }
+
+
+→ For odd n, calculate the number of extra shifts: k / mid.
+→ Add this to k, take modulo n, then add 1 (convert back to 1-based).
+
+✅ Example Verification
+
+Input:
+
+7
+2 1
+2 2
+3 1
+3 2
+3 3
+5 5
+69 1337
+
+
+Output:
+
+1
+2
+1
+3
+2
+2
+65
+
+
+Let’s check one:
+n = 5, k = 5
+
+mid = 2
+
+shifts = k/mid = 5/2 = 2
+
+ans = (5-1 + 2) % 5 + 1 = (4+2)%5+1 = 6%5+1 = 2
+✅ matches output (2)
+
+🔍 Intuitive Summary
+Type of n	Behavior	Formula for B’s Position (1-based)
+Even	No extra shifts	(k-1) % n + 1
+Odd	Every n/2 hours → +1 shift	((k-1) + floor((k-1)/(n/2))) % n + 1
+🖊️ Key Notes for Exam / Contest Revision
+
+Always convert k to 0-based before modulo math.
+
+Even case = simple circular movement.
+
+Odd case = one extra step shift every mid steps.
+
+This question tests pattern detection, modular arithmetic, and simulation optimization (since n, k ≤ 1e9).

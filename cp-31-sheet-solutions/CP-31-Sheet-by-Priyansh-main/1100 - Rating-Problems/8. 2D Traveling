@@ -1,0 +1,169 @@
+🧠 Problem Understanding — “B. 2D Traveling”
+📜 Story Summary
+link: https://codeforces.com/problemset/problem/1869/B
+
+There are n cities on a 2D plane.
+
+The first k cities are major cities (special cities).
+
+Each city has coordinates (x, y).
+
+You can fly between any two cities.
+
+The flight cost f(i, j) is:
+
+0                             if both i and j are major cities
+|xi - xj| + |yi - yj|         otherwise  (Manhattan distance)
+
+
+You start at city a and want to reach city b.
+You can visit any number of intermediate cities.
+
+You must find the minimum total flight cost to reach from a to b.
+
+⚙️ Key Observations
+
+Free travel between major cities
+→ All k major cities are mutually connected with cost = 0.
+
+For any non-major city, traveling to a major city costs the Manhattan distance.
+
+So the cheapest path can only be:
+
+Directly from a → b, or
+
+a → nearest major city + b → nearest major city (since teleport among major cities is free).
+
+💡 Derived Formula
+
+Let:
+
+dist(a, b) = |xa − xb| + |ya − yb|
+
+mina = min distance from city a to any major city
+
+minb = min distance from city b to any major city
+
+Then the minimum cost is:
+
+ans = min(dist(a, b), mina + minb)
+
+
+Because:
+
+Option 1: Fly directly (cost = dist(a, b))
+
+Option 2: Go from a → major1 → major2 → b (cost = mina + 0 + minb)
+
+🧩 Edge Case
+
+If k == 0 (no major cities),
+→ Only direct flight is possible:
+ans = dist(a, b)
+
+🧮 Time Complexity
+
+Each test case: O(k)
+
+Total across all test cases: O(Σk) ≤ 2×10⁵ ✅
+→ Works comfortably within 1s.
+
+✅ Final Code (Clean + Optimized)
+#include <bits/stdc++.h>
+using namespace std;
+
+// ---------- FAST I/O ----------
+#define fast_io ios::sync_with_stdio(false); cin.tie(nullptr);
+
+// ---------- SHORTCUTS ----------
+#define ll long long
+#define all(x) (x).begin(), (x).end()
+#define pb push_back
+#define endl '\n'
+
+// ---------- CONSTANTS ----------
+const ll INF = 1e18;
+
+// ---------- SOLVE FUNCTION ----------
+void solve() {
+    ll n, k, a, b;
+    cin >> n >> k >> a >> b;
+    vector<pair<ll, ll>> v(n);
+    for (int i = 0; i < n; i++) {
+        cin >> v[i].first >> v[i].second;
+    }
+
+    a--; b--; // convert to 0-based indexing
+
+    // Direct distance
+    ll direct = abs(v[a].first - v[b].first) + abs(v[a].second - v[b].second);
+
+    // No major cities -> direct flight only
+    if (k == 0) {
+        cout << direct << endl;
+        return;
+    }
+
+    // Find nearest major city to a and b
+    ll mina = INF, minb = INF;
+    for (int i = 0; i < k; i++) {
+        mina = min(mina, abs(v[i].first - v[a].first) + abs(v[i].second - v[a].second));
+        minb = min(minb, abs(v[i].first - v[b].first) + abs(v[i].second - v[b].second));
+    }
+
+    // Result
+    ll ans = min(direct, mina + minb);
+    cout << ans << endl;
+}
+
+// ---------- MAIN ----------
+int main() {
+    fast_io
+    int t;
+    cin >> t;
+    while (t--) solve();
+    return 0;
+}
+
+🧩 Example Walkthrough
+
+Input
+
+1
+6 2 3 5
+0 0
+1 -2
+-2 1
+-1 3
+2 -2
+-3 -3
+
+
+Step-by-step
+
+Major cities: (0,0), (1,-2)
+a = 3 → (-2,1)
+b = 5 → (2,-2)
+
+direct = |(-2)-2| + |1-(-2)| = 4 + 3 = 7
+
+nearest major to a:
+→ min(|(-2)-0|+|1-0|=3, |(-2)-1|+|1-(-2)|=6) = 3
+nearest major to b:
+→ min(|2-0|+|(-2)-0|=4, |2-1|+|(-2)-(-2)|=1) = 1
+
+=> mina + minb = 3 + 1 = 4
+=> answer = min(7, 4) = 4 ✅
+
+
+Output
+
+4
+
+🧭 Concept Summary (for your notes)
+Concept	Meaning
+Major cities	Connected freely (cost 0)
+Manhattan distance	
+Key formula	min(direct, mina + minb)
+Time Complexity	O(k) per test
+Edge Case	k = 0 → only direct flight

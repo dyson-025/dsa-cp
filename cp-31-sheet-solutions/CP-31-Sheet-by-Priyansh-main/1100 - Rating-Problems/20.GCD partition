@@ -1,0 +1,107 @@
+🧩 Problem Recap
+link: https://codeforces.com/contest/1780/problem/B
+You are given an array 
+a
+a of length 
+n
+n. You must split it into at least two contiguous segments. The score of that split is defined as the
+
+gcd
+(b1,b2,…,bk)gcd(b 1,b 2,…,b k)
+where 
+b is the sum of the i-th segment.
+
+You need to maximize this GCD.
+
+💡 Key Observation: Only Two Segments Are Enough
+Let the total sum of all elements be 
+S=∑aiS=∑a i
+ .
+Now, suppose you split the array into two parts:
+
+Left sum=L,Right sum=S−L
+
+Then, the score for this partition is:
+
+gcd(L,S−L)
+
+If any split into more than two parts gives GCD = 
+g
+g, then grouping these subsegments together still yields a GCD at least 
+g
+g. Hence, checking only two parts is enough.
+
+🧮 Step-by-Step Solution
+Compute prefix sums:
+Let 
+
+prefix[i] = sum of first i elements.
+
+Try every split point:
+For every valid 
+
+i∈[1,n−1], calculate:
+
+score=gcd(prefix[i],prefix[n]−prefix[i])
+
+Track maximum score:
+The answer is the maximum of all these computed gcds.
+
+⏱️ Complexity Analysis
+Computing prefix sums: 
+O(n)O(n)
+
+Trying all splits (each GCD in 
+O(log⁡S)O(logS)):O(nlogS)O(nlogS)
+
+Overall efficient for 
+n≤2×105n≤2×10 5
+ 
+
+✅ Example Walkthrough
+Example:
+Input:
+
+text
+4
+2 2 1 3
+i	prefix[i]	right sum	gcd(prefix[i], right sum)
+1	2	6	2
+2	4	4	4
+3	5	3	1
+Maximum score = 4
+
+💻 Optimized C++ Code
+cpp
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t; cin >> t;
+    while (t--) {
+        int n; cin >> n;
+        vector<ll> a(n+1, 0), prefix(n+1, 0);
+
+        for (int i = 1; i <= n; i++) {
+            cin >> a[i];
+            prefix[i] = prefix[i-1] + a[i];
+        }
+
+        ll ans = 1;
+        for (int i = 1; i < n; i++) {
+            ans = max(ans, gcd(prefix[i], prefix[n] - prefix[i]));
+        }
+
+        cout << ans << "\n";
+    }
+}
+🧠 Intuitive Summary
+The GCD score depends on how evenly you can "divide" the array sum.
+
+Checking every point where you can cut simulates all possible partitionings.
+
+You don’t need to try more segments — two-part splits always suffice.

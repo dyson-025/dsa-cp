@@ -1,0 +1,124 @@
+💤 Codeforces B — Average Sleep Time
+link: https://codeforces.com/problemset/problem/808/B
+🧠 Problem Summary
+
+Polycarp recorded his sleep time for n days.
+In Berland, a week has k days.
+
+He considers every consecutive group of k days as a “week”.
+We must find the average total sleep time per week,
+averaged over all such possible weeks.
+
+📥 Input
+
+Two integers n and k → number of days & week length
+1 ≤ k ≤ n ≤ 2×10⁵
+
+Sequence a₁, a₂, …, aₙ
+1 ≤ aᵢ ≤ 10⁵
+
+📤 Output
+
+Print a single floating-point number —
+average total sleep time across all (n - k + 1) weeks.
+
+Precision:
+Absolute or relative error ≤ 10⁻⁶
+→ use at least 6–10 digits after decimal.
+
+📊 Example
+
+Input
+
+3 2
+3 4 7
+
+
+Output
+
+9.0000000000
+
+
+Explanation
+Possible “weeks” (subarrays of length 2):
+
+Week	Days	Sum
+1	[3, 4]	7
+2	[4, 7]	11
+
+Average = (7 + 11) / 2 = 9.0
+
+🧩 Logic & Formula
+
+Let prefix sums be:
+
+𝑝𝑓[𝑖]=𝑎1+𝑎2+⋯+𝑎𝑖pf[i]=a1	+a2	​+⋯+ai
+
+Then the sum of subarray [i-k+1, i] =
+
+pf[i]−pf[i−k]
+
+(handling negative indices carefully)
+
+Total sum over all possible weeks:
+
+total=∑𝑖=𝑘𝑛(𝑝𝑓[𝑖]−𝑝𝑓[𝑖−𝑘])total=i=k∑n
+	​
+
+(pf[i]−pf[i−k])
+
+Final answer:
+
+avg=total𝑛−𝑘+1avg=n−k+1total
+	​
+
+🧮 Code
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+void solve() {
+    ll n, k;
+    cin >> n >> k;
+    vector<ll> v(n);
+    for (auto &it : v) cin >> it;
+
+    vector<ll> pf(n);
+    pf[0] = v[0];
+    for (int i = 1; i < n; i++)
+        pf[i] = v[i] + pf[i - 1];
+
+    long double sum = 0;
+    for (int i = k - 1; i < n; i++)
+        sum += pf[i] - (i - k >= 0 ? pf[i - k] : 0);
+
+    sum = sum / (n - k + 1);
+    cout << fixed << setprecision(10) << sum << endl;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    solve();
+}
+
+⚙️ Time Complexity
+Step	Operation	Complexity
+Prefix sum creation	O(n)	
+Sliding window / summation	O(n)	
+Total	O(n) per test case	
+
+Since ∑n ≤ 2×10⁵, this is perfectly efficient.
+
+💾 Space Complexity
+Component	Space
+Input array v	O(n)
+Prefix array pf	O(n)
+Constants	O(1)
+Total	O(n)
+🧠 Key Takeaways
+
+✅ Prefix sums make subarray sum queries O(1).
+✅ long double avoids precision errors for large totals.
+✅ Always use fixed << setprecision(10) for floating outputs.
+✅ Handles up to 2×10⁵ efficiently in 1s limit.

@@ -1,0 +1,142 @@
+🔍 Key Idea
+link: https://codeforces.com/problemset/problem/1791/E
+The operation “flip two adjacent signs” means:
+
+You can change the sign of two consecutive elements together any number of times.
+
+That means:
+
+You cannot flip a single element alone.
+
+But because flipping twice cancels out, the relative pattern of negatives can be adjusted quite flexibly.
+
+🧠 Observation
+
+The parity of negative signs in the array (i.e., whether count of negatives is even or odd) can change only if n (the array length) is even.
+
+Let's reason it properly:
+
+Each operation flips two adjacent signs.
+
+If you flip an even number of elements → total number of negative signs changes by an even number (0 or ±2).
+
+Hence, the parity (even/odd) of negatives never changes.
+
+So:
+
+If you start with an even number of negatives, you can make all elements positive.
+
+If you start with an odd number of negatives, you’ll always have at least one negative number remaining — ideally, the smallest in absolute value should stay negative (to minimize loss).
+
+✅ Strategy
+
+Convert all elements to their absolute values.
+
+Count how many negatives there were originally.
+
+If the number of negatives is even →
+→ All can be made positive.
+→ Answer = sum of absolute values.
+
+If the number of negatives is odd →
+→ One smallest absolute value must remain negative.
+→ Answer = sum of absolute values − 2 × (smallest absolute value).
+
+💻 Clean Code
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        vector<long long> a(n);
+        for (auto &x : a) cin >> x;
+
+        int neg = 0;
+        long long sum = 0;
+        long long mn = LLONG_MAX;
+
+        for (auto x : a) {
+            if (x < 0) neg++;
+            sum += abs(x);
+            mn = min(mn, abs(x));
+        }
+
+        if (neg % 2 == 0)
+            cout << sum << "\n";
+        else
+            cout << sum - 2 * mn << "\n";
+    }
+    return 0;
+}
+
+✅ Example Dry Run
+
+Input
+
+5
+3
+-1 -1 -1
+5
+1 5 -5 0 2
+3
+1 2 3
+6
+-1 10 9 8 7 6
+2
+-1 -1
+
+
+Explanation
+1️⃣ [-1, -1, -1]
+
+abs = [1,1,1], negatives = 3 (odd)
+
+sum = 3, min = 1
+
+ans = 3 - 2×1 = 1
+
+2️⃣ [1,5,-5,0,2]
+
+abs = [1,5,5,0,2], negatives = 1 (odd)
+
+sum = 13, min = 0
+
+ans = 13 - 0 = 13
+
+3️⃣ [1,2,3]
+
+all positive → sum = 6
+
+4️⃣ [-1,10,9,8,7,6]
+
+abs = [1,10,9,8,7,6], negatives = 1 (odd)
+
+sum = 41, min = 1
+
+ans = 41 - 2×1 = 39
+
+5️⃣ [-1, -1]
+
+abs = [1,1], negatives = 2 (even)
+
+ans = 2
+
+✅ Output
+1
+13
+6
+39
+2
+
+🧩 Complexity
+
+Time: O(n) per test
+
+Space: O(1) (besides array)

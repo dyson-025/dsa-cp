@@ -1,0 +1,102 @@
+📘 Problem Name
+link: https://codeforces.com/problemset/problem/1703/F
+Yet Another Problem About Pairs Satisfying an Inequality
+
+🎯 Goal
+
+Count number of pairs (i, j) such that:
+
+1 ≤ i < j ≤ n
+a[i] < i   AND   a[j] < j
+AND
+a[i] < a[j]
+
+
+(Indexes are 1-based in problem, but in code we use 0-based so i+1)
+
+🧠 Logic / Intuition
+
+We want pairs where:
+
+a[i] < i   and   a[j] < j  (valid positions)
+and a[i] < a[j]
+
+
+Meaning:
+
+Keep only those indices where
+value < index (valid candidates)
+
+For each valid j, count how many previous valid i satisfy:
+i < a[j]
+
+Why i < a[j]?
+Because after filtering valid positions, i (index) is what matters since:
+
+a[i] < i   < j   and   a[i] < a[j]
+
+
+So we just count earlier indices smaller than a[j].
+
+✅ Trick Used
+
+Keep a list of valid indices (sorted automatically because we go left → right)
+
+Use lower_bound to count how many previous indices < a[j].
+
+✍️ Steps
+
+Scan array
+
+If a[i] < (i+1), it’s valid → process it
+
+Count earlier i such that i+1 < a[i]
+
+Add current index in list
+
+Sum all counts
+
+✅ Time Complexity
+
+O(n log n) (because of lower_bound)
+
+Fits in constraints.
+
+💻 Code (C++)
+void solve() {
+    int n;
+    cin >> n;
+    vector<long long> a(n);
+    for (auto &x : a) cin >> x;
+
+    vector<long long> valid; 
+    valid.reserve(n); 
+
+    long long ans = 0;
+
+    for (int i = 0; i < n; i++) {
+        long long idx = i + 1;     // 1-based index
+        if (a[i] < idx) {
+            long long cnt = lower_bound(valid.begin(), valid.end(), a[i]) - valid.begin();
+            ans += cnt;
+            valid.push_back(idx);  // stays sorted because idx increases
+        }
+    }
+
+    cout << ans << "\n";
+}
+
+📎 Key Idea to Remember
+
+Filter positions where a[i] < i
+Then count earlier indices smaller than a[j] using lower_bound
+
+🎓 Short Notes Summary
+
+Condition: a[i] < i < a[j] < j
+
+Reduce to: a[i] < i & a[j] < j & i < a[j]
+
+Maintain list of valid indices
+
+Use binary search to count how many previous valid indices < a[j]

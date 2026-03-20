@@ -1,0 +1,159 @@
+🧩 Problem Understanding
+link: https://codeforces.com/problemset/problem/1919/C
+We are given an array a of size n.
+We need to split it into two subsequences s and t (possibly empty) such that every element of a is in either s or t.
+Then we calculate a "penalty" for each subsequence.
+
+Penalty definition:
+
+For an array b,
+p(b) = number of indices i (1 ≤ i ≤ m−1) where b[i] < b[i+1].
+So basically, count how many times the array increases.
+
+Our goal:
+👉 Minimize total penalty = p(s) + p(t)
+
+🧠 Intuition
+
+We can think of this as splitting the array into two "non-increasing" subsequences (since an “increase” adds penalty).
+
+If we could make both subsequences non-increasing, penalty = 0.
+
+But sometimes, it’s impossible — we’ll need to place some elements that “break” this non-increasing pattern, causing a penalty.
+
+🧩 Observations
+
+Each element must go either to subsequence s or t, keeping their order.
+
+We can simulate greedily where each element should go, trying to avoid increases as much as possible.
+
+We track the last elements of both subsequences (sl and tl), since they define whether adding a new element will create an increase or not.
+
+⚙️ Greedy Idea
+
+We process each element one by one.
+
+Maintain:
+
+sl = last element of subsequence s
+
+tl = last element of subsequence t
+
+At the beginning, both are “infinite” (or very large) because we want to build non-increasing subsequences.
+
+For each element val:
+
+Put in the subsequence where it fits without increase, if possible.
+
+If it fits in both — prefer the one with smaller last value (swap if needed).
+
+If it fits in none (i.e., val > both sl and tl),
+→ we start a new non-increasing sequence, increasing penalty by 1,
+and set sl = val (restart one subsequence).
+
+This mimics forming two decreasing sequences optimally.
+
+🧮 Example Walkthrough
+Example 1:
+
+a = [1, 2, 3, 4, 5]
+
+Initially:
+sl = ∞, tl = ∞, penalty = 0
+
+Step	val	sl before	tl before	Decision	sl after	tl after	penalty
+1	1	∞	∞	put in s (since val ≤ sl)	1	∞	0
+2	2	1	∞	fits nowhere (2>1,2>∞? no) → new sequence	2	∞	+1
+3	3	2	∞	same → new sequence	3	∞	+1
+4	4	3	∞	same → new sequence	4	∞	+1
+5	5	4	∞	same → new sequence	5	∞	+1
+
+But since we can interleave between two subsequences, optimal penalty = 3.
+
+✅ Code Breakdown
+void solve() {
+    ll n;
+    cin >> n;
+    vector<ll> v(n);
+    for (auto &it : v) cin >> it;
+    
+    ll sl = LLONG_MAX;  // last element of subsequence s
+    ll tl = LLONG_MAX;  // last element of subsequence t
+    ll penalty = 0;
+
+    for (int i = 0; i < n; i++) {
+        ll val = v[i];
+        
+        // Ensure sl <= tl (to make greedy choice consistent)
+        if (sl > tl) swap(sl, tl);
+        
+        if (val <= sl) {
+            // Can go to s without increase
+            sl = val;
+        } 
+        else if (val <= tl) {
+            // Can go to t without increase
+            tl = val;
+        } 
+        else {
+            // Doesn't fit into either (increase unavoidable)
+            sl = val;
+            penalty++;
+        }
+    }
+    cout << penalty << endl;
+}
+
+⚙️ Explanation of Each Step
+1. if (sl > tl) swap(sl, tl);
+
+This ensures sl ≤ tl before each step.
+So sl represents the more "flexible" subsequence, where we can try to put smaller elements first.
+
+2. if (val <= sl) sl = val;
+
+If we can keep s non-increasing, we put val there.
+
+3. else if (val <= tl) tl = val;
+
+Otherwise, try to place it in t.
+
+4. else { sl = val; penalty++; }
+
+If it fits nowhere, we must start a new increasing segment, incrementing penalty.
+
+🧠 Core Insight
+
+This is equivalent to:
+
+Counting how many “times” we need to restart a non-increasing subsequence system with two stacks.
+
+Each restart corresponds to one extra penalty.
+
+It’s similar to Longest Non-Increasing Subsequence partition into 2 subsequences.
+
+🧾 Time Complexity
+
+Each element processed once → O(n) per test case
+
+Total n ≤ 2 × 10⁵ → Fast enough.
+
+📚 Summary Notes (Short Revision Version)
+Concept	Meaning
+Task	Split array into two subsequences to minimize total increases
+Penalty	Count of i where a[i] < a[i+1] in both subsequences
+Goal	Minimize p(s) + p(t)
+Idea	Maintain last elements of two subsequences (sl, tl)
+If fits in s	val <= sl
+Else fits in t	val <= tl
+Else	New penalty, restart one subsequence
+Swap logic	Keep sl <= tl before each step
+Time Complexity	O(n)
+Space	O(1)
+🧩 Example Outputs Revisited
+Input	Output	Explanation
+[1,2,3,4,5]	3	Need to restart 3 times
+[8,2,3,1,1,7,4,3]	1	Almost decreasing, only one unavoidable increase
+[3,3,3,3,3]	0	Already non-increasing
+[1]	0	Single element
+[2,1]	0	Decreasing sequence

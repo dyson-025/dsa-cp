@@ -1,0 +1,95 @@
+Yet Another Card Deck – Revision Notes
+Problem Summary
+
+Deck of n cards (top-to-bottom).
+
+Each card has a color ai.
+
+q queries: For color tj, find first occurrence, print position, move to top.
+
+Key Observations
+
+Deck changes after each query → need dynamic tracking.
+
+Color range small (1..50) → allows O(1) updates per query.
+
+Naive scan → O(n*q) → too slow.
+
+Efficient Approach
+
+Maintain pos[1..50] → stores first occurrence of each color.
+
+For each query tj:
+
+Print pos[tj].
+
+Move tj to top:
+
+Increment pos[c] for all colors c with pos[c] < pos[tj].
+
+Set pos[tj] = 1.
+
+Algorithm Steps
+
+Initialize pos[c] = first index of color c.
+
+Process each query using pos array.
+
+Time Complexity
+
+Preprocessing: O(n)
+
+Each query: O(50) → effectively O(q)
+
+Total: O(n + q) → fits n, q ≤ 3×10⁵.
+
+Example
+
+Deck: [2,1,1,4,3,3,1]
+Queries: [3,2,1,1,4]
+Output: 5 2 3 1 5
+
+C++ Implementation
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int n, q;
+    cin >> n >> q;
+    vector<int> a(n);
+    for (int i = 0; i < n; i++) cin >> a[i];
+
+    vector<int> pos(51, -1);
+    // Initialize first occurrence for each color
+    for (int i = 0; i < n; i++) {
+        if (pos[a[i]] == -1) pos[a[i]] = i + 1; // 1-based index
+    }
+
+    while (q--) {
+        int t;
+        cin >> t;
+        int p = pos[t];
+        cout << p << " ";
+
+        // Update positions
+        for (int c = 1; c <= 50; c++) {
+            if (pos[c] < p && pos[c] != -1) pos[c]++;
+        }
+        pos[t] = 1; // Move query color to top
+    }
+
+    cout << "\n";
+}
+
+Key Takeaways
+
+Small color range → precompute first occurrence.
+
+Update positions efficiently after moving a card to the top.
+
+“Move to top” / “Front query” problems → position array or map tricks.
+
+Algorithm works in O(n + q) due to small constant 50.

@@ -1,0 +1,165 @@
+🧾 Problem: Difference of GCDs
+You are given:
+link: https://codeforces.com/contest/1708/problem/B
+Three integers n, l, r.
+
+You must construct an array:
+𝑎1,𝑎2,...,𝑎𝑛a1,a2,...,an
+	such that:
+
+𝑙≤𝑎𝑖≤𝑟l≤ai≤r
+
+All values 
+𝑔𝑐𝑑(𝑖,𝑎𝑖)
+gcd(i,ai) are distinct
+
+If possible → print
+
+YES
+a1 a2 ... an
+
+
+Otherwise →
+
+NO
+
+🧠 Core Idea
+
+We want all gcd(i, aᵢ) to be different.
+
+👉 The simplest way to guarantee distinct gcds:
+
+𝑔𝑐𝑑(𝑖,𝑎𝑖)=𝑖gcd(i,ai)=i
+
+Because all i = 1, 2, …, n are distinct.
+
+To make that true:
+
+𝑎𝑖
+ must be a multiple of 
+𝑖ai
+	​
+
+ must be a multiple of i
+⚙️ Construction Formula
+
+We need to pick a multiple of i that lies in [l, r].
+
+✅ The smallest multiple of i that’s ≥ l is:
+
+In code:
+a[i] = ((l + i - 1) / i) * i;
+
+
+Then:
+
+If a[i] > r, → ❌ No valid number exists → print NO
+
+Else, continue
+
+🧮 Example 1
+n = 5, l = 1, r = 5
+
+i	aᵢ = ((l+i-1)/i)*i	gcd(i, aᵢ)
+1	1	1
+2	2	2
+3	3	3
+4	4	4
+5	5	5
+
+✅ gcds = [1,2,3,4,5] — distinct
+✅ all aᵢ in [1,5]
+→ Output:
+
+YES
+1 2 3 4 5
+
+🧮 Example 2
+n = 10, l = 30, r = 35
+
+i	smallest multiple ≥30	in range?
+1	30	✅
+2	30	✅
+3	30	✅
+4	32	✅
+5	30	✅
+6	30	✅
+7	35	✅
+8	32	✅
+9	36 ❌	❌
+
+❌ i=9 fails → print NO
+
+✅ Final Code
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        long long n, l, r;
+        cin >> n >> l >> r;
+        vector<long long> a(n + 1);
+        bool ok = true;
+
+        for (long long i = 1; i <= n; i++) {
+            long long x = ((l + i - 1) / i) * i;  // smallest multiple of i >= l
+            if (x > r) {
+                ok = false;
+                break;
+            }
+            a[i] = x;
+        }
+
+        if (!ok) {
+            cout << "NO\n";
+        } else {
+            cout << "YES\n";
+            for (int i = 1; i <= n; i++) cout << a[i] << " ";
+            cout << "\n";
+        }
+    }
+}
+
+🧩 Why This Works
+
+Each index i gets a multiple of itself → gcd(i, aᵢ) = i
+
+All i are distinct → gcds are distinct
+
+If any aᵢ can’t fit in [l, r], it’s impossible
+
+⏱️ Complexity
+Operation	Complexity
+Per test case	O(n)
+Total (∑n ≤ 1e5)	✅ OK
+Memory	O(n)
+⚠️ Common Mistakes to Avoid
+Mistake	Why It’s Wrong
+Looping from i = l instead of 1	You lose the index relation in gcd(i, aᵢ)
+Checking duplicates of a[i]	Unnecessary — duplicates are fine
+Trying to find next multiple manually	Not needed — smallest multiple formula handles it
+Forgetting to check x > r	Causes invalid answers
+Using int for large l, r (up to 1e9)	Use long long to prevent overflow
+🧱 Edge Cases
+Case	Example	Output
+Minimum	n=1, l=1, r=1	YES, [1]
+Large range	n=5, l=1, r=1e9	always YES
+Tight range	n=5, l=10, r=12	might be NO if some multiple >12
+💡 Key Takeaways
+
+✅ Always loop over i = 1..n (indices matter in gcd).
+✅ Pick smallest multiple of i ≥ l.
+✅ Check if ≤ r.
+✅ Duplicates in aᵢ don’t matter.
+✅ Distinct gcds are automatically ensured.
+
+🔥 In One Line
+
+For each i (1..n), choose
+a[i] = ((l + i - 1) / i) * i
+→ if any a[i] > r → NO else YES.

@@ -1,0 +1,119 @@
+✅ CF Problem Notes – C. Loyalty
+📝 Problem Summary
+link: https://codeforces.com/contest/2161/problem/C
+You buy n items with prices a[i] where 1 ≤ a[i] ≤ X
+
+Loyalty level = floor(S / X) (S = sum of bought items so far)
+
+If buying item p increases loyalty level → you get p bonus points
+
+Goal: maximize total bonus points by choosing purchase order
+
+🎯 Key Idea
+
+To maximize bonus, the items that trigger loyalty level increase should be largest items.
+
+Because each loyalty increase gives bonus = item price.
+
+📌 Observations
+
+Max number of increases = floor(total_sum / X)
+
+Each item gives at most 1 loyalty gain
+
+We want those k = floor(total_sum / X) increases to come from k largest items
+
+Items a[i] ≤ X, so loyalty increments by at most 1 per item → no skip logic needed
+
+⚙️ Strategy
+
+Sort items in ascending order
+
+Maintain:
+
+left = 0 (smallest items)
+
+right = n-1 (largest items)
+
+sum = 0
+
+For each purchase:
+
+If picking v[right] increases loyalty → pick it
+
+Else pick v[left] (burn small items to push sum forward)
+
+💡 Greedy Intuition
+
+Use small items to build loyalty bar, save big ones to get bonuses.
+
+🧠 Correctness Insight
+
+This guarantees:
+
+All loyalty gains happen on largest values
+
+Because each gain is only +1 level, and bounds ensure that big items always wait until they yield bonus
+
+⏱ Complexity
+Sorting: O(n log n)
+Two-pointer simulation: O(n)
+
+✅ Final C++ Code
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while(t--) {
+        ll n, x;
+        cin >> n >> x;
+        vector<ll> v(n);
+        for (auto &it : v) cin >> it;
+
+        sort(v.begin(), v.end());
+
+        ll sum = 0, ans = 0;
+        ll left = 0, right = n - 1;
+        vector<ll> order;
+
+        while (left <= right) {
+            // If buying the largest increases loyalty, take it
+            if ( (sum + v[right]) / x > sum / x ) {
+                ans += v[right];
+                sum += v[right];
+                order.push_back(v[right]);
+                right--;
+            } 
+            else {
+                // Otherwise burn the smallest item
+                if ((sum + v[left]) / x > sum / x)
+                    ans += v[left];
+                sum += v[left];
+                order.push_back(v[left]);
+                left++;
+            }
+        }
+
+        cout << ans << "\n";
+        for (auto &it : order) cout << it << " ";
+        cout << "\n";
+    }
+    return 0;
+}
+
+📌 Quick Revision Points
+
+Loyalty jump = floor((S+p)/X) > floor(S/X)
+
+Max loyalty increases = floor(total_sum / X)
+
+Give those increases to largest items
+
+Two pointer greedy handles it beautifully

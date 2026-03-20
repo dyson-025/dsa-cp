@@ -1,0 +1,176 @@
+🧨 B. 250 Thousand Tons of TNT — Notes
+link: https://codeforces.com/problemset/problem/1899/B
+🧩 Problem Understanding
+
+You’re given:
+
+An array a[1...n] (weights of boxes)
+
+You must group them into trucks, each truck carrying exactly k boxes.
+
+That means:
+
+You divide the array into consecutive segments of size k.
+
+This is only possible if n % k == 0 (so all trucks have equal boxes).
+
+🎯 Goal
+
+For each valid k (divisor of n):
+
+Divide the array into chunks of size k.
+
+Compute the sum of boxes in each chunk.
+
+Find:
+
+max_sum = maximum sum among chunks
+min_sum = minimum sum among chunks
+
+
+The difference = max_sum - min_sum
+
+You need the maximum such difference over all possible k.
+
+🧠 Example
+Example 1
+n = 2
+a = [1, 2]
+
+
+k = 1 → groups: [1], [2]
+
+sums = [1, 2] → diff = 1
+
+k = 2 → groups: [1, 2]
+
+only one truck → diff = 0
+
+✅ answer = max(1, 0) = 1
+
+Example 2
+n = 6
+a = [10, 2, 3, 6, 1, 3]
+
+
+Divisors of 6 → [1, 2, 3, 6]
+
+k	Groups (each of size k)	Group sums	max-min
+1	[10][2][3][6][1][3]	10,2,3,6,1,3	9
+2	[10+2][3+6][1+3]	12,9,4	8
+3	[10+2+3][6+1+3]	15,10	5
+6	[10+2+3+6+1+3]	25	0
+
+✅ answer = max(9, 8, 5, 0) = 9
+
+⚙️ Key Observations
+
+Only check divisors of n
+Because only divisors divide the array evenly into chunks.
+
+Each group sum = sum of k consecutive elements.
+
+Use prefix sums to compute group sums quickly:
+
+sum(l,r)=prefix[r]−prefix[l−1]
+
+where each group has r - l + 1 = k.
+
+The total number of divisors ≤ √n * 2 — small enough to check all.
+
+For each k, you’ll have n/k groups.
+
+🧩 Algorithm
+
+Compute all divisors of n → factors = allfactor(n)
+
+Compute prefix sums of array a.
+
+For each divisor k:
+
+Initialize max_sum = -∞, min_sum = +∞
+
+For each truck i (0 to n/k - 1):
+
+group_sum = prefix[(i+1)k] - prefix[ik]
+
+update max_sum, min_sum
+
+diff = max_sum - min_sum
+
+Update answer = max(answer, diff)
+
+Print the final answer.
+
+💻 Final Optimized Code
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> getDivisors(int n) {
+    vector<int> res;
+    for (int i = 1; i * i <= n; i++) {
+        if (n % i == 0) {
+            res.push_back(i);
+            if (i != n / i)
+                res.push_back(n / i);
+        }
+    }
+    return res;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        vector<long long> a(n);
+        for (auto &x : a) cin >> x;
+
+        vector<long long> prefix(n + 1, 0);
+        for (int i = 0; i < n; i++) prefix[i + 1] = prefix[i] + a[i];
+
+        vector<int> divisors = getDivisors(n);
+        long long ans = 0;
+
+        for (int k : divisors) {
+            long long mx = LLONG_MIN, mn = LLONG_MAX;
+            for (int i = k; i <= n; i += k) {
+                long long sum = prefix[i] - prefix[i - k];
+                mx = max(mx, sum);
+                mn = min(mn, sum);
+            }
+            ans = max(ans, mx - mn);
+        }
+
+        cout << ans << "\n";
+    }
+}
+
+📈 Complexity Analysis
+Step	Complexity
+Finding divisors	O(√n)
+Prefix sum	O(n)
+Checking all divisors	O(n / k) per divisor
+Total (all divisors)	O(n * √n / average divisor spacing) → practically O(n log n)
+Fits well in constraints (n ≤ 1.5×10⁵ total) ✅	
+🧠 Key Takeaways
+
+Always check divisors when the problem says “divide into equal groups”.
+
+Prefix sums are your best friend when repeatedly calculating segment sums.
+
+Avoid nested O(n²) loops — think of mathematical patterns (divisors).
+
+If array has equal elements → all group sums equal → answer = 0.
+
+🏁 Summary
+Concept	Description
+Problem type	Array + Math (Divisors + Prefix sum)
+Key logic	Only divisors of n give valid k
+Core formula	diff = max(group_sums) - min(group_sums)
+Optimization	Prefix sums for O(1) segment sum
+Final time complexity	O(n + √n * (n/k)) ≈ O(n log n)

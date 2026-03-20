@@ -1,0 +1,174 @@
+📝 Revision Notes — The Robotic Rush (CF E)
+🚀 Core Trick — Relative Motion Envelope
+❌ Brute Force = TLE
+
+Simulating every robot for every move =
+
+𝑂
+(
+𝑁
+×
+𝐾
+)
+O(N×K)
+
+Not possible.
+
+✅ Smart Observation
+
+All robots follow the same path.
+So instead of tracking robots, track the path’s extreme reach.
+
+For first i moves:
+
+Lmax[i] = max distance ever moved to the LEFT
+
+Rmax[i] = max distance ever moved to the RIGHT
+
+Then any robot at position x has visited:
+
+[
+𝑥
+−
+𝐿
+𝑚
+𝑎
+𝑥
+[
+𝑖
+]
+,
+  
+𝑥
++
+𝑅
+𝑚
+𝑎
+𝑥
+[
+𝑖
+]
+]
+[x−Lmax[i],x+Rmax[i]]
+
+If this interval touches a spike → robot dies.
+
+🧠 Key Properties
+
+Lmax and Rmax are monotonic (non-decreasing)
+
+So we can use Binary Search to find the first collision time.
+
+🛠 Algorithm Steps
+1️⃣ Prefix Envelope ( O(K) )
+
+Simulate only the path:
+
+for i = 1..K:
+    update current_pos
+    Lmax[i] = max(Lmax[i-1], -current_pos)
+    Rmax[i] = max(Rmax[i-1],  current_pos)
+
+2️⃣ Nearest Spikes ( O(N log M) )
+
+For each robot:
+
+Find closest spike on LEFT and RIGHT using lower_bound.
+
+3️⃣ Death Time ( O(N log K) )
+
+Robot at x dies when:
+
+Rmax[t] ≥ (right_spike - x)
+Lmax[t] ≥ (x - left_spike)
+
+
+Binary search both and take:
+
+death_time = min(timeR, timeL)
+last_safe = death_time - 1
+
+4️⃣ Suffix Sum Trick ( O(N + K) )
+
+Count how long each robot survives, then:
+
+for i = k-1 → 0:
+    alive[i] += alive[i+1]
+
+
+Now alive[i] = robots alive after i moves.
+
+🏆 Master-Level Implementation
+#include <bits/stdc++.h>
+using namespace std;
+
+void solve() {
+    int n, m, k;
+    cin >> n >> m >> k;
+
+    vector<int> robots(n), spikes(m);
+    for (int &x : robots) cin >> x;
+    for (int &x : spikes) cin >> x;
+
+    string s; cin >> s;
+
+    // 1. Prefix envelope
+    vector<int> L(k + 1, 0), R(k + 1, 0);
+    int pos = 0;
+    for (int i = 1; i <= k; i++) {
+        if (s[i - 1] == 'L') pos--;
+        else pos++;
+        L[i] = max(L[i - 1], -pos);
+        R[i] = max(R[i - 1],  pos);
+    }
+
+    // 2. Spikes with sentinels
+    spikes.push_back(-2000000000);
+    spikes.push_back( 2000000000);
+    sort(spikes.begin(), spikes.end());
+
+    vector<int> alive(k + 2, 0);
+
+    // 3. Compute death time of each robot
+    for (int x : robots) {
+        int idx = lower_bound(spikes.begin(), spikes.end(), x) - spikes.begin();
+
+        int distR = spikes[idx]   - x;
+        int distL = x - spikes[idx - 1];
+
+        int tR = lower_bound(R.begin(), R.end(), distR) - R.begin();
+        int tL = lower_bound(L.begin(), L.end(), distL) - L.begin();
+
+        int death = min(tR, tL);
+        alive[min(k, death - 1)]++;
+    }
+
+    // 4. Suffix sum
+    for (int i = k - 1; i >= 0; i--)
+        alive[i] += alive[i + 1];
+
+    for (int i = 1; i <= k; i++)
+        cout << alive[i] << " ";
+    cout << "\n";
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t; cin >> t;
+    while (t--) solve();
+}
+
+💡 Pro Tips
+
+Sentinels > INT_MAX
+Use ±2e9 to avoid overflow in distance calculations.
+
+lower_bound - 1 Logic
+lower_bound gives first bad (dead) time.
+We need the last safe one.
+
+Pattern to Remember
+
+“Track the path, not the particles.”

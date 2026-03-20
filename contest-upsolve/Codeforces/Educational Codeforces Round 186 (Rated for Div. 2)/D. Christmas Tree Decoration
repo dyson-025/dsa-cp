@@ -1,0 +1,359 @@
+🌟 D. Christmas Tree Decoration — COMPLETE MASTER NOTES 🌟
+1️⃣ Problem in Simple Words
+
+There are n people and n+1 boxes
+
+Box 0 → common box
+
+Box i → personal box of person i
+
+People act in a permutation order, repeatedly in rounds
+
+On their turn, person i can take a decoration from:
+
+their own box i
+
+or box 0
+
+❌ If at any time both boxes are empty, permutation is bad
+
+✅ Count how many permutations are safe (fair)
+
+2️⃣ Key Observation (MOST IMPORTANT)
+
+Best strategy:
+Every person should use their own box first,
+and only use box 0 as backup.
+
+If this greedy strategy fails → no strategy can save it.
+
+So we only simulate this greedy approach.
+
+3️⃣ Rounds Concept (Critical Insight)
+
+Let:
+
+s = total number of decorations
+
+
+Each full round uses n decorations.
+
+So:
+
+k = s / n
+
+
+👉 Every person must survive k full rounds
+👉 Each person must hang at least k decorations
+
+4️⃣ Simulating k Rounds (Greedy)
+
+For each person i = 1 to n:
+
+Take from own box:
+
+take = min(a[i], k)
+
+
+Remaining taken from box 0:
+
+a[0] -= (k - take)
+
+
+Update:
+
+a[i] -= take
+
+5️⃣ Impossible Conditions ❌
+
+If any of these happens → answer is 0
+
+a[0] < 0
+→ common box ran out
+
+a[i] > 1 after k rounds
+→ person cannot finish in later rounds
+
+6️⃣ After k Rounds — Last Round Logic
+
+Let:
+
+z = number of people whose own box is empty
+a0 = remaining decorations in box 0
+
+
+Only a0 empty people can be helped.
+
+Remaining:
+
+x = z - a0
+
+
+👉 These x people cannot act in last round
+👉 So they must be placed at the END of permutation
+
+Extra invalid case:
+
+if (a0 > z) → impossible
+
+7️⃣ Permutation Counting (Core Math)
+Situation:
+
+Total people = n
+
+Empty people = z
+
+End positions = x = z - a0
+
+Step-by-step counting:
+
+Choose which x empty people go to end → C(z, x)
+
+Arrange them → x!
+
+Arrange remaining people → (n - x)!
+
+Initial formula:
+C(z, x) × x! × (n - x)!
+
+8️⃣ Formula Simplification ✂️
+
+Using:
+
+C(z, x) = z! / (x! (z-x)!)
+
+
+Multiply by x! and substitute x = z - a0:
+
+✅ Final formula:
+𝑧
+!
+×
+(
+𝑛
+−
+𝑧
++
+𝑎
+0
+)
+!
+÷
+𝑎
+0
+!
+z!×(n−z+a
+0
+	​
+
+)!÷a
+0
+	​
+
+!
+	​
+
+9️⃣ Modular Arithmetic Concepts 🧠
+Why modular inverse?
+
+Division not allowed in modulo
+
+MOD is prime (998244353)
+
+Using Fermat’s Little Theorem:
+
+𝑥
+−
+1
+≡
+𝑥
+𝑀
+𝑂
+𝐷
+−
+2
+(
+m
+o
+d
+𝑀
+𝑂
+𝐷
+)
+x
+−1
+≡x
+MOD−2
+(modMOD)
+
+So:
+
+/ a0!  →  × inverse(a0!)
+
+🔟 Special Case: a0 = 0
+
+Box 0 helps nobody
+
+All empty people must go to the end
+
+Formula becomes:
+
+z! × (n - z)!
+
+
+Handled automatically by formula.
+
+1️⃣1️⃣ C++ Errors We Faced (IMPORTANT LESSONS)
+❌ Error 1: Array size not constant
+ll N = 55;
+ll fac[N];   // ❌ WRONG
+
+
+✅ Fix:
+
+const int N = 55;
+ll fac[N];
+
+❌ Error 2: Inverse of wrong thing
+inv(a0);   // ❌ WRONG
+
+
+✅ Fix:
+
+inv(fact[a0]);   // divide by factorial
+
+❌ Error 3: power() returned wrong value
+return y;   // ❌ WRONG
+
+
+✅ Fix:
+
+return res;
+
+❌ Error 4: Variable not declared
+
+Reason: array failed to compile → compiler never saw it
+Fix root cause (array size)
+
+1️⃣2️⃣ FINAL EDITORIAL-LEVEL CODE (WITH COMMENTS)
+#include <bits/stdc++.h>
+using namespace std;
+
+// ---------- FAST I/O ----------
+#define fast_io ios::sync_with_stdio(false); cin.tie(nullptr);
+
+// ---------- SHORTCUTS ----------
+#define ll long long
+#define all(x) (x).begin(), (x).end()
+#define endl '\n'
+
+// ---------- MOD ----------
+const ll mod = 998244353;
+
+// ---------- FACTORIAL ----------
+const int N = 55;          // n ≤ 50
+ll fact[N];
+
+// ---------- FAST POWER (a^b % mod) ----------
+ll power(ll a, ll b) {
+    ll res = 1;
+    while (b > 0) {
+        if (b & 1) res = (res * a) % mod;
+        a = (a * a) % mod;
+        b >>= 1;
+    }
+    return res;
+}
+
+// ---------- MODULAR INVERSE ----------
+ll inv(ll x) {
+    return power(x, mod - 2);
+}
+
+void solve() {
+    ll n;
+    cin >> n;
+
+    vector<ll> a(n + 1);
+    for (auto &x : a) cin >> x;
+
+    ll s = accumulate(all(a), 0LL);
+    ll k = s / n;
+
+    bool bad = false;
+    ll z = 0;   // empty people
+
+    for (int i = 1; i <= n; i++) {
+        ll take = min(a[i], k);
+        a[i] -= take;
+        a[0] -= (k - take);
+
+        if (a[i] == 0) z++;
+        if (a[i] > 1 || a[0] < 0) {
+            bad = true;
+            break;
+        }
+    }
+
+    if (a[0] > z) bad = true;
+
+    if (bad) {
+        cout << 0 << endl;
+        return;
+    }
+
+    // z! * (n - z + a0)! / a0!
+    ll ans = fact[z];
+    ans = ans * fact[n - z + a[0]] % mod;
+    ans = ans * inv(fact[a[0]]) % mod;
+
+    cout << ans << endl;
+}
+
+int main() {
+    fast_io;
+
+    // Precompute factorials
+    fact[0] = 1;
+    for (int i = 1; i < N; i++)
+        fact[i] = fact[i - 1] * i % mod;
+
+    int t;
+    cin >> t;
+    while (t--)
+        solve();
+
+    return 0;
+}
+
+🧠 ONE-PAGE MEMORY SUMMARY
+
+Own box first, box 0 backup
+
+k = total / n
+
+Count empty people
+
+Some must go to end
+
+Choose → arrange → arrange
+
+Divide by factorial → use inverse
+
+Array size must be constant
+
+🏆 FINAL VERDICT
+
+If you understand this one problem, you learned:
+
+Greedy proof
+
+Rounds thinking
+
+Permutation counting
+
+Modular inverse
+
+C++ compilation rules
+
+This is 1600-1700 CF level thinking.

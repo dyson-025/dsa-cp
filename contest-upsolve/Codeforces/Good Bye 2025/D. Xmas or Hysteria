@@ -1,0 +1,294 @@
+2178D – Xmas or Hysteria (Complete Notes)
+Problem in Simple Words
+
+You have n elves.
+Each elf has:
+
+health = attack = ai (all distinct)
+
+One move:
+
+choose alive x who has never attacked
+
+choose alive y ≠ x
+
+y loses ax
+
+x loses ay
+
+An elf can attack only once.
+
+Process ends when:
+
+no alive elf exists who hasn’t attacked.
+
+Goal: End with exactly m alive elves.
+
+Core Observation (Key Invariant)
+
+In every attack, the elf with smaller attack always dies.
+
+Because:
+
+smaller loses more health than it has
+
+bigger always survives
+
+So every attack is:
+
+strong → weak (kill)
+
+
+This kills the problem’s complexity.
+
+Maximum Survivors Bound
+
+Each survivor must kill one unique elf.
+
+So:
+
+survivors ≤ killed
+survivors + killed ≤ n
+⇒ survivors ≤ n/2
+
+If m > n/2 → Impossible
+
+This is a hard mathematical limit.
+
+Always Sort
+
+Sort elves by attack descending:
+
+elf[0] = strongest
+elf[n-1] = weakest
+
+
+All logic is built on this order.
+
+Case 1: m > 0
+
+We want exactly m survivors.
+
+Split after sorting:
+
+[ S ... S | T ... T | L ... L ]
+  m        m        n-2m
+
+
+S = survivors (must live)
+
+T = targets (must die by S)
+
+L = leftovers (must die among themselves)
+
+Step 1: Survivors kill targets
+
+For each i in [0..m-1]:
+
+S[i] -> T[i]
+
+
+Targets die, survivors live.
+
+Step 2: Kill leftovers
+
+Chain them:
+
+L[0] -> L[1]
+L[1] -> L[2]
+...
+
+
+Everyone in L dies.
+
+Step 3: Reverse order
+
+We must reverse the whole sequence.
+
+Because:
+
+strongest must attack first
+
+otherwise someone may die before their turn
+
+So:
+
+reverse(ans.begin(), ans.end());
+
+Case 2: m == 0 (hardest)
+
+We want everyone dead.
+
+But strongest elf[0] can only die if:
+
+elf[1] + elf[2] + ... ≥ elf[0]
+
+
+If not → impossible.
+
+Step 1: Find attackers
+
+Find smallest i such that:
+
+sum(elf[1..i]) ≥ elf[0]
+
+
+These will sacrifice to kill strongest.
+
+Step 2: Kill the rest
+
+For j = i+1 .. n-1:
+
+elf[j] -> elf[j-1]
+
+
+This chain kills all smaller ones.
+
+Reverse this chain.
+
+Step 3: Kill strongest
+
+Now:
+
+elf[i] -> elf[0]
+elf[i-1] -> elf[0]
+...
+elf[1] -> elf[0]
+
+
+Strongest dies, all attackers die.
+
+Everyone is dead.
+
+Final Correct Code (AC)
+void solve() {
+    long long n,m;
+    cin >> n >> m;
+
+    vector<pair<long long,long long>> elf(n);
+    for(int i = 0; i < n; i++){
+        cin >> elf[i].first;
+        elf[i].second = i;
+    }
+
+    if(m > n/2){
+        cout << -1 << "\n";
+        return;
+    }
+
+    sort(elf.begin(), elf.end(), [](auto &a, auto &b){
+        return a.first > b.first;
+    });
+
+    vector<pair<long long,long long>> ans;
+
+    // -------- m == 0 --------
+    if(m == 0){
+        long long s = 0;
+        long long i;
+        for(i = 1; i < n; i++){
+            s += elf[i].first;
+            if(s >= elf[0].first) break;
+        }
+
+        if(i == n){
+            cout << -1 << "\n";
+            return;
+        }
+
+        // chain kill small ones
+        for(int j = i+1; j < n; j++){
+            ans.push_back({elf[j].second, elf[j-1].second});
+        }
+        reverse(ans.begin(), ans.end());
+
+        // kill strongest
+        for(int j = i; j > 0; j--){
+            ans.push_back({elf[j].second, elf[0].second});
+        }
+    }
+
+    // -------- m > 0 --------
+    else {
+        // survivors kill targets
+        for(int i = 0; i < m; i++){
+            ans.push_back({elf[i].second, elf[i+m].second});
+        }
+
+        // leftovers chain (CRITICAL: start from 2*m - 1)
+        for(int i = 2*m-1; i+1 < n; i++){
+            ans.push_back({elf[i].second, elf[i+1].second});
+        }
+
+        reverse(ans.begin(), ans.end());
+    }
+
+    cout << ans.size() << "\n";
+    for(auto p : ans){
+        cout << p.first+1 << " " << p.second+1 << "\n";
+    }
+}
+
+Common Errors (You Literally Faced These)
+1. Off-by-one in leftovers
+
+Wrong:
+
+for(int i = 2*m; ...)
+
+
+Correct:
+
+for(int i = 2*m - 1; ...)
+
+
+Otherwise last target never dies.
+
+2. Forgetting reverse
+
+Leads to:
+
+elf attacks after dying
+
+extra survivors
+
+3. Using int instead of ll
+
+For sums like:
+
+999999999 + 998244353 + ...
+
+
+→ overflow → wrong logic.
+
+4. Thinking "no one can attack" means finished
+
+No.
+Alive elves who already attacked still count as alive.
+
+We care about:
+
+final alive count, not attack ability.
+
+How to Recognize This Pattern in Future
+
+This is a classic CP pattern:
+
+If in every interaction one side deterministically loses,
+the problem is about pairing and ordering, not simulation.
+
+Appears in:
+
+monster fights
+
+tournaments
+
+greedy elimination
+
+DAG scheduling
+
+One-Line Summary
+
+This problem is:
+
+Topological ordering of a power hierarchy to leave exactly m nodes alive.

@@ -1,0 +1,152 @@
+🔹 Problem in plain words
+
+You start with a number X.
+
+You go through arrays A and B from i = 1 to N.
+
+At each step:
+
+Y = max(Y + B[i], A[i])
+
+
+After finishing all N steps, you get f(X).
+
+You must compute:
+
+f(1) + f(2) + ... + f(M)
+
+
+But:
+
+N can be 2×10⁵
+
+M can be 10⁹
+
+So brute force for all X is impossible.
+
+🔹 Key Observation (MOST IMPORTANT)
+
+After processing all N steps:
+
+All values of f(X) form a very special pattern
+
+They always become:
+
+[L, L, L, ..., L, L+1, L+2, ..., R]
+
+
+Meaning:
+
+Many values collapse to one same value L
+
+Then after that, values increase one by one up to R
+
+No gaps, no randomness
+
+🔹 Why does this happen?
+
+At every step:
+
+Y = max(Y + B[i], A[i])
+
+
+This does only two things:
+
+If Y is small → it jumps to A[i]
+
+If Y is large → it increases by B[i]
+
+So:
+
+Small values get merged
+
+Large values remain unique and increasing
+
+This behavior repeats for every i.
+
+🔹 Final shape after all steps
+
+After all operations:
+
+f(1) = L (smallest possible result)
+
+f(M) = R (largest possible result)
+
+And the whole result looks like:
+
+L repeated many times, then L+1, L+2, ..., R
+
+🔹 How many unique values?
+
+From L+1 to R:
+
+K = R - L
+
+
+These have one copy each
+
+Remaining values:
+
+M - K
+
+
+All of them are equal to L
+
+🔹 How to compute the answer
+Step 1️⃣ Compute L = f(1)
+
+Just simulate starting from X = 1
+
+Step 2️⃣ Compute R = f(M)
+
+Simulate starting from X = M
+
+Both take O(N) time.
+
+Step 3️⃣ Compute the sum
+
+Sum =
+
+(L repeated M-K times)
++ (L+1 + L+2 + ... + R)
+
+
+Formula:
+
+sum = (M - K) * L + sum(L+1 to R)
+
+
+Where:
+
+sum(L+1 to R) = (L+1 + R) * K / 2
+
+🔹 Final Formula
+
+Let:
+
+L = f(1)
+R = f(M)
+K = R - L
+
+
+Answer:
+
+(M - K) * L + (L + 1 + R) * K / 2
+
+🔹 Why this is fast?
+
+We do NOT compute f(X) for all X
+
+We only compute:
+
+f(1)
+
+f(M)
+
+Total time: O(N) per test case
+
+Works perfectly within constraints
+
+🔹 Intuition in one line
+
+Small values get pushed up and merged, large values move independently. That’s why only f(1) and f(M) matter.

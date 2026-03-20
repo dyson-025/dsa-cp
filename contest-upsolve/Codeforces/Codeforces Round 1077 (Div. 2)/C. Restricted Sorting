@@ -1,0 +1,149 @@
+🐷 Restricted Sorting — Revision Notes
+🧠 Problem Intuition
+
+You can swap two elements only if:
+
+|ai - aj| ≥ k
+
+
+👉 Larger k → fewer swaps allowed
+👉 Need maximum k such that sorting is still possible.
+
+🔥 Core Insight
+
+If array is not sorted →
+We must ensure every misplaced element can move.
+
+How can it move?
+
+👉 Either swap with minimum element (mn)
+👉 Or swap with maximum element (mx)
+
+These act like swap hubs / intermediates.
+
+❌ When Element Gets Stuck
+
+If for some misplaced ai:
+
+ai - mn < k
+AND
+mx - ai < k
+
+
+Then:
+
+Can't swap with mn
+
+Can't swap with mx
+→ Element stuck → Sorting impossible
+
+✅ Maximum k Allowed Per Element
+
+For each misplaced element:
+
+limit_i = max(ai - mn, mx - ai)
+
+
+This is the largest k that still allows movement.
+
+🎯 Final Answer
+
+Since ALL misplaced elements must move:
+
+Answer =
+min over all misplaced elements:
+    max(ai - mn, mx - ai)
+
+✅ Edge Case
+
+If array already sorted:
+
+Answer = -1
+
+
+Because any k works (no swaps needed).
+
+💡 Memory Trick
+
+Each bad element says:
+
+"Maximum k I can tolerate is X"
+
+
+Answer = smallest X among them.
+
+⏱ Complexity
+
+Sorting → O(n log n)
+Traversal → O(n)
+
+⭐ Final C++ Code
+#include <bits/stdc++.h>
+using namespace std;
+
+#define fast_io ios::sync_with_stdio(false); cin.tie(nullptr);
+#define ll long long
+
+void solve() {
+    int n;
+    cin >> n;
+
+    vector<ll> a(n);
+    for (auto &x : a) cin >> x;
+
+    vector<ll> b = a;
+    sort(b.begin(), b.end());
+
+    // Already sorted
+    if (a == b) {
+        cout << -1 << "\n";
+        return;
+    }
+
+    ll mn = b[0];
+    ll mx = b[n - 1];
+
+    ll ans = LLONG_MAX;
+
+    for (int i = 0; i < n; i++) {
+        if (a[i] != b[i]) {
+            ll limit = max(a[i] - mn, mx - a[i]);
+            ans = min(ans, limit);
+        }
+    }
+
+    cout << ans << "\n";
+}
+
+int main() {
+    fast_io;
+    int t;
+    cin >> t;
+    while (t--) solve();
+}
+
+🧪 Example Mental Walk
+a = [2,1,5,4,3]
+sorted = [1,2,3,4,5]
+
+mn = 1
+mx = 5
+
+
+Compute limits for bad elements →
+Take minimum → final k.
+
+🏆 Contest Recognition Pattern
+
+If you see:
+
+Restricted swaps
+
+Difference condition
+
+Need max allowed parameter
+
+Extremes (min/max) exist
+
+👉 Try using extreme values as connectors
+👉 Then find tightest constraint

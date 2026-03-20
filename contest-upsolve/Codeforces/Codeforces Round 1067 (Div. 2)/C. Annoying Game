@@ -1,0 +1,211 @@
+C. Annoying Game – Complete Notes
+Problem in simple words
+
+You have:
+
+Array a (initial values)
+
+Array b (how much you can add/subtract at each index)
+
+k turns
+
+Alice starts, Bob plays second.
+
+Each turn:
+
+Pick index i
+
+Either a[i] += b[i] or a[i] -= b[i]
+
+After all k turns:
+
+Score = maximum subarray sum of final array.
+
+Alice wants to maximize
+
+Bob wants to minimize
+
+Both play optimally.
+
+Key Observation 1: Cancellation Trick 🔁
+
+If:
+
+Alice does +b[i]
+
+Bob does -b[i] on same index
+
+➡ Net effect = 0
+
+So any pair of moves can be cancelled.
+
+This is the heart of the problem.
+
+Key Observation 2: Only parity of k matters
+
+Because of cancellation:
+
+If k is even → all moves can be cancelled.
+
+If k is odd → exactly 1 effective move remains.
+
+So the whole big game reduces to:
+
+k parity	Real game becomes
+even	0-move game
+odd	1-move game
+
+Just do:
+
+k &= 1;
+
+Case 1: k is EVEN
+
+Bob can always cancel Alice.
+
+Final array = initial array.
+
+So answer is simply:
+
+Maximum subarray sum of original a
+
+Which is classic Kadane.
+
+Case 2: k is ODD
+
+Alice gets one real move.
+
+She chooses one index i and does:
+
+a[i] += b[i]
+
+
+Bob cannot cancel the last move.
+
+So Alice wants:
+
+Choose i such that max subarray sum becomes maximum.
+
+How to compute best move?
+
+We need:
+
+Best subarray that passes through i
+
+We precompute:
+
+L[i]
+
+Maximum subarray sum ending at i
+
+R[i]
+
+Maximum subarray sum starting at i
+
+Using Kadane:
+
+L[i] = max(a[i], L[i-1] + a[i])
+R[i] = max(a[i], R[i+1] + a[i])
+
+
+Now if Alice modifies index i:
+
+That subarray sum becomes:
+
+L[i] + R[i] - a[i] + b[i]
+
+
+Why -a[i]?
+Because a[i] is counted twice in L and R.
+
+Final answer (odd k)
+ans = max over all i of (L[i] + R[i] - a[i] + b[i])
+
+Final Code (Clean & Contest Ready)
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int t; 
+    cin >> t;
+    while(t--){
+        int n, k;
+        cin >> n >> k;
+        vector<long long> a(n), b(n);
+        for(int i=0;i<n;i++) cin >> a[i];
+        for(int i=0;i<n;i++) cin >> b[i];
+
+        k &= 1; // only parity matters
+
+        vector<long long> L(n), R(n);
+
+        // Kadane from left
+        L[0] = a[0];
+        for(int i=1;i<n;i++)
+            L[i] = max(a[i], L[i-1] + a[i]);
+
+        // Kadane from right
+        R[n-1] = a[n-1];
+        for(int i=n-2;i>=0;i--)
+            R[i] = max(a[i], R[i+1] + a[i]);
+
+        if(k == 0){
+            // even -> no change
+            cout << *max_element(L.begin(), L.end()) << "\n";
+        } else {
+            // odd -> Alice gets one move
+            long long ans = LLONG_MIN;
+            for(int i=0;i<n;i++){
+                ans = max(ans, L[i] + R[i] - a[i] + b[i]);
+            }
+            cout << ans << "\n";
+        }
+    }
+}
+
+Bonus Question: If goals are swapped?
+
+Now:
+
+Alice wants to minimize
+
+Bob wants to maximize
+
+Same logic applies, just inverted:
+
+k parity	Result
+even	initial max subarray
+odd	Bob gets one move → maximize
+
+So formula becomes:
+
+max over i of (L[i] + R[i] - a[i] + b[i])
+
+
+Exactly same as odd case above.
+
+Mental Model (Very Important for Interviews)
+
+This problem teaches:
+
+Any alternating game with perfect inverse moves
+⇒ reduces to k mod 2 moves.
+
+This trick appears in:
+
+Game theory
+
+Codeforces
+
+Google OA
+
+AtCoder
+
+One-line Summary to Remember
+
+Even k → normal Kadane
+
+Odd k → modified Kadane with one boosted index

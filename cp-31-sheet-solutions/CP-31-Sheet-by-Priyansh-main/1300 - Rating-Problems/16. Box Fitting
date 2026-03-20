@@ -1,0 +1,116 @@
+✅ Problem: Box Fitting (Codeforces)
+link: https://codeforces.com/problemset/problem/1498/B
+Goal
+
+You have n rectangles (height = 1 each), widths = powers of 2.
+You must stack them in rows (like shelves).
+Each row has width W.
+Find the minimum number of rows (height) needed to fit all rectangles.
+
+Key Observations
+Fact	Meaning
+Width = power of 2	Values like 1,2,4,8,...
+Cannot rotate	width stays width
+Fit like shelves	Place items until no space, then start new row
+Greedy works	Always place biggest width first in each row
+n ≤ 1e5	Must be O(n log W) or better
+Why greedy?
+
+Large widths are harder to place.
+If we place small boxes first, we may block space for big ones later → more rows needed.
+
+So in each row:
+
+Try to fit as many boxes from largest to smallest.
+
+Approach
+
+Count how many boxes of width 2^0, 2^1, ..., 2^30 exist.
+
+For each row:
+
+start with remaining capacity = W
+
+From biggest power to smallest:
+
+place as many boxes as can fit
+
+Continue until all boxes are placed.
+
+Time Complexity
+
+Counting: O(n)
+
+Fitting rows: O(30 * answer) ≈ O(30 * log n)
+
+Total: ~ O(n log W) ✅ fast enough
+
+✅ Your Corrected Code
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int t;
+    cin >> t;
+    while(t--){
+        int n, w;
+        cin >> n >> w;
+        vector<int> v(n);
+        for(auto &it: v) cin >> it;
+
+        vector<int> powers(31, 0);
+        for(int x: v){
+            for(int j = 0; j <= 30; j++){
+                if(x & (1 << j)) powers[j]++;
+            }
+        }
+
+        int layers = 1;
+        while(true){
+            int avail = w;
+
+            for(int i = 30; i >= 0; i--){
+                while(powers[i] > 0 && (1 << i) <= avail){
+                    avail -= (1 << i);
+                    powers[i]--;
+                }
+            }
+
+            long long sum = accumulate(powers.begin(), powers.end(), 0LL);
+            if(sum == 0) break;
+            layers++;
+        }
+
+        cout << layers << "\n";
+    }
+}
+
+📌 Example Walkthrough
+Input
+5 16
+1 2 8 4 8
+
+Shelves
+Shelf	Boxes used	Remaining space
+1	8,8	0
+2	4,2,1	9
+
+Answer = 2
+
+🎓 Summary Notes for Revision
+
+Always pack big to small
+
+Use bit count array since widths are powers of 2
+
+For each row: subtract until can't place more
+
+Count rows
+
+🤝 Tip for Contest
+
+If width wasn't power-of-2, you'd sort & use a multiset.
+But bit-count trick = faster & easier.

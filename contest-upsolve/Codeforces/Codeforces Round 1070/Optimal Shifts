@@ -1,0 +1,139 @@
+🔍 Problem Restated (in simple words)
+
+You have a binary string s of length n
+
+At least one 1 already exists
+
+Goal: turn all positions into 1
+
+Operation:
+
+Pick a shift d (1 ≤ d ≤ n)
+
+Cyclic right shift s by d → get t
+
+Wherever t[j] = 1, force s[j] = 1
+
+Cost = d
+
+Existing 1s never disappear
+
+🔑 Key Observation (MOST IMPORTANT)
+
+Think in terms of distances between 1s.
+
+What does a shift actually do?
+
+A shift by d allows a 1 to spread to positions that are d steps away (modulo n)
+
+Over multiple operations, 1s propagate
+
+What must be covered?
+
+Every 0 must be reachable from some existing 1
+
+The maximum distance of any 0 to the nearest 1 determines the minimum cost
+
+🧠 Core Insight
+
+The minimum total cost = maximum length of consecutive 0s between 1s, considering the string as circular
+
+Why?
+
+A block of k consecutive 0s needs at least ⌈k/2⌉ shift distance coverage
+
+But because shifts apply to all 1s simultaneously, the real answer becomes:
+
+✅ Answer = maximum number of consecutive 0s between two 1s
+🧪 Example Walkthrough
+Example: "0110"
+0 1 1 0
+^       ^
+
+
+Circular string → "0110" + "0110"
+
+Longest 0 block = 2
+
+Minimum cost = 2
+
+✔ Matches sample output
+
+Example: "101"
+1 0 1
+
+
+Max 0 block = 1
+
+Answer = 1
+
+Example: "10101010100"
+
+Longest 0 block = 2
+
+Answer = 2
+
+⚠️ Special Case
+
+If the string is already all 1s
+➡️ Cost = 0
+
+🚀 Algorithm (O(n) per test case)
+
+Duplicate string: s + s (to handle circularity)
+
+Track lengths of 0 segments between 1s
+
+Take the maximum such segment
+
+Output that value
+
+💻 Clean C++ Implementation
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        string s;
+        cin >> s;
+
+        // If already all 1s
+        if (count(s.begin(), s.end(), '0') == 0) {
+            cout << 0 << "\n";
+            continue;
+        }
+
+        string tstr = s + s;
+        int maxZero = 0, cur = 0;
+
+        for (char c : tstr) {
+            if (c == '0') {
+                cur++;
+                maxZero = max(maxZero, cur);
+            } else {
+                cur = 0;
+            }
+        }
+
+        // Cap at n because circular duplication
+        maxZero = min(maxZero, n);
+
+        cout << maxZero << "\n";
+    }
+    return 0;
+}
+
+🧩 Final Takeaway
+
+Think coverage, not simulation
+
+Circular longest zero-gap is the whole game
+
+Simple, elegant O(n) solution

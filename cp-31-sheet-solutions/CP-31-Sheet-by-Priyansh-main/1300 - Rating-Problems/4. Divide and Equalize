@@ -1,0 +1,149 @@
+✅ Problem Summary
+link: https://codeforces.com/problemset/problem/1881/D
+You are given an array of positive integers.
+You can perform an operation:
+
+Pick two indices i ≠ j
+
+Pick a divisor x of a[i] (so a[i] % x == 0)
+
+Set:
+
+a[i] = a[i] / x
+
+a[j] = a[j] * x
+
+Goal: Check if it is possible to make all array elements equal using zero or more such operations.
+
+✅ Key Understanding
+
+The operation transfers a factor from one element to another.
+
+Example:
+If we divide one number by 5, we multiply another by 5 → we are shifting prime factors between numbers.
+
+So elements become equal iff we can redistribute prime factors evenly.
+
+✅ Observation
+
+Every integer can be expressed as a product of primes:
+
+Ai = p1^a1 * p2^a2 * p3^a3 * ...
+
+
+When we move a divisor, we are moving prime powers.
+
+🎯 Therefore:
+
+All numbers can be made equal if and only if for every prime p, the total exponent of p in the array is divisible by n
+
+Meaning:
+Total count of each prime factor across array must be divisible by number of elements.
+
+✅ Why this works?
+
+Final number after equalizing = product of each prime^(total power / n)
+
+If any prime has total exponent not divisible by n, we cannot distribute factors equally.
+
+✅ Example Breakdown
+Example 1
+a = [100, 2, 50, 10, 1]
+100 = 2^2 * 5^2
+2   = 2^1
+50  = 2^1 * 5^2
+10  = 2^1 * 5^1
+1   = no factors
+
+
+Count primes:
+
+2: (2+1+1+1+0) = 5   → 5 % 5 = 0 ✅
+5: (2+0+2+1+0) = 5   → 5 % 5 = 0 ✅
+
+
+So YES
+
+Example 2
+[8, 2, 4, 2]
+8 = 2^3
+2 = 2^1
+4 = 2^2
+2 = 2^1
+Total exponent of 2 = 3+1+2+1 = 7
+7 % 4 != 0 ❌
+
+
+So NO
+
+✅ Edge Cases
+Case	Result	Reason
+All equal	YES	Already equal
+Single element	YES	Trivially equal
+Contains 1s	Okay	1 just has no factors
+✅ Steps to Solve
+
+Read n and array.
+
+For each element, factorize into primes and count total exponents.
+
+For each prime, check if (total exponent % n == 0)
+
+If all primes satisfy → YES, else ➝ NO
+
+✅ Time Complexity
+
+Factorizing each number: O(sqrt(ai)) ≈ 1000 worst
+
+Total numbers ≤ 10^4
+
+Total operations ≈ 10^7 ✅ fits in time
+
+✅ C++ Solution
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int t; 
+    cin >> t;
+    while(t--){
+        long long n;
+        cin >> n;
+        vector<long long> a(n);
+        for(auto &x : a) cin >> x;
+
+        unordered_map<long long, long long> cnt;
+
+        for(long long x : a){
+            long long temp = x;
+            for(long long p = 2; p * p <= temp; p++){
+                while(x % p == 0){
+                    cnt[p]++;
+                    x /= p;
+                }
+            }
+            if(x > 1) cnt[x]++;
+        }
+
+        bool ok = true;
+        for(auto &it : cnt){
+            if(it.second % n != 0){
+                ok = false;
+                break;
+            }
+        }
+
+        cout << (ok ? "YES\n" : "NO\n");
+    }
+}
+
+✅ Final Conclusion
+
+This problem is about prime factor balancing.
+
+If total exponent of every prime factor is divisible by number of elements, answer = YES. Otherwise NO.
+
+Operation essentially redistributes prime powers between elements.

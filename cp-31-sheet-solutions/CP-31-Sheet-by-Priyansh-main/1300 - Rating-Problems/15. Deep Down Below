@@ -1,0 +1,168 @@
+✅ Problem Summary
+link: https://codeforces.com/problemset/problem/1561/C
+You have a hero with initial power P.
+There are n caves, each with k_i monsters in sequence.
+
+Monster’s armor = a[i][j]
+
+Hero wins if power > armor
+
+After defeating each monster, power += 1
+
+Once you enter a cave, you must finish all monsters in order
+
+Goal 👉 find the minimum starting power so hero can clear all caves in any order.
+
+✅ Key Intuition
+🔥 Cave Requirement Concept
+
+For each cave, find minimum power required before entering it.
+
+Inside cave i, monsters are faced in order:
+
+Monster index: j (0-based)
+Armor: a[i][j]
+
+If hero enters cave with power P, then before fighting monster j,
+hero’s power = P + j.
+
+We must have:
+
+P + j > a[i][j]
+⇒ P > a[i][j] - j
+
+
+So minimum P required for cave i is:
+
+max_required_i = max over j: (a[i][j] - j)
+
+
+And total monsters in cave = k_i.
+
+So store each cave as → (required_power, monsters_in_cave)
+
+Example:
+If cave monsters = [10, 15, 8]
+
+j:   0   1   2
+a:  10  15   8
+a-j:10  14   6  → max = 14
+required power = 14
+
+⭐ Strategy
+
+To minimize starting power:
+
+Calculate (required_power, monsters) for each cave.
+
+Sort caves by required_power
+
+Try greedy run — always clear the easiest cave first
+
+Binary search the minimum starting power P which can pass all caves.
+
+✅ Final Approach
+
+Parse each cave, compute requirement (need, k)
+
+Sort caves by need
+
+Binary search on answer
+
+Simulate to check if a given starting power works
+
+✅ Code (Correct & Clean)
+#include <bits/stdc++.h>
+using namespace std;
+
+bool can(int P, vector<pair<int,int>>& caves) {
+    for (auto &c : caves) {
+        int need = c.first, k = c.second;
+        if (P < need) return false;
+        P += k; // beat all monsters, power increases k times
+    }
+    return true;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n; 
+        cin >> n;
+        vector<pair<int,int>> caves(n);
+
+        for (int i = 0; i < n; i++) {
+            int k;
+            cin >> k;
+            int mx = INT_MIN;
+            for (int j = 0; j < k; j++) {
+                long long a;
+                cin >> a;
+                mx = max(mx, (int)(a - j + 1));
+            }
+            caves[i] = {mx, k};
+        }
+
+        sort(caves.begin(), caves.end());
+
+        int low = 0, high = 2e9, ans = high;
+        while (low <= high) {
+            int mid = (low + high) / 2;
+            if (can(mid, caves)) {
+                ans = mid;
+                high = mid - 1;
+            } else low = mid + 1;
+        }
+
+        cout << ans << "\n";
+    }
+}
+
+✅ Explanation of Code
+Step	Meaning
+Compute cave minimum required power	mx = max(a[j] - j + 1)
+Store as pair	(required_power, number_of_monsters)
+Sort caves	Fight easier caves first
+Binary search starting power	From 0 to large limit (2e9)
+Simulate fight	Update power after each cave
+📌 Example Walk-through
+
+Input:
+
+2
+1
+1 42
+2
+3 10 15 8
+2 12 11
+
+
+Output:
+
+43
+13
+
+
+For second case:
+
+Sorted caves by need:
+
+Cave 2 requires power > 12
+
+Cave 1 requires power > 14
+
+Try P = 13 → works
+
+🎯 Notes for Interview Memory
+
+Compute max(a[j] - j + 1) per cave
+
+Sort caves
+
+Binary search + simulate
+
+Greedy order matters greatly

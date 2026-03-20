@@ -1,0 +1,317 @@
+🧮 Problem Understanding
+link: https://codeforces.com/contest/2153/problem/C
+You are given n sticks with lengths a1, a2, ..., an.
+You need to form a polygon that is:
+
+Symmetrical — has at least one axis of symmetry.
+
+Strictly convex — all internal angles are < 180°.
+
+Non-degenerate — forms a proper polygon (not a line).
+
+Your goal:
+👉 Find the maximum possible perimeter of such a polygon.
+If no valid polygon exists, print 0.
+
+⚙️ Key Observations
+
+Symmetrical polygons require pairs of equal sides — e.g., isosceles triangle, symmetric quadrilateral, etc.
+
+Strictly convex and non-degenerate polygons must satisfy the polygon inequality:
+
+max side
+<
+sum of remaining sides
+max side<sum of remaining sides
+
+Since symmetry is necessary, we focus on duplicate side lengths.
+
+Each equal pair contributes to the symmetric part of the shape.
+
+If one side remains unpaired, it might serve as the base or center of symmetry.
+
+💡 Approach Summary
+Step 1: Sort the Sticks
+
+We sort the array to group equal stick lengths together.
+
+sort(v.begin(), v.end());
+
+Step 2: Pair Equal Sticks
+
+We traverse through the sorted array and:
+
+Whenever we find two equal sticks (v[i] == v[i+1]),
+we add both to our “paired sides” total.
+
+If not, we push it into a separate vector sp for leftover unpaired sticks.
+
+if (v[i] == v[i+1]) {
+    psum += 2 * v[i];  // add both to symmetric part
+    cnt += 2;
+    i += 2;
+} else {
+    sp.push_back(v[i]);
+    i++;
+}
+
+
+Now:
+
+psum → total of all paired sides (guaranteed symmetric part)
+
+sp → single leftover sides (potential to extend symmetry)
+
+Step 3: Handle Base Cases
+
+If there are no pairs (psum == 0), symmetry isn’t possible → output 0.
+
+if (psum == 0) cout << 0 << endl;
+
+Step 4: Try to Add Leftover Sides
+
+Now we try to maximize the perimeter by possibly adding one or two unpaired sides (sp) while keeping polygon valid.
+
+We check two situations:
+
+(a) Adding one leftover side
+
+If the leftover side is smaller than the symmetric perimeter,
+it can form a valid polygon with that base.
+
+if (sp[i] < psum)
+    final = max(final, sp[i] + psum);
+
+(b) Adding two leftover sides
+
+If two leftover sides are close enough (difference < psum),
+they can be added symmetrically around the polygon axis.
+
+if (sp[i] - sp[i-1] < psum)
+    final = max(final, sp[i] + psum + sp[i-1]);
+
+Step 5: Handle Edge Case
+
+If there’s only one symmetric pair (cnt == 2) and we didn’t find any valid additions → output 0.
+Otherwise, print the final perimeter.
+
+if (cnt == 2 && final == psum)
+    cout << 0 << endl;
+else
+    cout << final << endl;
+
+🔍 Example Walkthrough
+Example 1
+n = 3
+sticks = [5, 5, 7]
+
+
+Sorted: [5, 5, 7]
+
+Pairs: (5, 5) → psum = 10
+
+Leftover: [7]
+
+Check: 7 < 10 ✅
+→ final = 17
+
+✅ Output: 17
+
+→ Isosceles triangle with sides (5, 5, 7).
+
+Example 2
+n = 3
+sticks = [4, 5, 7]
+
+
+No pairs → psum = 0
+
+No symmetry possible → Output 0
+
+Example 3
+n = 7
+sticks = [4, 3, 5, 1, 5, 3, 3]
+
+
+Sorted: [1, 3, 3, 3, 4, 5, 5]
+
+Pairs: (3,3), (5,5) → psum = 16
+
+Leftover: [1, 3, 4]
+
+Add 3 and 4: both < 16 ✅
+→ final = 23
+
+✅ Output: 23
+
+🧠 Complexity
+Step	Complexity
+Sorting	O(n log n)
+Traversal	O(n)
+Overall	O(n log n) per test case
+
+Memory usage: O(n)
+
+🧾 Summary of Logic Flow
+Input → Sort → Pair equal sides → Calculate psum
+        ↓
+   If psum == 0 → Output 0
+        ↓
+   Else try to add leftover sides (maximize perimeter)
+        ↓
+   Edge case: if only one pair → check validity
+        ↓
+   Output maximum possible perimeter
+final code: 
+
+#include <bits/stdc++.h>
+using namespace std;
+int main() {
+    int t;
+    cin>>t;
+    while(t--){
+        int n; cin>>n;
+        vector<int> v(n);
+        for(int i=0;i<n;i++) cin>>v[i];
+        sort(v.begin(),v.end());
+        vector<long long> sp;
+        int i=0;
+        long long psum=0;
+        int cnt=0;
+        while(i<n){
+            if(i+1<n && v[i]==v[i+1]){
+            psum+=2*(v[i]);
+            i=i+2;
+            cnt+=2;
+            }
+            else{
+                sp.push_back(v[i]);
+                i++;
+            }
+        }
+        if(psum==0) cout<<0<<endl;
+        else {
+            long long final=psum;
+            for(int i=0;i<sp.size();i++){
+                if(sp[i]<psum){
+                    final=max(final,sp[i]+psum);
+                }
+            }
+            for(int i=1;i<sp.size();i++){
+                if(sp[i]-sp[i-1]<psum){
+                    final=max(final,sp[i]+psum+sp[i-1]);
+                }
+            }
+            if(cnt==2 && final==psum) cout<<0<<endl;
+            else cout<<final<<endl;
+        }
+    }
+}
+
+my notes: 
+🧩 Logic for Symmetry (from handwritten notes)
+Condition 1 — Occurrence Pattern
+
+To form a symmetrical polygon, sides must appear in specific occurrence patterns.
+
+Case 1: All occur in even pairs
+   e.g.  [1,1,2,2,3,3]  ✅ possible symmetry
+
+Case 2: One odd occurrence
+   e.g.  [1,1,2,2,3] → odd side = 3 → possible symmetry with base
+
+Case 3: Two odd occurrences
+   e.g.  [1,1,2,3,3,4] → may form symmetry if adjacent sides satisfy polygon rule
+
+Condition 2 — Polygon Validity
+
+For any polygon:
+
+Largest side
+<
+Sum of remaining sides
+Largest side<Sum of remaining sides
+
+If all elements have even occurrences, ✅ no need to check further.
+
+If there’s an odd occurrence, we must verify this condition.
+
+When Only One Odd Occurrence
+
+Let that single unpaired side = n
+
+Then:
+
+𝑛
+<
+Sum of all paired sides
+n<Sum of all paired sides
+
+If this holds → polygon possible.
+
+When Two Odd Occurrences
+
+Let the two unpaired sides be n₁ and n₂, with n₁ < n₂.
+
+Then:
+
+𝑛
+2
+−
+𝑛
+1
+<
+Sum of all paired sides
+n
+2
+	​
+
+−n
+1
+	​
+
+<Sum of all paired sides
+
+If this holds → polygon is possible.
+
+Conclusion
+
+Use maximum valid pairs of equal lengths (since symmetry needs pairing).
+
+Any odd occurrences must satisfy polygon inequalities above.
+
+Only adjacent pairs or close odd sides can extend symmetry.
+
+The valid configuration that satisfies these conditions gives the maximum perimeter.
+
+🧠 Pseudocode Summary
+1. Sort the array.
+
+2. Take sum (psum) of all even pairs (v[i] == v[i+1]).
+
+3. Store leftover odd sides in vector sp.
+
+4. Edge case:
+   if (psum == 0)
+       output 0
+
+5. Else:
+   - If one odd side: check (odd_side < psum)
+   - If two odd sides: check (n2 - n1 < psum)
+   - Otherwise: no valid polygon → output 0
+
+6. Output maximum valid perimeter.
+
+🖊️ Diagram Reference (from your notes)
+Condition 1:
+   |---------|---------|
+   1         2         3
+   All sides in pairs → symmetric polygon ✅
+
+   |---------|---------|---------|
+   1         2         3         4
+   One odd side → check polygon condition ✅
+
+   |---------|---------|---------|---------|
+   1         2         3         4         5
+   Two odd sides → need to check adjacency ✅/❌

@@ -1,0 +1,164 @@
+🧠 Core Idea – Candy Box (Easy)
+📌 What is asked?
+You want to pick candies such that:
+
+
+For each type, number of candies taken is distinct.
+
+
+Maximize total candies in gift.
+
+
+
+🔍 Key Observations
+
+
+You only care about frequency of each type.
+
+
+Example:
+1 1 1 2 2 3 → frequencies = [3,2,1]
+
+
+
+
+Gift rule:
+
+
+If you pick counts → must be all different
+
+
+Example valid → 3,2,1
+
+
+Example invalid → 2,2
+
+
+
+
+Best strategy:
+
+
+Use largest frequencies first
+
+
+Each next chosen count must be strictly smaller
+
+
+
+
+
+💡 Greedy Insight
+If you pick:
+k, k-1, k-2, ...
+
+you maximize total sum.
+Because:
+
+
+Bigger numbers give more candies.
+
+
+But must stay ≤ actual frequency.
+
+
+
+🧩 Algorithm Steps
+Step 1: Count frequencies
+Use map or array.
+Step 2: Store frequencies in vector
+Example:
+[4,4,3,2,1]
+
+Step 3: Sort descending
+[4,4,3,2,1]
+
+Step 4: Greedy picking
+Maintain:
+k = n (max allowed next frequency)
+
+For each frequency f:
+k = min(k, f)
+if k <= 0 break
+ans += k
+k--
+
+
+🧮 Why This Works
+We ensure:
+
+
+Pick ≤ available candies of type
+
+
+Pick < previous picked count (distinct condition)
+
+
+
+✍️ Dry Run Example
+Input:
+8
+1 4 8 4 5 6 3 8
+
+Frequencies:
+4 → 2
+8 → 2
+others → 1
+
+Vector:
+[2,2,1,1,1,1]
+
+Process:
+k=8
+Take min(8,2)=2 → ans=2 → k=1
+Take min(1,2)=1 → ans=3 → k=0
+Stop
+
+Answer = 3
+
+⏱ Complexity
+Per query:
+Frequency count → O(n)
+Sort → O(n log n)
+Greedy → O(n)
+
+Total:
+O(N log N) overall (since sum n ≤ 2e5)
+
+
+🧠 Pattern Recognition (Important for CP)
+When you see:
+
+
+Distinct counts
+
+
+Maximize total
+
+
+Frequencies involved
+
+
+👉 Try:
+Sort frequencies
+Greedy decreasing assignment
+
+
+🔥 Why Your Code is Correct
+Your logic:
+✔ Frequency map
+✔ Sorting frequencies descending
+✔ Greedy decreasing k
+✔ Early break when zero
+Perfect.
+
+📝 Short Revision Notes (Exam / Contest)
+Candy Box Trick
+1. Count freq of each type
+2. Sort freq descending
+3. prev = large number
+4. For each freq:
+      take = min(freq, prev)
+      if take == 0 break
+      ans += take
+      prev = take - 1

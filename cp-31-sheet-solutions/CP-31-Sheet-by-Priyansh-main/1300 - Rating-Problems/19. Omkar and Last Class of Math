@@ -1,0 +1,169 @@
+
+📝 NOTES — B. Omkar and Last Class of Math
+✅ Problem Summary
+
+Given an integer n, choose two positive integers:
+
+a + b = n
+
+
+such that the LCM(a, b) is minimum possible.
+
+Output any optimal pair (a, b).
+
+🎯 Key Mathematical Insight
+
+We use the identity:
+
+LCM(a, b) = (a * b) / gcd(a, b)
+
+
+To minimize LCM, we must:
+
+maximize gcd(a, b)
+
+AND still satisfy a + b = n.
+
+This leads to two cases:
+
+⭐ Case 1: n is even
+
+Choose:
+
+a = n/2
+b = n/2
+
+
+Why?
+
+a = b → gcd(a, b) = a
+
+LCM(a, a) = a = n/2
+
+This is the minimum possible LCM for any split.
+
+So for every even n, the answer is:
+
+n/2  n/2
+
+⭐ Case 2: n is odd
+
+We cannot split evenly.
+
+We need to find a and b = n - a such that:
+
+➜ gcd(a, b) is as large as possible.
+Important trick:
+
+If a = d, a divisor of n, then:
+
+b = n - d
+gcd(d, n - d) = d
+
+
+Thus choosing a divisor d gives very high gcd.
+
+So the best solution for odd n is obtained by choosing the largest divisor of n that is < n`.
+
+Let d = the largest divisor of n except n itself.
+
+Then:
+
+a = d
+b = n - d
+
+
+This gives minimum LCM.
+
+🧮 How to find the best divisor?
+
+Loop i from 1 to √n:
+
+If i divides n:
+
+candidates = i and n/i
+
+Collect all divisors in a list.
+
+Then choose d that maximizes:
+
+gcd(d, n - d)
+
+
+This guarantees minimum LCM.
+
+⏱ Time Complexity
+O(√n)
+
+
+Fast for all constraints (n ≤ 10^9).
+
+💻 Final Optimal Code (Clean Version)
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+
+bool isPrime(ll n) {
+    if (n < 2) return false;
+    for (ll i = 2; i * i <= n; i++)
+        if (n % i == 0) return false;
+    return true;
+}
+
+void solve() {
+    ll n;
+    cin >> n;
+
+    // Case 1: n even
+    if (n % 2 == 0) {
+        cout << n/2 << " " << n/2 << "\n";
+        return;
+    }
+
+    // Case 2: n odd
+    vector<ll> divs;
+    for (ll i = 1; i * i <= n; i++) {
+        if (n % i == 0) {
+            divs.push_back(i);
+            if (i != n/i) divs.push_back(n/i);
+        }
+    }
+
+    pair<ll,ll> best = {1, n - 1};
+    ll bestG = 1;
+
+    for (ll d : divs) {
+        if (d == n) continue;
+
+        ll a = d;
+        ll b = n - d;
+        ll g = __gcd(a, b);
+
+        if (g > bestG) {
+            bestG = g;
+            best = {a, b};
+        }
+    }
+
+    cout << best.first << " " << best.second << "\n";
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    
+    int t;
+    cin >> t;
+    while (t--) solve();
+}
+
+🏁 Final Summary
+
+If n is even → answer is (n/2, n/2).
+
+If n is odd → choose the best divisor d < n.
+
+Answer is (d, n - d) where gcd(d, n-d) is maximum.
+
+Complexity: O(√n).

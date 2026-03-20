@@ -1,0 +1,112 @@
+🧠 C. Sorting Game —
+🔹 Game Rule Simplification
+
+You choose positions such that:
+
+1 ≥ 0 ≥ 0 ≥ ... (non-increasing)
+
+
+So the picked subsequence must look like:
+
+111...1100...00
+
+
+After sorting (non-decreasing), it becomes:
+
+000...0011...11
+
+
+👉 So every move is basically:
+
+Take some 1s before some 0s and swap their order.
+
+This is exactly removing an inversion pattern (1 before 0).
+
+🔹 When is NO move possible?
+
+If the string is already:
+
+000...0111...1
+
+
+i.e., all 0s before all 1s (sorted).
+
+So:
+
+If there is no index i < j with s[i] = '1' and s[j] = '0', Bob wins.
+
+🔹 Key Observation (Game Theory)
+
+Each move strictly reduces the number of inversions (count of 1 before 0 pairs).
+
+Also:
+
+You can eliminate multiple inversions in one move.
+
+But structure matters: this is an impartial combinatorial game.
+
+Surprisingly, the Grundy analysis simplifies to:
+
+🎯 If there exists at least one inversion, Alice always wins.
+
+There is no losing position except the fully sorted string.
+
+Why?
+
+Because Alice can always make the string sorted in one move:
+
+Take all 1s that appear before any 0
+
+And all 0s after them
+
+Sort them → whole string becomes sorted.
+
+After that, Bob has no move.
+
+🔹 Winning Strategy
+
+Let:
+
+i = first position where s[i] = '1'
+
+j = last position where s[j] = '0'
+
+If i < j, there is at least one inversion.
+
+Then choose all indices from i to j.
+
+That substring is guaranteed to be:
+
+111...1100...00  (maybe mixed but 1s appear before 0s)
+
+
+It is non-increasing.
+
+Sorting it makes the whole string sorted globally.
+
+🔹 Algorithm
+
+For each test case:
+
+Find first '1' → L
+
+Find last '0' → R
+
+If L == -1 or R == -1 or L > R
+→ Print Bob
+
+Else:
+→ Print Alice
+→ Print R - L + 1
+→ Print all indices from L+1 to R+1
+
+🔹 Time Complexity
+
+Single scan: O(n)
+
+Total: O(sum n) ≤ 2e5 ✅
+
+🔹 Intuition Summary
+Situation	Winner
+String already sorted (000..111)	Bob
+Any inversion exists	Alice (one-move win)

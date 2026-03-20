@@ -1,0 +1,166 @@
+🧠 Problem: Lunatic Never Content (CF #1917B)
+🧩 Problem Summary
+link: https://codeforces.com/problemset/problem/1826/B
+You are given an array a of size n.
+For some positive integer x, define:
+
+𝑓(𝑎,𝑥)=[𝑎1 mod 𝑥,𝑎2 mod 𝑥,…,𝑎𝑛 mod 𝑥]f(a,x)=[a1	​modx,a2	​modx,…,an	​modx]
+
+Find the largest x such that f(a, x) is a palindrome.
+
+If infinitely many x work → print 0.
+
+💡 Understanding What’s Asked
+
+We need:
+
+𝑎𝑖 mod 𝑥=𝑎𝑛−𝑖+1 mod 𝑥∀𝑖ai
+	
+modx=a
+n−i+1
+	​
+
+modx∀i
+
+A palindrome means →
+each element equals its mirror element.
+
+🧮 Core Mathematical Observation
+
+For two numbers a and b:
+𝑎 mod 𝑥=𝑏 mod 𝑥
+⟺  𝑥∣(𝑎−𝑏)amodx=bmodx⟺x∣(a−b)
+
+(x divides their difference)
+
+Hence, for the array to be palindrome:
+𝑥 divides ∣𝑎𝑖−𝑎𝑛−𝑖+1∣x divides ∣ai	​−an−i+1	
+∣
+
+So, x must divide all pairwise differences between mirrored elements.
+
+⚙️ Key Derivation
+Let:𝑑𝑖𝑓𝑓𝑖=∣𝑎𝑖−𝑎𝑛−𝑖+1∣diffi	​=∣ai	​−an−i+1	​
+∣
+Then the largest x that divides all diff_i values is:
+
+𝑥=gcd⁡(𝑑𝑖𝑓𝑓1,𝑑𝑖𝑓𝑓2,…)x=gcd(diff1	​,diff2	​,…)
+
+✅ If all differences are 0 → the array is already palindrome
+→ any x works → answer = 0
+
+🔢 Example Walkthrough
+Example 1:
+a = [1, 2]
+
+
+→ |1−2| = 1
+→ gcd = 1
+✅ answer = 1
+
+Example 2:
+a = [3, 0, 1, 2, 0, 3, 2, 1]
+
+
+Differences:
+|3−1|=2, |0−2|=2, |1−3|=2, |2−0|=2
+→ gcd = 2
+✅ answer = 2
+
+Example 3:
+a = [0]
+
+
+No difference → palindrome → infinite x → ✅ answer = 0
+
+Example 4:
+a = [100, 1, 1000000000]
+
+
+|100−1000000000| = 999999900
+✅ answer = 999999900
+
+🧾 Algorithm
+
+For each test case:
+
+Read n and array a.
+
+Initialize g = 0.
+
+For all i from 0 to n−1:
+
+g = gcd(g, abs(a[i] - a[n-1-i]));
+
+
+If g == 0 → print 0
+else → print g.
+
+🧑‍💻 Final C++ Code
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        vector<long long> a(n);
+        for (auto &x : a) cin >> x;
+
+        long long g = 0;
+        for (int i = 0; i < n; i++) {
+            g = gcd(g, abs(a[i] - a[n - i - 1]));
+        }
+
+        cout << (g == 0 ? 0 : g) << "\n";
+    }
+    return 0;
+}
+
+⏱️ Complexity
+
+Time: O(n) per test case
+
+Memory: O(n)
+
+Total n across tests ≤ 1e5 → efficient ✅
+
+🧠 Key Takeaways / Intuition
+Concept	Meaning
+% equality	Implies divisibility of difference
+Palindrome condition	a[i] % x == a[n-i+1] % x
+Translate to math	`x
+Combine all	x divides all diffs → use gcd
+Already palindrome	All diffs = 0 → infinite → print 0
+⚡ Extra Tip: GCD Refresher
+
+Euclidean Algorithm (manual):
+
+gcd(a, b):
+  while (b != 0):
+    temp = b
+    b = a % b
+    a = temp
+  return a
+
+
+Properties:
+
+gcd(0, a) = |a|
+
+gcd(a, b) = gcd(b, a % b)
+
+🧩 Final Summary
+Step	Action	Result
+1	Compare symmetric elements	Find
+2	Compute gcd of all	Gives largest valid x
+3	If gcd == 0	Print 0
+4	Else	Print gcd
+
+→ Concept: “Modulo equality ⇒ divisibility ⇒ GCD of differences”
+→ Skill built: Modulo + GCD + Palindrome logic (a very common CF pattern)

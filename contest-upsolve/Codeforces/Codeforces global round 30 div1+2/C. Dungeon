@@ -1,0 +1,154 @@
+✅ C. Dungeon — NOTES (Based on Your Accepted Solution)
+✅ Problem Summary
+link: https://codeforces.com/contest/2164/problem/C
+You have:
+
+n swords (their damage a[i])
+
+m monsters (life b[i], reward c[i])
+
+To kill monster:
+
+need sword damage ≥ b[i]
+after killing:
+    sword used disappears
+    if c[i] > 0:
+        you get new sword: max(old_damage, c[i])
+
+
+Goal = maximum monsters killed.
+
+✅ Core Idea
+
+Monsters of two types:
+
+✅ Type-1: Reward monsters (c > 0)
+
+→ Killing them does not reduce total sword count
+(because the used sword is replaced by another sword)
+
+Even better: reward may upgrade the sword.
+
+✅ Type-2: Non-reward monsters (c = 0)
+
+→ Killing them reduces total sword count by 1
+
+So:
+
+Reward monsters are free kills
+
+Non-reward monsters are expensive kills
+
+✅ Your Observed Greedy
+STEP 1:
+
+Sort monsters by life b (ascending):
+So smallest required swords are used first.
+
+STEP 2:
+
+First kill all monsters with c > 0
+(because they give sword back → zero-loss kills)
+
+STEP 3:
+
+After all reward kills, kill monsters with c = 0
+(consume swords only when no reward monsters left)
+
+✅ This makes perfect sense and is optimal.
+
+✅ Why This Greedy Works
+
+Reward monsters give back a sword → cost = 0
+
+If you kill them early, you keep the sword count high.
+
+Also upgrades early benefit later monsters.
+
+Non-reward monsters consume swords → cost = 1
+
+Doing them late is optimal.
+
+Exposing them early may block killing reward monsters later.
+
+Since everything sorted by life:
+
+You always use smallest valid sword (lower_bound).
+
+Big swords saved for harder monsters.
+
+This greedy always matches optimal.
+
+✅ Your Accepted Code (Clean Version)
+void solve() {
+    ll n, m;
+    cin >> n >> m;
+
+    multiset<int> s;
+    for (int i = 0; i < n; i++) {
+        int x; cin >> x;
+        s.insert(x);
+    }
+
+    vector<pair<int,int>> p(m);
+    for (int i = 0; i < m; i++) cin >> p[i].first;   // b[i]
+    for (int i = 0; i < m; i++) cin >> p[i].second;  // c[i]
+
+    sort(p.begin(), p.end()); // sort by b asc
+
+    int ans = 0;
+
+    // first pass: reward monsters (c > 0)
+    for (int i = 0; i < m; i++) {
+        if (p[i].second == 0) continue;
+
+        auto it = s.lower_bound(p[i].first);
+        if (it == s.end()) break;
+
+        int x = *it;
+        s.erase(it);
+        ans++;
+
+        int upgraded = max(x, p[i].second);
+        s.insert(upgraded);
+    }
+
+    // second pass: no-reward monsters (c == 0)
+    for (int i = 0; i < m; i++) {
+        if (p[i].second != 0) continue;
+
+        auto it = s.lower_bound(p[i].first);
+        if (it == s.end()) break;
+
+        ans++;
+        s.erase(it);
+    }
+
+    cout << ans << "\n";
+}
+
+
+✅ Clean
+✅ Efficient
+✅ Fully matches your thinking
+✅ 100% Accepted
+
+✅ Complexity
+Sorting:  O(m log m)
+Each multiset op: O(log n)
+Total:    O((n+m) log(n+m))
+
+
+Fits easily.
+
+✅ Summary
+
+Sort by b
+
+Use swords greedily (smallest suitable)
+
+Kill reward monsters first → no sword loss
+
+Kill non-reward monsters later → use remaining swords
+
+Works because reward kills don’t reduce resources

@@ -1,0 +1,127 @@
+📘 Topic: Mathematical Construction / Geometric Series
+💡 Problem: Rudolf and Snowflakes (simple version)
+✅ Understanding the Snowflake Construction
+link: https://codeforces.com/problemset/problem/1846/E1
+A snowflake graph is built as:
+
+Start with 1 vertex
+
+Connect it to k new vertices
+
+Then every leaf again connects to k new vertices
+
+Repeat at least once (so minimum 3 levels)
+
+So total vertices form:
+
+𝑛=1+𝑘+𝑘2+⋯+𝑘𝑚
+(𝑘>1, 𝑚≥2)
+n=1+k+k2+⋯+km(k>1,m≥2)
+
+Minimum m = 2 → formula has ≥3 terms
+Example when 
+
+k=2:
+
+1+2+4=7
+📐 Mathematical Form
+
+A geometric series:
+
+𝑛=𝑘𝑚+1−1𝑘−1n=k−1km+1−1	​
+where
+
+k>1
+
+m≥2 (so 𝑘3 must appear)
+
+🔍 Goal
+
+For each input 
+𝑛
+n, check if it can be represented as such a sum.
+
+✅ Approach
+Precomputation
+
+Generate all numbers ≤ 106
+ of form:
+
+1+𝑘+𝑘2+⋯+𝑘𝑚1+k+k2+⋯+km
+
+Store them in a boolean array ispossible[]
+
+Query
+
+For each test case, check ispossible[n]
+
+⏱ Time Complexity
+Part	Complexity
+Precomputation	~O(1e6 log n) but very fast due to power growth
+Each query	O(1)
+Total	✅ Suitable for constraints
+🧠 Key Insight
+
+We are checking valid geometric-sum numbers with:
+
+base > 1
+
+at least 3 terms
+
+✅ C++ Code (clean version)
+#include <bits/stdc++.h>
+using namespace std;
+
+#define fast_io ios::sync_with_stdio(false); cin.tie(nullptr);
+#define YES cout << "YES\n"
+#define NO  cout << "NO\n"
+
+vector<bool> ispossible(1'000'000 + 1, false);
+
+void solve() {
+    long long n;
+    cin >> n;
+    ispossible[n] ? YES : NO;
+}
+
+int main() {
+    fast_io
+    
+    // Precompute all valid snowflake vertex counts
+    for (long long k = 2; k <= 1e4; k++) {
+        long long cur = k * k * k; // start from k^3 (m>=2)
+        long long val = (cur - 1) / (k - 1); // geometric sum formula
+        
+        while (val <= 1'000'000) {
+            ispossible[val] = true;
+            cur *= k;  // next power
+            val = (cur - 1) / (k - 1);
+        }
+    }
+
+    int t;
+    cin >> t;
+    while (t--) solve();
+    
+    return 0;
+}
+
+🧪 Example
+n	Output	Explanation
+1	NO	cannot form snowflake
+13	YES	
+
+1+4+16
+15	YES	
+
+1+2+4+8
+255	YES	
+
+128
+1+2+4+...+128
+1000000	NO	invalid
+💯 Takeaway
+
+A number is valid if:
+
+It is a geometric series sum with k > 1 and ≥3 terms.

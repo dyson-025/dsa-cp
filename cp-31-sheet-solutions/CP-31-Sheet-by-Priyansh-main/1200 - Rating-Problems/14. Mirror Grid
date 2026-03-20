@@ -1,0 +1,178 @@
+🧩 Problem Understanding
+link: https://codeforces.com/problemset/problem/1703/E
+You are given an n×n binary matrix (each cell has 0 or 1).
+
+You can perform 90° rotations on the matrix.
+For every set of 4 symmetric cells that coincide after rotation, you want to make all four cells equal by flipping the minimum number of bits.
+
+Your task is to find the minimum number of flips required to make the matrix symmetric under 90° rotation.
+
+📘 Example
+
+Let’s say n = 3 and the matrix is:
+
+0 0 1
+1 0 0
+0 1 0
+
+
+After rotating 90°, 180°, and 270°, certain positions overlap.
+Your task: for every such group of 4 rotated positions, make all bits the same (either all 0s or all 1s) with minimum flips.
+
+⚙️ Step-by-Step Code Explanation
+1️⃣ Input & Initialization
+int n;
+cin >> n;
+vector<vector<int>> v(n, vector<int>(n));
+for (int i = 0; i < n; i++)
+    for (int j = 0; j < n; j++)
+        cin >> v[i][j];
+
+
+You read an n×n matrix.
+
+v[i][j] stores the element at row i, column j.
+
+2️⃣ Create Visited Matrix
+vector<vector<int>> visited(n, vector<int>(n, -1));
+
+
+Keeps track of which cells have already been processed.
+
+Each 4-cell rotation group is handled once.
+
+3️⃣ Traversing the Matrix
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++) {
+        if (visited[i][j] == -1) {
+            // Process rotation group
+        }
+    }
+}
+
+
+For every unvisited cell (i, j),
+we find the 4 cells that belong to the same rotation cycle.
+
+4️⃣ Processing a 4-Cell Rotation Group
+
+Inside the loop:
+
+int currx = i;
+int currj = j;
+visited[i][j] = 1;
+int cnt1 = 0, cnt2 = 0;
+
+if (v[i][j] == 1) cnt1++;
+else cnt2++;
+
+
+Start from (i, j) as the first cell.
+
+Count how many 1s (cnt1) and 0s (cnt2) are in this group.
+
+5️⃣ Finding the 3 Rotated Positions
+
+Each cell (x, y) when rotated 90° clockwise maps to (y, n - x - 1).
+
+for (int k = 0; k < 3; k++) {
+    int newx = currj;
+    int newj = n - currx - 1;
+    if (v[newx][newj] == 1) cnt1++;
+    else cnt2++;
+    visited[newx][newj] = 1;
+    currx = newx;
+    currj = newj;
+}
+
+
+You rotate the coordinates three times, getting all 4 positions in total.
+
+Mark each as visited to avoid double-counting.
+
+Count how many 1s and 0s are in the group.
+
+6️⃣ Minimum Flips for this Group
+ans += min(cnt1, cnt2);
+
+
+To make all 4 cells equal,
+you only need to flip the minority bits (whichever is fewer).
+
+So min(cnt1, cnt2) gives the minimum flips needed for that rotation group.
+
+7️⃣ Output the Final Answer
+
+After processing all groups:
+
+cout << ans << endl;
+
+✅ Example Walkthrough
+Example Input:
+1
+3
+0 0 1
+1 0 0
+0 1 0
+
+Step-by-step:
+
+Group 1: cells (0,0), (0,2), (2,2), (2,0) → values {0,1,0,0}
+→ 3 zeros, 1 one → min(1,3)=1 flip
+
+Group 2: cells (0,1), (1,2), (2,1), (1,0) → values {0,0,1,1}
+→ 2 zeros, 2 ones → min(2,2)=2 flips
+
+Center (1,1) alone → rotation-invariant → no change
+
+Total flips = 1 + 2 = 3 ✅
+
+🧠 Core Idea
+
+Each cell and its 3 rotated versions form a rotation group:
+
+(x, y)
+(y, n−x−1)
+(n−x−1, n−y−1)
+(n−y−1, x)
+
+
+For every such group:
+
+Count 1s and 0s
+
+Minimum flips = min(# of 1s, # of 0s)
+
+Sum all to get the answer.
+
+⏱️ Complexity Analysis
+Operation	Complexity
+Traversing matrix	O(n²)
+Processing 4 rotations per group	Constant work
+Space	O(n²) for visited matrix
+
+✅ Total Time = O(n²)
+✅ Space = O(n²)
+
+Works easily for n ≤ 1000 (common CF constraints).
+
+📘 Summary of Logic
+Step	Purpose
+Input n×n matrix	Read binary matrix
+Create visited	Track processed cells
+For each unvisited cell	Start a 4-cell rotation group
+Rotate 3 times	Get all symmetric cells
+Count 0s and 1s	Find which value dominates
+Add min(cnt1, cnt2)	Minimum flips for that group
+Print total	Final answer
+💡 Key Observations
+
+4 symmetric positions are treated together.
+
+Each group contributes independently to the final answer.
+
+Rotation formula (x, y) → (y, n−x−1) is core to the problem.
+
+Only 90° symmetry is required, not mirror or 180° separately.
+
+The central cell (if n is odd) doesn’t need any change.

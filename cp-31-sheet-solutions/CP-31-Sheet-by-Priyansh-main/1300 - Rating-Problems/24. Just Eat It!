@@ -1,0 +1,141 @@
+📘 Notes for B. Just Eat It! (Codeforces)
+✅ Problem Summary
+
+Yasser buys all cupcakes → total = sum(a).
+
+Adel chooses any non-full contiguous subarray → any segment except [1, n].
+
+Yasser is happy if:
+
+sum(a) > sum( any subarray except whole array )
+
+This must hold for every subarray Adel chooses.
+
+🎯 Key Insight (Main Logic)
+
+Adel wants to maximize a subarray sum (but cannot choose whole array).
+
+So we must ensure:
+
+total_sum > maximum_subarray_sum_of_prefix
+AND
+total_sum > maximum_subarray_sum_of_suffix
+
+
+✔ Prefix subarrays = subarrays ending before last element
+✔ Suffix subarrays = subarrays starting after first element
+
+This is because the maximum subarray (Kadane result) for all subarrays is only dangerous when:
+
+Kadane’s maximum comes from a prefix (ending at n-1)
+
+Kadane’s maximum comes from a suffix (starting at 2)
+
+Kadane’s maximum over entire array is not allowed for Adel.
+
+So check:
+
+max subarray sum in [1 … n-1]  <  total sum
+max subarray sum in [2 … n]    <  total sum
+
+
+If either is >= total_sum → NO
+Else → YES
+
+💡 Why Only Prefix and Suffix?
+
+Because if a subarray is strictly inside, Kadane’s algorithm will find its maximum inside prefix/suffix checks.
+
+Adel cannot take the full array, so we check only these two boundaries.
+
+🧠 Kadane Reminder (for max subarray sum)
+sum += a[i]
+if sum < 0 → sum = 0
+maxi = max(maxi, sum)
+
+🔍 Example Verification
+Example: [7, 4, -1]
+
+total = 10
+
+prefix max = 7+4 = 11 → dangerous
+
+suffix max = 4 + (-1) = 3
+
+Since 11 >= 10 → NO
+
+🧩 Final Conditions
+
+✔ Calculate total sum
+✔ Kadane on prefix
+✔ Kadane on suffix
+✔ Compare
+
+🧾 Clean & Commented Version of Your Code
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+
+// Function to compute max subarray sum using Kadane
+ll kadane(vector<ll> &v) {
+    ll sum = 0, maxi = 0;
+    for (ll x : v) {
+        sum += x;
+        if (sum < 0) sum = 0;
+        maxi = max(maxi, sum);
+    }
+    return maxi;
+}
+
+void solve() {
+    ll n;
+    cin >> n;
+    vector<ll> a(n);
+    for (auto &x : a) cin >> x;
+
+    ll total = accumulate(a.begin(), a.end(), 0LL);
+
+    // prefix subarray [1 ... n-1]
+    vector<ll> pref(a.begin(), a.end() - 1);
+    ll max_pref = kadane(pref);
+
+    // suffix subarray [2 ... n]
+    vector<ll> suff(a.begin() + 1, a.end());
+    ll max_suff = kadane(suff);
+
+    // If either subarray sum >= total → NO
+    if (max_pref >= total || max_suff >= total)
+        cout << "NO\n";
+    else
+        cout << "YES\n";
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) solve();
+    return 0;
+}
+
+📚 Important Notes (Add to DSA notebook)
+✔ Kadane variation
+
+If you need to restrict Kadane to part of the array → copy the needed range only.
+
+✔ Compare with full sum
+
+Since Adel’s subarray must be strictly less:
+
+max_subarray_sum < total_sum
+
+✔ Why sum must be strictly greater
+
+The problem specifically says Yasser must be strictly happier.
+
+✔ Time Complexity
+
+O(n) per test → fits limits easily.

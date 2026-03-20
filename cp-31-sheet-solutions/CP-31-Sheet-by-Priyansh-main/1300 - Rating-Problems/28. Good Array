@@ -1,0 +1,220 @@
+📘 C. Good Array — Codeforces
+Problem Statement
+link: https://codeforces.com/problemset/problem/1077/C
+We call an array good if there exists an element equal to the sum of all other elements.
+Formally, array a is good if ∃ a[i] such that:
+
+a[i] = (sum of all elements) - a[i]
+⟹ 2 * a[i] = total sum
+
+
+You’re given an array a of size n.
+Find all indices j such that after removing a[j],
+the remaining array becomes good.
+
+🧠 Intuition
+
+If we remove element a[j], the remaining sum becomes:
+
+remaining_sum = total_sum - a[j]
+
+
+The new array is good if there exists an element x (in remaining array) such that:
+
+x = (remaining_sum - x)
+⟹ 2x = remaining_sum
+⟹ x = (total_sum - a[j]) / 2
+
+
+So, for each index j:
+
+Check if (total_sum - a[j]) is even.
+
+Let x = (total_sum - a[j]) / 2.
+
+If x exists in the remaining array → j is a nice index.
+
+⚙️ Approach 1 (Editorial / Optimal)
+Idea
+
+Simulate removing each element using a frequency map.
+
+Steps
+
+Compute total sum S of all elements.
+
+Store frequency of each number in a map/unordered_map.
+
+For each index i:
+
+Compute remaining_sum = S - a[i].
+
+Skip if it’s odd.
+
+Compute x = remaining_sum / 2.
+
+Temporarily decrement freq[a[i]]-- (to simulate removing it).
+
+If freq[x] > 0, mark index i as nice.
+
+Restore frequency back freq[a[i]]++.
+
+Code
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+void solve() {
+    ll n; cin >> n;
+    vector<ll> a(n);
+    ll sum = 0;
+    unordered_map<ll, ll> freq;
+
+    for (int i = 0; i < n; i++) {
+        cin >> a[i];
+        sum += a[i];
+        freq[a[i]]++;
+    }
+
+    vector<int> nice_indices;
+
+    for (int i = 0; i < n; i++) {
+        ll remaining_sum = sum - a[i];
+        if (remaining_sum % 2 != 0) continue;  // must be even
+
+        ll x = remaining_sum / 2;
+        freq[a[i]]--;  // temporarily remove
+
+        if (freq[x] > 0) {
+            nice_indices.push_back(i + 1); // 1-based index
+        }
+
+        freq[a[i]]++;  // restore
+    }
+
+    cout << nice_indices.size() << "\n";
+    for (int idx : nice_indices) cout << idx << " ";
+    cout << "\n";
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    solve();
+}
+
+Example Dry Run
+
+a = [2, 5, 1, 2, 2], sum = 12
+
+i	a[i]	remaining_sum	(even?)	x	freq[x] (excluding a[i])	Nice?
+1	2	10	✅	5	✅	✅
+2	5	7	❌	-	-	❌
+3	1	11	❌	-	-	❌
+4	2	10	✅	5	✅	✅
+5	2	10	✅	5	✅	✅
+
+✅ Nice indices = [1, 4, 5]
+
+Complexity
+
+Time: O(n) (each element checked once, map ops O(1) avg)
+
+Space: O(n) (frequency map)
+
+⚙️ Approach 2 (Your Version — Accepted Code)
+Idea
+
+You derived a clever variant of the same relationship:
+
+From:
+
+x = (sum - a[j]) / 2
+⟹ sum - 2x = a[j]
+
+
+So instead of looping over all a[j] and checking for x,
+you loop over a[i] and check whether sum - 2 * a[i] exists.
+
+This inverts the direction but satisfies the same relationship!
+
+Your Code
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+#define fast_io ios::sync_with_stdio(false); cin.tie(nullptr);
+
+void solve() {
+    ll n; cin >> n;
+    vector<ll> v(n);
+    ll sum = 0;
+    unordered_map<ll, vector<ll>> mpp;
+    for (int i = 0; i < n; i++) {
+        cin >> v[i];
+        sum += v[i];
+        mpp[v[i]].push_back(i + 1);
+    }
+
+    set<ll> ans;
+
+    for (int i = 0; i < n; i++) {
+        ll val = sum - 2 * v[i];
+        if (mpp.find(val) != mpp.end()) {
+            for (auto it : mpp[val])
+                if (it != i + 1)
+                    ans.insert(it);
+        }
+    }
+
+    if (ans.empty()) cout << 0 << "\n";
+    else {
+        cout << ans.size() << "\n";
+        for (auto it : ans) cout << it << " ";
+        cout << "\n";
+    }
+}
+
+int main() {
+    fast_io;
+    solve();
+}
+
+Why It Works
+
+Your code essentially checks for the same condition,
+but from the perspective of the element x instead of the one being removed.
+
+Works symmetrically since:
+
+sum - 2 * v[i] = a[j]  ⟺  v[i] = (sum - a[j]) / 2
+
+
+That’s why Codeforces accepted it ✅
+
+Trade-offs
+Feature	Editorial Approach	Your Approach
+Clarity	Very clear (directly simulates removal)	Less intuitive
+Performance	O(n)	Slightly higher (vector inside map)
+Memory	O(n)	O(n) but stores index vectors
+Code Simplicity	Shorter, clean	A bit more complex
+Correctness	Always safe	Works due to symmetric math
+🧩 Key Takeaways
+
+“Good Array” problems often boil down to sum relationships like 2 * x = total_sum.
+
+For each element removed → check if x = (sum - a[i]) / 2 exists in remaining.
+
+Always be careful when “removing” — simulate via freq[a[i]]--.
+
+Your reverse logic (sum - 2*v[i]) works because it’s mathematically equivalent, though less direct.
+
+Use unordered_map for frequency counts in O(1) average time.
+
+✅ Final Quick Revision Notes
+Concept	Formula / Check
+Array is good	∃ i such that 2*a[i] = sum
+After removing a[j]	Check if x = (sum - a[j]) / 2 exists
+Skip odd sums	(sum - a[j]) % 2 != 0
+Frequency trick	freq[a[i]]-- → check → freq[a[i]]++
+Complexity	O(n)
+Data structure	unordered_map<ll, ll>

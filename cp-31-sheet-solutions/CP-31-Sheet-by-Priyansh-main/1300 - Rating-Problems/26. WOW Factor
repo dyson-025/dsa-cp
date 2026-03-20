@@ -1,0 +1,169 @@
+📘 Notes for B. WOW Factor (Codeforces)
+✅ Problem Summary
+
+You are given a string s made of only:
+
+'v'
+
+'o'
+
+Here:
+
+✔ Every "vv" is equivalent to a single "w"
+
+(but multiple overlapping "vv"s count!)
+
+Example:
+vvvv contains 3 "w":
+
+(1,2)
+
+(2,3)
+
+(3,4)
+
+🎯 Goal
+
+Count the number of subsequences equal to:
+
+w o w
+
+
+But since:
+
+w → "vv"
+
+
+We actually need to count subsequences of the form:
+
+"vv"  o  "vv"
+
+🧠 Key Observation (The Core Trick)
+
+We only care about "vv" pairs, not single v's.
+
+Let's mark every "vv" as a countable unit.
+
+For each 'o' in the string:
+
+Number of WOWs contributed by this 'o' =
+(# of "vv" before it) × (# of "vv" after it)
+
+
+This works because:
+
+Each "vv" before forms a left "w".
+
+Each "vv" after forms a right "w".
+
+Sum over all 'o'.
+
+💡 Why Overlapping “vv” Count?
+
+Example: vvvv
+
+Indices: 1 2 3 4
+Pairs:
+
+(1,2)
+
+(2,3)
+
+(3,4)
+
+All are valid because subsequence allows picking characters at different positions.
+
+🧩 Steps to Solve
+1️⃣ Build prefix array pf[i] = total “vv” pairs till index i
+
+Walk through string:
+
+if s[i]=='v' & s[i-1]=='v' → found a "vv" pair → d++
+pf[i] = d
+
+2️⃣ For every 'o', compute:
+left  = number of "vv" before i = pf[i]
+right = number of "vv" after i = pf[n-1] - pf[i]
+ans += left * right
+
+3️⃣ Print ans
+🧪 Example Walkthrough
+Input:
+vvvovvv
+
+
+vvv has 2 overlapping "vv":
+
+(1,2)
+
+(2,3)
+
+Similarly last vvv has 2.
+
+At the 'o':
+
+left = 2
+right = 2
+so contribution = 2 × 2 = 4
+
+✔ Output = 4
+
+🧾 Clean & Commented Version of Your Code
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+
+void solve() {
+    string s;
+    cin >> s;
+
+    int n = s.size();
+    vector<ll> pf(n, 0);
+
+    // Count vv pairs in prefix
+    ll count_vv = 0;
+    for (int i = 1; i < n; i++) {
+        if (s[i] == 'v' && s[i - 1] == 'v')
+            count_vv++;
+        pf[i] = count_vv;
+    }
+
+    ll ans = 0;
+
+    // For every 'o', count left_vv * right_vv
+    for (int i = 0; i < n; i++) {
+        if (s[i] == 'o') {
+            ll left = pf[i];
+            ll right = pf[n - 1] - pf[i];
+            ans += left * right;
+        }
+    }
+
+    cout << ans << "\n";
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t = 1;
+    cin >> t;
+    while (t--) solve();
+
+    return 0;
+}
+
+📚 Add These Points to Your DSA Notes
+✔ "vv" → contributes one w
+
+But they overlap.
+
+✔ WOW = Left_w × Right_w for each 'o'
+✔ Use prefix counts to avoid O(N²)
+✔ Complexity:
+
+O(n) time
+O(n) memory
+
+✔ Valid even if string is not derived from actual w→vv typing

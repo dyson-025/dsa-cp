@@ -1,0 +1,121 @@
+📌 Problem: White-Black Balanced Subtrees
+link: https://codeforces.com/problemset/problem/1676/G
+You are given:
+
+A rooted tree (root = 1)
+
+Colors for each node: W (white) or B (black)
+
+Goal
+
+For every node, consider its entire subtree and check if:
+
+#White nodes = #Black nodes
+
+
+Count such subtrees.
+
+🧠 Key Idea (Important)
+
+Convert colors to values:
+
+Color	Contribution
+W	+1
+B	-1
+
+For each subtree:
+
+subtree_value = sum of (child subtree values) + (own value)
+
+
+If subtree_value == 0, it means equal White & Black ⇒ Balanced ✅
+
+This is a classic Post-order DFS (process children before parent).
+
+🏗️ Algorithm
+
+Build adjacency list from parent array
+
+DFS from node 1
+
+For each node:
+
+Sum values returned by children
+
+Add +1 for W or -1 for B
+
+If final sum = 0 → balanced subtree → increase answer
+
+Return total count
+
+✅ Time Complexity
+
+DFS per test: O(n)
+
+Total n over all test cases ≤ 2⋅10⁵ → ✅ fits
+
+⭐ Final Code
+#include <bits/stdc++.h>
+using namespace std;
+
+#define fast_io ios::sync_with_stdio(false); cin.tie(nullptr);
+#define ll long long
+
+ll ans;
+
+ll dfs(ll node, vector<vector<ll>>& adj, string &s){
+    ll cnt = 0;
+    
+    for(auto child : adj[node]){
+        cnt += dfs(child, adj, s);
+    }
+
+    cnt += (s[node-1] == 'W' ? 1 : -1);
+    
+    if(cnt == 0) ans++;
+    return cnt;
+}
+
+void solve() {
+    ll n; 
+    cin >> n;
+
+    vector<ll> parent(n);
+    for(int i = 1; i < n; i++) cin >> parent[i];
+
+    string s;
+    cin >> s;
+
+    vector<vector<ll>> adj(n+1);
+    for(int i = 1; i < n; i++){
+        adj[parent[i]].push_back(i+1);
+    }
+
+    ans = 0;
+    dfs(1, adj, s);
+
+    cout << ans << "\n";
+}
+
+int main() {
+    fast_io
+    int t; 
+    cin >> t;
+    while(t--) solve();
+}
+
+🎯 Concepts Learned
+
+Tree DFS
+
+Post-order traversal
+
+Subtree DP
+
+Count while returning values from DFS
+
+Pattern to Remember:
+
+Return value from child → combine → check condition → return to parent
+
+This pattern appears in many problems like subtree sums, XOR trees, centroid, etc.

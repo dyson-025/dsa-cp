@@ -1,0 +1,142 @@
+🧠 Problem Summary
+
+You are given:
+
+n cities in order 1..n
+
+beauty values b[i]
+
+You must choose a sequence:
+
+c1 < c2 < ... < ck
+
+
+Such that for every adjacent pair:
+
+(ci+1 - ci) = (b[ci+1] - b[ci])
+
+
+Maximize:
+
+b[c1] + b[c2] + ... + b[ck]
+
+Key Transformation (Main Trick)
+
+Rearrange the condition:
+
+ci+1 - ci = b[ci+1] - b[ci]
+
+
+Bring terms together:
+
+b[ci] - ci = b[ci+1] - ci+1
+
+🔥 This means:
+
+All chosen cities must have the same value of (b[i] - i).
+
+Final Reduced Problem
+
+Group cities by:
+
+key = b[i] - i
+
+
+For each group:
+
+You can take all of them
+
+They automatically form a valid journey
+
+Beauty = sum of that group
+
+Answer = maximum group sum
+
+Optimal Solution (Hash Map)
+void solve() {
+    long long n;
+    cin >> n;
+
+    vector<long long> b(n);
+    unordered_map<long long, long long> mpp;
+
+    for(int i = 0; i < n; i++) {
+        cin >> b[i];
+        mpp[b[i] - i] += b[i];
+    }
+
+    long long maxi = 0;
+    for(auto it : mpp) {
+        maxi = max(maxi, it.second);
+    }
+
+    cout << maxi << endl;
+}
+
+Why This Works
+
+Suppose we pick cities:
+
+i, j, k
+
+
+They are valid iff:
+
+b[i] - i = b[j] - j = b[k] - k
+
+
+So the journey is just:
+
+pick any constant line in (i, b[i]) space.
+
+This is equivalent to grouping points by slope-1 diagonals.
+
+Example
+
+Input:
+
+6
+10 7 1 9 10 15
+
+
+Compute b[i] - i:
+
+i	b[i]	b[i] - i
+1	10	9
+2	7	5
+3	1	-2
+4	9	5
+5	10	5
+6	15	9
+
+Groups:
+
+key = 5 → {7,9,10} → sum = 26 ✅
+
+key = 9 → {10,15} → sum = 25
+
+Answer = 26
+
+Complexity
+Metric	Value
+Time	O(n)
+Memory	O(n)
+Works for	2×10⁵
+Typical Mistakes
+Mistake	Why wrong
+Using DP	unnecessary
+Checking all pairs	O(n²) TLE
+Sorting	useless
+Greedy LIS	wrong model
+Pattern Recognition (Important)
+
+Whenever you see condition:
+
+(ci+1 - ci) = (b[ci+1] - b[ci])
+
+
+Always try:
+
+Move index and value together.
+
+This is a hash grouping problem, not DP.

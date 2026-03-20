@@ -1,0 +1,98 @@
+📝 NOTES — B. Most Socially-Distanced Subsequence
+Problem:
+
+A permutation p of size n di hui hai.
+Hume ek subsequence s1, s2, ..., sk select karni hai jisme:
+
+Sum = |s1 - s2| + |s2 - s3| + ... + |sk-1 - sk|
+
+
+• Ye sum maximum ho
+• Aur among maximum-sum subsequences, k minimum ho
+• Agar multiple answers ho, koi bhi print kar do
+
+🔥 Key Idea (Editorial Logic)
+
+Maximum path length milega peaks aur valleys ko leke.
+
+Subsequence:
+
+Always start → first element
+
+Always end → last element
+
+Middle mein bas turning points (peaks/valleys) include karo
+
+Why?
+
+Distances add karne ka best tareeka:
+
+Jab sequence up → down hota hai → valley
+
+Jab sequence down → up hota hai → peak
+
+Ye points add karne se sum max hota hai
+
+Aur beech ke straight-line points remove karne se k minimum hota hai
+
+🎯 Include Rule (IMPORTANT)
+
+For index i (1 to n-2):
+
+Include p[i] if:
+
+p[i-1], p[i], p[i+1]  NOT monotonic
+
+
+i.e., not:
+
+increasing:   p[i-1] < p[i] < p[i+1]
+decreasing:   p[i-1] > p[i] > p[i+1]
+
+
+If it is strictly increasing/decreasing → skip middle element.
+
+⭐ Algorithm
+
+ans = [p[0]]
+
+For i = 1 to n-2:
+
+If p[i] is a turning point, push it
+
+Push p[n-1]
+
+⏱ Time Complexity
+O(n)
+
+✔ Final Accepted Code
+
+(yeh hi logic CF editorial mein bhi hai)
+
+void solve() {
+    ll n;
+    cin >> n;
+    vector<ll> p(n);
+    for (auto &x : p) cin >> x;
+
+    vector<ll> ans;
+
+    ans.push_back(p[0]);
+
+    for (int i = 1; i < n - 1; i++) {
+        if (!((p[i-1] < p[i] && p[i] < p[i+1]) ||
+              (p[i-1] > p[i] && p[i] > p[i+1]))) {
+            ans.push_back(p[i]);
+        }
+    }
+
+    ans.push_back(p[n-1]);
+
+    cout << ans.size() << endl;
+    for (auto x : ans) cout << x << " ";
+    cout << endl;
+}
+
+🔥 One-Line Reasoning
+
+Keep first + last + every peak or valley → max sum, min length.

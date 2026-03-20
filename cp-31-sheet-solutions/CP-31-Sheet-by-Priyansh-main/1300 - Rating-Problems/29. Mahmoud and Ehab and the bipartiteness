@@ -1,0 +1,162 @@
+⚔️ B. Mahmoud and Ehab and the Bipartiteness
+link: https://codeforces.com/problemset/problem/862/B
+🧠 Problem Summary
+
+We are given a tree of n nodes.
+We must find the maximum number of extra edges that can be added such that:
+
+The graph remains bipartite.
+
+The graph remains simple (no self-loops, no multiple edges).
+
+🧩 Key Observations
+
+A tree is always bipartite by definition (it has no cycles).
+
+You can color it with two colors (red and white) such that
+every edge connects nodes of different colors.
+
+In a bipartite graph, edges only connect across the two sets — never within one set.
+
+🧮 Mathematical Idea
+
+Let:
+
+red = number of vertices in the red set
+
+white = number of vertices in the white set
+
+In a complete bipartite graph between these two sets, the maximum number of edges possible is:
+
+max edges=red×white
+
+But the tree already contains (n - 1) edges,
+so the extra edges you can add are:
+
+
+answer=(red×white)−(n−1)
+
+That’s the key formula ✅
+
+🧠 Step-by-Step Approach
+
+Input the number of nodes n and the tree edges.
+
+Build an adjacency list.
+
+Use DFS (or BFS) to color the tree in two colors.
+
+Start with node 1 and color it, say, white = 0.
+
+Alternate color for children (!color).
+
+Count how many nodes are red and white.
+
+Apply the formula:
+
+Answer=red×white−(n−1)
+✅ Correct Code
+#include <bits/stdc++.h>
+using namespace std;
+
+#define fast_io ios::sync_with_stdio(false); cin.tie(nullptr);
+#define ll long long
+
+ll red = 0, white = 0;
+
+void dfs(ll node, ll color, vector<vector<ll>> &adj, vector<ll> &vis) {
+    vis[node] = 1;
+    if (color == 1) red++;
+    else white++;
+
+    for (auto it : adj[node]) {
+        if (!vis[it]) {
+            dfs(it, !color, adj, vis);
+        }
+    }
+}
+
+void solve() {
+    ll n;
+    cin >> n;
+
+    vector<vector<ll>> adj(n + 1);
+    vector<ll> vis(n + 1, 0);
+
+    for (int i = 1; i < n; i++) {
+        ll u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+
+    dfs(1, 0, adj, vis);
+
+    cout << (red * white - (n - 1)) << "\n";
+}
+
+int main() {
+    fast_io
+    solve();
+    return 0;
+}
+
+🧩 Example Walkthrough
+Example 1:
+n = 3
+1 - 2
+1 - 3
+
+
+Coloring:
+
+1 → white
+2, 3 → red
+
+
+red = 2
+
+white = 1
+→ red × white = 2
+→ edges already = 2
+✅ answer = 2 - 2 = 0
+
+Example 2:
+n = 5
+1-2, 2-3, 3-4, 4-5
+
+
+Coloring alternates:
+
+1 (white), 2 (red), 3 (white), 4 (red), 5 (white)
+
+
+red = 2
+
+white = 3
+→ red × white = 6
+→ edges already = 4
+✅ answer = 6 - 4 = 2
+
+⚠️ Your Original Mistakes
+❌ Mistake	💡 Fix
+vector<vector<ll>> adj passed by value in DFS	Pass by reference → &adj
+vis[node]++ used	Should be vis[node] = 1; for clarity
+You expected O(n) but got TLE	Due to O(n²) copying caused by pass-by-value
+Possibly misunderstood formula	Correct formula → white * red - (n - 1)
+⚙️ Complexity Analysis
+Operation	Complexity
+Building adjacency list	O(n)
+DFS traversal	O(n)
+Final formula	O(1)
+Total	✅ O(n)
+
+Space Complexity → O(n) for adjacency + visited array.
+
+🏁 Final Summary
+
+✅ Tree → Always bipartite
+✅ Color using DFS
+✅ Count red and white
+✅ Use formula → white * red - (n - 1)
+✅ Pass adjacency by reference to avoid TLE

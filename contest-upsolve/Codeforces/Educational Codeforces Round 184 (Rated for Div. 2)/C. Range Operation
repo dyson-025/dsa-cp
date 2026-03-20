@@ -1,0 +1,447 @@
+📘 C. Range Operation — Complete Notes
+✅ 1. Problem Summary (Simple Words)
+
+You are given an array a[1..n].
+
+You may pick one continuous subarray [l, r] and change all values in that range to:
+
+(l + r)
+
+
+Do this at most once.
+
+Goal → maximize total array sum.
+
+📌 2. What happens if we apply the operation?
+Original contribution of range:
+∑𝑖=𝑙𝑟𝑎𝑖i=l∑r	​ai	​
+New contribution:
+
+All elements become (l + r), so:
+
+(r−l+1)(l+r)
+Net gain:
+gain
+(
+𝑙
+,
+𝑟
+)
+=
+(
+𝑟
+−
+𝑙
++
+1
+)
+(
+𝑙
++
+𝑟
+)
+−
+∑
+𝑖
+=
+𝑙
+𝑟
+𝑎
+𝑖
+gain(l,r)=(r−l+1)(l+r)−
+i=l
+∑
+r
+	​
+
+a
+i
+	​
+
+
+We must find the maximum gain over all l ≤ r.
+
+Final answer:
+
+sum of array
++
+max
+⁡
+(
+0
+,
+best gain
+)
+sum of array+max(0,best gain)
+💡 3. Convert gain into a usable formula
+
+Let prefix sum:
+
+𝑆
+𝑖
+=
+∑
+𝑘
+=
+1
+𝑖
+𝑎
+𝑘
+S
+i
+	​
+
+=
+k=1
+∑
+i
+	​
+
+a
+k
+	​
+
+
+Then:
+
+∑
+𝑖
+=
+𝑙
+𝑟
+𝑎
+𝑖
+=
+𝑆
+𝑟
+−
+𝑆
+𝑙
+−
+1
+i=l
+∑
+r
+	​
+
+a
+i
+	​
+
+=S
+r
+	​
+
+−S
+l−1
+	​
+
+
+Now expand:
+
+(
+𝑟
+−
+𝑙
++
+1
+)
+(
+𝑙
++
+𝑟
+)
+=
+𝑟
+2
++
+𝑟
+−
+(
+𝑙
+2
+−
+𝑙
+)
+(r−l+1)(l+r)=r
+2
++r−(l
+2
+−l)
+
+So gain becomes:
+
+gain
+(
+𝑙
+,
+𝑟
+)
+=
+(
+𝑟
+2
++
+𝑟
+−
+𝑆
+𝑟
+)
++
+(
+−
+𝑙
+2
++
+𝑙
++
+𝑆
+𝑙
+−
+1
+)
+gain(l,r)=(r
+2
++r−S
+r
+	​
+
+)+(−l
+2
++l+S
+l−1
+	​
+
+)
+
+Define:
+
+𝐴
+𝑟
+=
+𝑟
+2
++
+𝑟
+−
+𝑆
+𝑟
+A
+r
+	​
+
+=r
+2
++r−S
+r
+	​
+
+𝐵
+𝑙
+=
+−
+𝑙
+2
++
+𝑙
++
+𝑆
+𝑙
+−
+1
+B
+l
+	​
+
+=−l
+2
++l+S
+l−1
+	​
+
+
+Then:
+
+gain
+(
+𝑙
+,
+𝑟
+)
+=
+𝐴
+𝑟
++
+𝐵
+𝑙
+gain(l,r)=A
+r
+	​
+
++B
+l
+	​
+
+
+We want:
+
+max
+⁡
+𝑙
+≤
+𝑟
+(
+𝐴
+𝑟
++
+𝐵
+𝑙
+)
+l≤r
+max
+	​
+
+(A
+r
+	​
+
++B
+l
+	​
+
+)
+🎯 4. Key Insight
+
+While iterating r from 1..n, keep track of the maximum B_l for all l ≤ r.
+
+Let:
+
+left = max B_l seen so far
+
+
+Then for each r:
+
+gain = max(gain, A_r + left)
+
+
+Finally:
+
+answer = sum + gain
+
+🧠 5. Mapping this formula to your code
+
+Your code:
+
+left = max(left, -1LL*i*i + i + sum);
+
+
+At this moment:
+
+i = l
+
+sum = S_{l-1}
+
+So:
+
+left = max(left, B_l)
+
+
+Perfect.
+
+Then:
+
+gain = max(gain, 1LL*i*i + i - sum + left);
+
+
+Here:
+
+i = r
+
+sum = S_r
+
+So:
+
+A_r = r*r + r - S_r
+gain = max(gain, A_r + left)
+
+🧩 6. Full Explanation of Your Code (Line-by-Line)
+
+Here is your code with an explanation:
+
+void solve() {
+    ll n;
+    cin >> n;
+    vector<ll> v(n);
+
+    // Input the array
+    for(auto &it: v) cin >> it;
+
+    ll sum = 0;   // prefix sum S_r
+    ll left = 0;  // stores max B_l = -l*l + l + S_{l-1}
+    ll gain = 0;  // stores best gain
+
+    for(int i = 1; i <= n; i++) {
+
+        // BEFORE updating sum -> sum = S_{i-1}
+        // Update maximum B_l
+        left = max(left, -1LL * i * i + i + sum);
+
+        // Now include v[i-1] -> sum becomes S_i
+        sum += v[i-1];
+
+        // A_r = r*r + r - S_r
+        // gain = maximum A_r + best B_l
+        gain = max(gain, 1LL * i * i + i - sum + left);
+    }
+
+    // Maximum possible sum = original sum + best gain
+    cout << sum + gain << endl;
+}
+
+
+This is optimal O(n).
+
+📊 7. Visual Diagram
+
+As r moves:
+
+Compute A_r
+
+Combine with best B_l
+
+left stores the best l so far.
+
+gain accumulates the optimal (l, r) pair.
+
+🔥 8. Why the logic is correct
+
+The problem reduces to maximizing a two-part expression.
+
+One part depends only on l, the other only on r.
+
+We transform the operation into a prefix-based max expression.
+
+Using prefix sums avoids re-scanning ranges → O(n).
+
+Each r computes best possible l.
+
+This is a classic DP + prefix maxima transformation used in many CF problems.
+
+🏁 9. Final Complexity
+
+Each element is processed once → O(n)
+
+No extra memory besides arrays → O(1) extra
+
+Works for n ≤ 2e5 comfortably.
+
+✔️ 10. Final Answer Structure
+
+1️⃣ Compute prefix sum
+2️⃣ For every r:
+
+update best B_l
+
+compute A_r + best B_l
+
+3️⃣ Add this gain to original sum.

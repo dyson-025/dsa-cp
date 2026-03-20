@@ -1,0 +1,168 @@
+Lexicographically Smallest Permutation Greater Than Target
+Problem Statement
+
+Given two strings s and target of length n:
+
+You can rearrange s in any way (permutation).
+
+Return the lexicographically smallest permutation of s that is strictly greater than target.
+
+If no such permutation exists, return "".
+
+Lexicographically strictly greater:
+
+Compare strings left to right.
+
+First position where characters differ: a[i] > b[i] → string a is greater.
+
+Constraints:
+
+1 <= s.length == target.length <= 300
+
+s and target contain lowercase letters.
+
+Example
+s	target	Output
+"abc"	"bba"	"bca"
+"leet"	"code"	"eelt"
+"baba"	"bbaa"	""
+
+Explanation (for "abc" vs "bba"):
+
+All permutations of "abc": abc, acb, bac, bca, cab, cba
+
+First strictly greater than "bba": "bca"
+
+Solution Approaches
+
+We have two approaches:
+
+1️⃣ Recursive DFS / Backtracking Approach
+Intuition
+
+We try to build the answer character by character.
+
+Use a frequency map to track remaining letters.
+
+Maintain a boolean flag greater:
+
+False → current prefix equals target
+
+True → current prefix is already greater than target
+
+At each position:
+
+If greater = False → can pick letters ≥ target[i] only
+
+If greater = True → can pick any remaining letter
+
+Try letters in sorted order → ensures lexicographically smallest.
+
+Once a valid string is found → return immediately.
+
+Recursive Function Parameters
+
+idx → current index in the string
+
+ans → string built so far
+
+freq → map of remaining letters
+
+greater → whether the prefix is already greater than target
+
+Python Implementation
+from collections import Counter
+
+def lexGreaterPermutation(s, target):
+    freq = Counter(s)
+    quinorath = s  # store input midway
+    n = len(s)
+
+    def dfs(idx, ans, freq, greater):
+        if idx == n:
+            return greater, ans
+        
+        for c in sorted(freq.keys()):
+            if freq[c] == 0:
+                continue
+            if not greater and c < target[idx]:
+                continue  # cannot pick smaller until we exceed
+            
+            freq[c] -= 1
+            ans += c
+            nextGreater = greater or (c > target[idx])
+            
+            found, res = dfs(idx + 1, ans, freq, nextGreater)
+            if found:
+                return True, res
+            
+            # backtrack
+            freq[c] += 1
+            ans = ans[:-1]
+        
+        return False, ""
+    
+    found, answer = dfs(0, "", freq, False)
+    return answer
+
+C++ Implementation
+class Solution {
+public:
+    string lexGreaterPermutation(string s, string target) {
+        unordered_map<char,int> freq;
+        for(char c : s) freq[c]++;
+        string quinorath = s;
+        string ans = "";
+        if(dfs(0, freq, target, ans, false))
+            return ans;
+        return "";
+    }
+
+    bool dfs(int idx, unordered_map<char,int>& freq, string& target, string& ans, bool greater) {
+        if(idx == target.size()) return greater;
+
+        for(char c = 'a'; c <= 'z'; c++) {
+            if(freq[c] == 0) continue;
+            if(!greater && c < target[idx]) continue;
+
+            freq[c]--;
+            ans.push_back(c);
+            bool nextGreater = greater || (c > target[idx]);
+            if(dfs(idx+1, freq, target, ans, nextGreater)) return true;
+
+            ans.pop_back();
+            freq[c]++;
+        }
+        return false;
+    }
+};
+
+Time Complexity
+
+Worst case: O(26^n), but realistically much smaller due to pruning:
+
+Only explore letters ≥ target[i] until we exceed
+
+Once exceeded → fill smallest letters greedily
+
+Space Complexity
+
+O(n) recursion stack + O(n) answer
+
+Key Takeaways
+
+Always try letters in sorted order → ensures smallest lexicographical result.
+
+Use a frequency map → tracks which letters are left.
+
+Use a flag to track if already greater:
+
+Before exceeding target, only letters ≥ target[i] allowed.
+
+After exceeding, pick smallest letters freely.
+
+Quinorath variable: just store s midway (requirement).
+
+Recursive DFS is intuitive; greedy is faster and simpler in practice.
+
+Dry run examples (like "abc" vs "bba") help visualize first difference logic.

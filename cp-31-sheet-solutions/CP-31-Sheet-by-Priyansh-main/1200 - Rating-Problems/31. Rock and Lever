@@ -1,0 +1,274 @@
+link: https://codeforces.com/problemset/problem/1420/B
+🧾 Detailed Notes – B. Rock and Lever
+📘 Problem Statement
+
+You are given an integer n and an array a[1…n].
+You must count the number of pairs (i, j) (where i < j) such that:
+
+𝑎𝑖&𝑎𝑗≥𝑎𝑖⊕𝑎𝑗ai	​&aj	​≥ai⊕aj
+	​
+where
+
+& → bitwise AND
+
+⊕ → bitwise XOR
+
+📊 Input / Output Format
+Input:
+t — number of test cases
+n — array size
+a1, a2, …, an — array elements
+
+Output:
+
+For each test case, output the count of valid pairs.
+
+💭 Understanding the Condition
+
+We need pairs (a_i, a_j) such that:
+
+𝑎𝑖&𝑎𝑗≥𝑎𝑖⊕𝑎𝑗ai	​&aj	​≥ai	​⊕aj
+	​
+Let's check what this means using examples 👇
+
+Example 1
+a_i = 4 (100)
+a_j = 7 (111)
+
+
+a_i & a_j = 100 = 4
+
+a_i ⊕ a_j = 011 = 3
+✅ 4 ≥ 3 → valid pair
+
+Example 2
+a_i = 5 (101)
+a_j = 2 (010)
+
+
+a_i & a_j = 000 = 0
+
+a_i ⊕ a_j = 111 = 7
+❌ 0 ≥ 7 → invalid
+
+🧠 Observation
+
+The inequality a_i & a_j ≥ a_i ⊕ a_j holds only if both numbers have the same most significant bit (MSB).
+
+Let’s confirm 👇
+
+Example 1
+a_i = 6 (110)
+a_j = 5 (101)
+MSB of both = bit position 2
+
+
+a_i & a_j = 100 = 4
+
+a_i ⊕ a_j = 011 = 3
+✅ holds
+
+Example 2
+a_i = 4 (100)
+a_j = 3 (011)
+MSB differ → ❌ fails
+
+
+✅ Conclusion:
+Condition holds if and only if both numbers have the same MSB position.
+
+⚙️ Simplified Problem
+
+So now our task reduces to:
+
+Count the number of pairs (i, j) such that both numbers have the same MSB.
+
+🧮 Step-by-Step Solution
+
+1️⃣ For each number a[i], find its most significant set bit position.
+2️⃣ Group numbers by their MSB position.
+3️⃣ For each group of size k, the number of valid pairs =
+
+𝑘⋅(𝑘−1)22k⋅(k−1)
+	​
+
+
+4️⃣ Sum across all groups.
+
+🧩 Example Walkthrough
+n = 5
+a = [1, 4, 3, 7, 10]
+
+a[i]	Binary	MSB Position
+1	0001	0
+4	0100	2
+3	0011	1
+7	0111	2
+10	1010	3
+
+Groups by MSB:
+
+bit 0 → [1]
+
+bit 1 → [3]
+
+bit 2 → [4, 7]
+
+bit 3 → [10]
+
+Only bit 2 group has 2 elements
+→ pairs = 2C2 = 1
+
+✅ Answer = 1
+
+💻 Final Code (Using Built-in MSB)
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        vector<int> a(n);
+        for (int i = 0; i < n; i++) cin >> a[i];
+
+        map<int, long long> freq;
+
+        for (int x : a) {
+            int msb = 31 - __builtin_clz(x);  // find most significant bit
+            freq[msb]++;
+        }
+
+        long long ans = 0;
+        for (auto [bit, cnt] : freq) {
+            ans += (cnt * (cnt - 1)) / 2;
+        }
+
+        cout << ans << "\n";
+    }
+}
+
+🧮 Time and Space Complexity
+Complexity	Value
+Time	O(n) per test case
+Space	O(32) → constant space
+
+Efficient for n ≤ 10^5.
+
+🔧 When You Don’t Remember Built-in MSB Function
+
+If you don’t remember __builtin_clz(),
+you can calculate MSB position manually in several ways 👇
+
+🧮 Method 1 – Bit Shift Loop
+int getMSBPos(int x) {
+    int pos = 0;
+    while (x > 1) {
+        x >>= 1;
+        pos++;
+    }
+    return pos;  // 0-indexed (LSB = 0)
+}
+
+
+Example:
+x = 20 (10100)
+→ pos = 4
+
+🧮 Method 2 – Using log2 (Math Trick)
+#include <cmath>
+int getMSBPos(int x) {
+    return (int)log2(x);
+}
+
+
+Example:
+x = 20 → log2(20) ≈ 4.32 → MSB = 4
+
+🧮 Method 3 – Binary Search Bit Trick
+
+Fastest manual method (no loops):
+
+int getMSBPos(int x) {
+    int pos = 0;
+    if (x >= (1 << 16)) { x >>= 16; pos += 16; }
+    if (x >= (1 << 8))  { x >>= 8;  pos += 8; }
+    if (x >= (1 << 4))  { x >>= 4;  pos += 4; }
+    if (x >= (1 << 2))  { x >>= 2;  pos += 2; }
+    if (x >= (1 << 1))  { pos += 1; }
+    return pos;
+}
+
+✅ Using Any of These in the Main Code
+
+Replace this:
+
+int msb = 31 - __builtin_clz(x);
+
+
+With:
+
+int msb = getMSBPos(x);
+
+
+Rest of the logic remains same.
+
+💻 Full Code Without Built-in Functions
+#include <bits/stdc++.h>
+using namespace std;
+
+int getMSBPos(int x) {
+    int pos = 0;
+    while (x > 1) {
+        x >>= 1;
+        pos++;
+    }
+    return pos;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        vector<int> a(n);
+        for (int i = 0; i < n; i++) cin >> a[i];
+
+        map<int, long long> freq;
+        for (int x : a) {
+            int msb = getMSBPos(x);
+            freq[msb]++;
+        }
+
+        long long ans = 0;
+        for (auto [bit, cnt] : freq)
+            ans += (cnt * (cnt - 1)) / 2;
+
+        cout << ans << "\n";
+    }
+}
+
+🧠 Concept Recap
+Concept	Description
+Condition	a_i & a_j ≥ a_i ⊕ a_j
+Holds When	a_i and a_j have the same most significant bit
+Solution Idea	Group numbers by MSB
+Formula	Pairs = k × (k−1) / 2 per group
+Built-in	__builtin_clz(x)
+Manual Methods	Shift loop, log2, bit trick
+🔑 Key Takeaways
+
+✅ Condition depends only on MSB equality
+✅ Use frequency counting by MSB position
+✅ 3 ways to find MSB (choose any)
+✅ Total pairs = sum of combinations inside each group
+✅ O(n) solution → perfect for large constraints

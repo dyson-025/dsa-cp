@@ -1,0 +1,124 @@
+🧠 Problem Notes — Bitwise Construction (Suffix Ones Order)
+🔹 Problem Essence
+
+We need to generate all numbers from 0 to 2^n - 1 in a specific order such that:
+
+Numbers with more trailing 1s (in binary) appear earlier
+
+Each number appears exactly once
+
+Order matters strictly
+
+🔹 Key Observation (MOST IMPORTANT)
+
+A number x has last i bits all equal to 1 iff:
+
+(x & ((1<<i) - 1)) == (1<<i) - 1
+
+
+This condition is the core invariant of the problem.
+
+🔹 Strategy (Constructive)
+
+Iterate i from n → 0
+
+i = number of trailing 1s required
+
+Define:
+
+mask = (1<<i) - 1
+
+
+Scan all numbers j from 0 → 2^n - 1
+
+If:
+
+j is not used yet
+
+(j & mask) == mask
+
+Print j and mark it visited
+
+This guarantees:
+
+Correct order
+
+No duplicates
+
+Exact match with expected pattern
+
+🔹 Why visited[] is required
+
+A number can satisfy multiple masks.
+
+Example (n = 4):
+
+15 (1111) satisfies:
+mask 1111
+mask 0111
+mask 0011
+mask 0001
+mask 0000
+
+
+We must print it only once, at the largest i.
+
+🔹 Final Algorithm (Pseudo)
+lim = 2^n
+visited[0..lim-1] = false
+
+for i = n down to 0:
+    mask = (1<<i) - 1
+    for j = 0 to lim-1:
+        if not visited[j] and (j & mask) == mask:
+            print j
+            visited[j] = true
+
+🔹 Example (n = 4)
+
+Binary grouping:
+
+1111 → 15
+x111 → 7
+xx11 → 3, 11
+xxx1 → 1, 5, 9, 13
+xxxx → 0, 2, 4, 6, 8, 10, 12, 14
+
+
+Final output:
+
+15 7 3 11 1 5 9 13 0 2 4 6 8 10 12 14
+
+🔹 Why naive / set solutions fail
+
+set → sorts → ❌ wrong order
+
+unordered_set → random order → ❌
+
+collecting odds/evens → ❌ breaks bitwise invariant
+
+Only bitmask-based construction works.
+
+🔹 Time & Space Complexity
+
+Time: O(n * 2^n)
+
+Space: O(2^n)
+
+Acceptable for n ≤ 20
+
+🔹 Rating Insight
+
+Codeforces difficulty: ~1600
+
+Tests:
+
+Bit manipulation
+
+Pattern recognition
+
+Constructive logic
+
+🔹 One-line takeaway
+
+Sort numbers by the length of trailing 1s in binary (descending), preserving uniqueness.

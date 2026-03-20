@@ -1,0 +1,149 @@
+🚗 Balanced Tunnel – Notes (Very Important Problem)
+✅ Problem Summary
+
+You are given:
+
+a[] → order in which cars enter the tunnel
+
+b[] → order in which cars exit the tunnel
+
+No overtaking is allowed inside the tunnel, but final order may show overtaking → implies violation
+
+Car i is fined if it overtakes any car j:
+
+Overtake condition
+
+Car i overtook j if:
+
+i entered after j
+
+but i exited before j
+
+Since speeds are constant and no simultaneous events → relative ordering must be maintained.
+
+🎯 Goal
+
+Count how many cars must be fined
+(i.e., cars whose exit order breaks the entry order).
+
+💡 Key Insight
+
+If cars follow rules:
+
+Exit order should be prefix of entry order
+
+Or equivalently: exit sequence must follow entry sequence without violating order.
+
+Whenever a car in b[] appears too early, i.e., before a car that should have exited earlier → it overtook → fined.
+
+⭐ Two-pointer + Set Logic (Your Approach)
+
+This is the BEST and most intuitive logic.
+
+Idea:
+
+Maintain pointer l → tracks cars in entry list.
+
+Iterate over exit order using pointer r.
+
+We try to match exit order with entry order.
+
+If b[r] == a[l] → good → move both.
+
+Else:
+
+b[r] exited before it should, so it must have overtaken someone → fine it.
+
+Why a set?
+
+To store cars that definitely overtook someone.
+Each car can be fined at most once → set avoids duplicates.
+
+✔️ Your Code Explained Step-by-Step
+int l=0, r=0;
+set<ll> st;
+
+while(l<n && r<n){
+    // Case 1: car exited in correct order
+    if(a[l] == b[r]){
+        l++;
+        r++;
+    }
+    // Case 2: car in entry list already marked as overtaker
+    else if(st.count(a[l])){
+        l++;
+    }
+    // Case 3: mismatch → b[r] exited too early → overtaker
+    else {
+        st.insert(b[r]);
+        r++;
+    }
+}
+cout << st.size() << endl;
+
+🔍 Explanation:
+
+Case 1 – Perfect match
+Car exited exactly when expected → no violation.
+
+Case 2 – Skip cars already known as violators
+If a[l] was previously fined, we skip it since its ordering doesn't matter anymore.
+
+Case 3 – The important part
+a[l] != b[r]
+
+Meaning:
+
+Car a[l] entered earlier
+
+Car b[r] is exiting now earlier than a[l]
+→ b[r] has overtaken a[l] → violation
+
+So we add b[r] to the set of violators.
+
+🔥 Time Complexity
+O(n)
+
+
+Very efficient.
+
+📌 Example Workflow
+Input:
+5
+3 5 2 1 4
+4 3 2 5 1
+
+
+Exit sequence: 4 3 2 5 1
+
+4 exits before 3 → overtook
+
+4 exits before 5 → overtook
+
+3 exits before 5 → overtook
+
+etc.
+
+Violators → {2, 4}
+Answer = 2
+
+🧠 Intuition Summary (Easy Version)
+
+Keep moving through exit order.
+
+Whenever a car exits before some car that entered earlier (and is not already flagged) → it must have overtaken → fine it.
+
+The set stores all overtakers.
+
+🎁 Final Notes (Use in Revision)
+
+Two-pointer approach is the cleanest for comparing relative order of two permutations.
+
+Every mismatch in order between entry and exit creates an overtake.
+
+Set is required since each car is fined only once.
+
+This problem tests:
+✔️ Order maintenance
+✔️ Two-pointer technique
+✔️ Understanding permutation violations

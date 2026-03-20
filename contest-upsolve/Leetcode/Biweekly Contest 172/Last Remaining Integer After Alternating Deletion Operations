@@ -1,0 +1,117 @@
+🔥 Problem in One Line
+
+You have numbers 1 to n.
+You repeatedly delete every 2nd number, alternating direction:
+
+Left → Right
+
+Right → Left
+Until only one number remains. Return it.
+
+Constraint is huge: n ≤ 10¹⁵, so simulation is impossible.
+
+🧠 Key Observation (Very Important)
+
+Instead of deleting numbers explicitly, we track the pattern of remaining numbers.
+
+At any time, remaining numbers form an arithmetic sequence:
+
+a, a + d, a + 2d, a + 3d, ...
+
+
+Where:
+
+a = first remaining number
+
+d = gap between numbers
+
+len = count of remaining numbers
+
+🎯 Variables Meaning
+a     → first remaining number
+d     → difference between numbers
+len   → how many numbers are left
+step  → which operation (0 = left, 1 = right, 2 = left, ...)
+
+
+Initially:
+
+a = 1
+d = 1
+len = n
+step = 0
+
+🔁 What Happens in Each Operation?
+Operation from LEFT
+
+We delete every 2nd element
+
+First element always survives
+
+So a always increases by d
+
+Operation from RIGHT
+
+If len is even → first element survives
+
+If len is odd → first element is deleted → a += d
+
+🧩 Unified Rule for Updating a
+if (len % 2 == 0 && step % 2 == 1)
+    a += d;
+
+
+Explanation:
+
+step % 2 == 1 → deletion from RIGHT
+
+len % 2 == 0 → first element shifts
+
+🔄 After Every Round
+
+Half numbers are deleted → len updates
+
+Gap doubles → d *= 2
+
+Direction flips → step++
+
+✅ Final Code (Efficient & Interview-Ready)
+class Solution {
+public:
+    long long lastInteger(long long n) {
+        long long a = 1;     // first element
+        long long d = 1;     // difference
+        long long len = n;   // remaining length
+        long long step = 0;  // operation count
+
+        while (len > 1) {
+            // Right deletion + even length shifts first element
+            if (len % 2 == 0 && step % 2 == 1) {
+                a += d;
+            }
+
+            d *= 2;          // gap doubles
+            step++;          // switch direction
+            len = (n - a) / d + 1; // recompute remaining length
+        }
+
+        return a;
+    }
+};
+
+🧪 Example Walkthrough (n = 8)
+Start: 1 2 3 4 5 6 7 8
+Left  → 1 3 5 7
+Right → 3 7
+Left  → 3
+
+
+Answer = 3
+
+⏱️ Complexity
+
+Time: O(log n)
+
+Space: O(1)
+
+Works even for n = 10¹⁵

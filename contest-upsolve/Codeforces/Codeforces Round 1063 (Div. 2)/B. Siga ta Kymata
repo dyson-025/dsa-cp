@@ -1,0 +1,21 @@
+logic: https://www.youtube.com/live/7PhJUvFQxMY?si=cwheD9qLWpZJTw0X
+link: https://codeforces.com/contest/2163/problem/B
+void solve() {
+  ll n; cin>>n;
+  vector<int> v(n);
+  for(auto &it: v) cin>>it;
+  string s;
+  cin>>s;
+  int mi=find(v.begin(),v.end(),1)-v.begin();
+  int mx=find(v.begin(),v.end(),n)-v.begin();
+  if(s[0]=='1' || s[n-1]=='1' || s[mi]=='1' || s[mx]=='1') cout<<-1<<endl;
+  else{
+    if(mi>mx) swap(mi,mx);
+    cout<<5<<endl;
+    cout<<1<<" "<<mi+1<<endl;
+    cout<<1<<" "<<mx+1<<endl;
+    cout<<mi+1<<" "<<mx+1<<endl;
+    cout<<mi+1<<" "<<n<<endl;
+    cout<<mx+1<<" "<<n<<endl;
+  }
+}

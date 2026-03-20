@@ -1,0 +1,180 @@
+📝 XOR Equal Subtract — Final Notes
+🔹 Problem Condition
+
+For a subsequence A, for every pair (i, j):
+
+𝐴
+𝑖
+⊕
+𝐴
+𝑗
+=
+∣
+𝐴
+𝑖
+−
+𝐴
+𝑗
+∣
+A
+i
+	​
+
+⊕A
+j
+	​
+
+=∣A
+i
+	​
+
+−A
+j
+	​
+
+∣
+🔹 Core Bitwise Insight (MOST IMPORTANT)
+XOR vs Subtraction
+
+x ^ y → addition without carry
+
+|x - y| → subtraction with carry
+
+Therefore:
+𝑥
+⊕
+𝑦
+=
+∣
+𝑥
+−
+𝑦
+∣
+  
+⟺
+  
+no
+ 
+carry
+ 
+occurs
+x⊕y=∣x−y∣⟺no carry occurs
+
+Carry occurs when both bits are 1.
+
+🔹 Key Identity
+
+Assume x ≤ y
+
+𝑥
+⊕
+𝑦
+=
+∣
+𝑥
+−
+𝑦
+∣
+  
+⟺
+  
+(
+𝑥
+&
+𝑦
+)
+=
+𝑥
+x⊕y=∣x−y∣⟺(x&y)=x
+Meaning (in words):
+
+All set bits of the smaller number must also be set in the larger number
+
+🔹 Binary Interpretation
+Works ✅
+1 (001) ⊆ 3 (011)
+3 (011) ⊆ 7 (111)
+
+Fails ❌
+3 (011) ⊄ 5 (101)
+
+🔹 Condition for a GOOD Subsequence
+
+For every pair (x, y) in subsequence:
+
+min(x, y) & max(x, y) == min(x, y)
+
+This means:
+
+All elements form a bitwise inclusion chain
+
+🔹 Always Valid Cases
+1️⃣ All elements equal
+[102, 102, 102]
+
+2️⃣ Increasing bit-mask chain
+1 → 3 → 7 → 15
+
+🔹 Strategy to Find Maximum Size
+
+Sort the array
+
+For each element A[i] as the smallest:
+
+Count all A[j] ≥ A[i] such that
+
+(A[i] & A[j]) == A[i]
+
+
+Take maximum count
+
+🔹 Time Complexity
+O(N²)
+
+
+Safe because N ≤ 100
+
+🔹 Final C++ Code (Clean)
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int T;
+    cin >> T;
+    while (T--) {
+        int N;
+        cin >> N;
+        vector<long long> A(N);
+        for (auto &x : A) cin >> x;
+
+        sort(A.begin(), A.end());
+        int ans = 1;
+
+        for (int i = 0; i < N; i++) {
+            long long base = A[i];
+            int cnt = 1;
+            for (int j = i + 1; j < N; j++) {
+                if ((base & A[j]) == base)
+                    cnt++;
+            }
+            ans = max(ans, cnt);
+        }
+
+        cout << ans << "\n";
+    }
+    return 0;
+}
+
+🔹 One-Line Memory Hook 🧠
+
+❝ XOR equals difference only when no carry happens ❞
+
+🔹 Contest Checklist (Use this next time)
+
+✔ Equation with XOR → think binary & carry
+✔ Small constraints → brute → pattern
+✔ Pair condition → convert to bit identity
+✔ Subsequence → think chain / dominance

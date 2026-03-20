@@ -1,0 +1,83 @@
+✅ D. Divisible Pairs — Final Notes
+link: https://codeforces.com/problemset/problem/1931/D
+🎯 Goal
+
+Count pairs (i, j), i < j such that:
+
+(a[i] + a[j]) % x == 0
+
+(a[i] - a[j]) % y == 0
+
+🔑 Key Observations
+➤ Condition 2
+
+(a[i] - a[j]) % y == 0
+⇒ a[i] % y == a[j] % y
+Pairs must be in same mod-y group.
+
+➤ Condition 1
+
+(a[i] + a[j]) % x == 0
+⇒ (a[j] % x) == (x - (a[i] % x)) % x
+
+Call:
+
+gy = a[i] % y   // group id
+gx = a[i] % x   // remainder mod x
+need = (x - gx) % x   // required partner remainder
+
+🧠 Strategy
+
+Group numbers by a[i] % y
+
+In each group track count of remainders mod x
+
+For each number, count already seen need in same group
+
+Insert current remainder after counting (to ensure i < j)
+
+⏱️ Complexity
+
+Time: O(n) per test (overall ≤ 2e5)
+
+Memory: O(n)
+
+Perfect for constraints ✅
+
+✅ Final Code
+// D. Divisible Pairs - CLEAN SOLUTION (O(n))
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t; cin >> t;
+    while(t--) {
+        long long n, x, y;
+        cin >> n >> x >> y;
+        vector<long long> a(n);
+        for(auto &v : a) cin >> v;
+
+        unordered_map<long long, unordered_map<long long,long long>> mp;
+        long long ans = 0;
+
+        for(long long v : a) {
+            long long gy = v % y;         // y-group
+            long long gx = v % x;         // mod x
+            long long need = (x - gx) % x; // required remainder
+
+            ans += mp[gy][need];
+            mp[gy][gx]++;
+        }
+
+        cout << ans << "\n";
+    }
+}
+
+📝 Remember
+
+Always use (x - r) % x to handle r = 0 case
+
+Think group by mod y, then match mod x

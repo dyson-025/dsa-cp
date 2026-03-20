@@ -1,0 +1,152 @@
+✅ Problem Summary
+link: https://codeforces.com/problemset/problem/1879/C
+We are given a binary string s (consisting of 0 and 1).
+We can delete characters to make the string alternating, meaning no two adjacent characters should be equal.
+
+We need to find:
+
+Minimum deletions to make the string alternating
+
+Number of different ways to make those minimum deletions
+(mod 998244353)
+
+✅ Key Observations
+When is a binary string alternating?
+
+Pattern must be like:
+
+010101... OR 101010...
+
+What breaks the alternating pattern?
+
+Whenever we see two same characters continuously, like:
+
+00 or 11
+
+Minimal deletions
+
+We want to keep the longest alternating subsequence and delete others.
+
+Let len = length of longest alternating subsequence.
+
+Then:
+
+min_deletions = n – len
+
+
+where n = length of original string.
+
+✅ How to compute len
+
+Traverse the string and count whenever characters change:
+
+s[i] != s[i-1] -> valid alternating transition
+
+
+Initialize len = 1 (first char always included).
+
+✅ Counting the number of ways
+Key idea:
+
+Every block of same characters like:
+
+111 → size = 3 → we can pick **any 1** char from these 3 to keep
+
+
+So number of choices = size of block.
+
+Multiply all block sizes:
+
+ans = product of all (block sizes)
+
+
+Finally, we also need to choose positions to delete in correct order.
+This introduces permutation count of deleting k = n – len positions:
+
+ways = ans * (k!)
+
+
+Everything mod 998244353.
+
+✅ Algorithm
+
+Count blocks of consecutive equal chars
+
+len = number of blocks
+
+min_deletions = n – len
+
+ans = product of block sizes
+
+Multiply by factorial(min_deletions)
+
+✅ Example
+
+Input:
+
+10010
+
+
+Blocks:
+
+1 | 00 | 1 | 0
+sizes: 1,2,1,1 → product = 2
+len = 4 blocks → longest alternating length = 4
+n = 5
+min deletions = 5 - 4 = 1
+ways = 2 * 1! = 2
+
+
+Output = 1 2 ✅
+
+✅ Your Code Explanation
+ll mod=998244353;
+void solve() {
+   string s;
+   cin>>s;
+   ll len=1;     // Count alternating subsequence length
+   ll ans=1;     // Count ways (product of block sizes)
+   ll cnt=1;     // Size of current block
+
+   for(int i=1;i<s.size();i++){
+      if(s[i]!=s[i-1]){          // New block begins
+         ans=(ans*cnt)%mod;      // Multiply previous block size
+         len++;                  // Increase alternating length
+         cnt=1;                  // Reset block counter
+      }
+      else cnt++;                // Same char block continues
+   }
+   if(cnt!=1) ans=(ans*cnt)%mod; // Multiply last block
+
+   ll pro=1;
+   for(ll i=2;i<=(s.size()-len);i++){
+      pro=(pro*i)%mod;           // factorial for deletions
+   }
+
+   cout<<s.size()-len<<" "<<(ans*pro)%mod<<endl;
+}
+
+Meaning
+Variable	Meaning
+len	Longest alternating subsequence length
+ans	Product of block sizes
+cnt	Size of current block
+pro	factorial(min deletions)
+✅ Final Output
+
+Print:
+
+minimum deletions = n - len
+number of ways   = ans * factorial(n - len) % mod
+
+✅ Final Tips
+
+Key concept: Blocks of equal chars
+
+Keep only 1 char from each block
+
+Choices multiply
+
+Factorial handles order of deletion positions
+
+This logic is fast enough for 2 × 10^5 characters and many test cases.

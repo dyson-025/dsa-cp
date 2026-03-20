@@ -1,0 +1,133 @@
+✅ C. Chat Ban — Final Notes (CP Revision)
+🎯 Problem
+link: https://codeforces.com/problemset/problem/1612/C
+You want to send messages in this pattern of emotes:
+
+1, 2, 3, ..., k-1, k, k-1, ..., 2, 1   → total 2k−1 messages
+
+
+Auto-mod bans you as soon as total emotes ≥ x.
+
+Task:
+Find how many messages you send before getting banned.
+If you finish all 2k−1 messages without reaching x, answer = 2k−1.
+
+🧠 Observation
+Sum of first m natural numbers:
+sum(m) = m*(m+1)/2
+
+For first k messages:
+1 + 2 + ... + k = sum(k)
+
+Total emotes in whole triangle:
+Total = sum(k) + sum(k-1)
+
+
+If x > Total → you never get banned → answer = 2k−1.
+
+📌 Prefix Sum Behavior
+
+Prefix messages:
+
+If mid ≤ k (ascending phase):
+
+cnt = sum(mid)
+
+
+If mid > k (descending phase):
+
+cnt = sum(k) + sum(k−1) − sum(2k−1−mid)
+
+
+We need smallest mid such that:
+
+cnt ≥ x
+
+
+This is binary search on messages.
+
+✅ Algorithm
+
+Let low = 1, high = 2k−1
+
+Binary search for earliest mid where prefix sum ≥ x
+
+If none found → answer = 2k−1
+
+⚙️ Time Complexity
+O(log k) per test case
+
+
+Perfect for large k (≤ 1e9)
+
+✅ Final Code (C++ Recommended)
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+ll sum(ll n) {
+    return n * (n + 1) / 2;
+}
+
+void solve() {
+    ll k, x;
+    cin >> k >> x;
+
+    ll total = sum(k) + sum(k - 1);
+    if (x > total) {
+        cout << 2 * k - 1 << "\n";
+        return;
+    }
+
+    ll low = 1, high = 2 * k - 1, ans = 2 * k - 1;
+
+    while (low <= high) {
+        ll mid = (low + high) / 2;
+        ll cnt;
+
+        if (mid <= k) {
+            cnt = sum(mid);
+        } else {
+            cnt = sum(k) + sum(k - 1) - sum(2 * k - 1 - mid);
+        }
+
+        if (cnt >= x) {
+            ans = mid;
+            high = mid - 1;
+        } else {
+            low = mid + 1;
+        }
+    }
+
+    cout << ans << "\n";
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) solve();
+}
+
+📎 Mini Example
+Input:
+k = 4, x = 7
+
+
+Messages: 1 2 3 4 3 2 1
+Prefix sums: 1 3 6 10 ...
+
+At 4th message sum = 10 ≥ 7 → banned
+Output = 4
+
+💡 Key Points
+
+Triangle total = sum(k) + sum(k−1)
+
+If x is bigger → finish all messages
+
+Otherwise, binary search first time prefix ≥ x
+
+Use formula, no loops over messages

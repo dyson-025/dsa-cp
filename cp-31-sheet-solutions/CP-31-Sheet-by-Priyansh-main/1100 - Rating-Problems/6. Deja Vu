@@ -1,0 +1,136 @@
+🧾 Final Notes – B. Deja Vu
+🔹 Problem Summary
+link: https://codeforces.com/problemset/problem/1891/B
+You are given:
+
+An array a of size n
+
+q queries, each containing an integer x
+
+For each query x,
+you modify the array as follows:
+
+For every element a[j] such that
+a[j] is divisible by 2^x,
+you add 2^(x−1) to it.
+
+After processing all queries in order, print the final array.
+
+🔹 Example
+
+Input:
+
+1
+5 3
+1 2 3 4 4
+2 3 4
+
+
+Output:
+
+1 2 3 6 6
+
+🔹 Naive Approach (TLE)
+
+For every query, check all elements → O(n * q)
+→ up to 10^10 operations (too slow).
+
+🔹 Key Observations
+
+Each x value only matters the first time it appears.
+Later duplicate queries of the same x make no difference.
+→ We can ignore duplicates and keep only first occurrences.
+
+Queries must be processed in the given order.
+The effect of earlier queries can change divisibility for later ones,
+so do not sort the queries.
+
+For each element a[i],
+check all distinct queries (in order) and apply the rule:
+
+if (a[i] % 2^x == 0)
+    a[i] += 2^(x-1)
+
+
+That’s it — no break needed.
+
+🔹 Optimized Approach
+
+Build a vector<int> effective containing only the first occurrence of each x.
+
+For each element a[i], loop through all x in effective and apply modifications.
+
+🔹 Complexity
+
+Each number checks at most 30 distinct powers of two
+→ O(n * 30) = 3×10^6 (very fast)
+
+Space: O(n + q)
+
+🔹 Final C++ Code
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t; 
+    cin >> t;
+    while (t--) {
+        int n, q;
+        cin >> n >> q;
+        vector<int> v(n), qu(q);
+        for (auto &x : v) cin >> x;
+        for (auto &x : qu) cin >> x;
+
+        // store first occurrence of each x (in order)
+        vector<int> effective;
+        vector<bool> seen(31, false);
+        for (int xi : qu) {
+            if (!seen[xi]) {
+                effective.push_back(xi);
+                seen[xi] = true;
+            }
+        }
+
+        // apply all effective queries
+        for (int i = 0; i < n; ++i) {
+            for (int xi : effective) {
+                int pw = 1 << xi; // 2^x
+                if (v[i] % pw == 0)
+                    v[i] += (1 << (xi - 1)); // add 2^(x-1)
+            }
+        }
+
+        for (auto val : v) cout << val << " ";
+        cout << "\n";
+    }
+    return 0;
+}
+
+🔹 Step-by-step Flow
+
+Remove duplicate x values, keep order.
+
+For each a[i]:
+
+For each x in that reduced list:
+
+If divisible by 2^x, increase by 2^(x-1).
+
+No sorting ✅
+No brute force ✅
+No unnecessary breaks ✅
+Fast and simple ✅
+
+🔹 Pattern to Remember 🧠
+
+This problem type teaches:
+
+When queries modify elements by a power-based divisibility,
+and duplicates don’t change results —
+keep only first occurrences and apply sequentially.
+
+🔥 Core Takeaway:
+💬 “Keep first-time queries in order → apply conditionally → no breaks.”

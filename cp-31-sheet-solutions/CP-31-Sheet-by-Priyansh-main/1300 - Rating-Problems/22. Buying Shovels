@@ -1,0 +1,112 @@
+📝 Solution Notes — D. Buying Shovels
+🔍 Problem Summary
+
+Polycarp needs exactly n shovels.
+
+He can only pick one package size (say size = x), where:
+
+1 ≤ x ≤ k
+
+
+He buys m packages of size x, such that:
+
+m * x = n
+
+
+Goal → minimize m
+Equivalently → maximize x, but x must be:
+
+a divisor of n
+
+≤ k
+
+🎯 Key Insight
+
+The number of packages =
+
+m = n / x
+
+
+To make m minimum → pick the largest possible factor x ≤ k.
+
+So the problem reduces to:
+
+✔ Find the largest divisor of n that is ≤ k
+✔ Answer = n / (that divisor)
+⚡ Why sqrt(n)?
+
+Because divisors come in pairs:
+
+i and n/i
+
+
+When checking i from 1..√n:
+
+i is a small factor
+
+n/i is the paired large factor
+
+We want the largest factor ≤ k, so iterate through factor list backwards.
+
+💡 Edge Case
+
+If n <= k, then x = n is allowed, so answer = 1 package.
+
+🔥 Final Complexity
+
+Factor generation: O(√n)
+
+Sorting factors: O(d log d) where d ≤ 2000 (very small)
+
+Loop for answer: O(d)
+
+Total: O(√n log n) — easily fits in 2 seconds for n ≤ 1e9.
+
+🧾 Cleaned Version of Your Code (Logic Explanation)
+void solve() {
+    ll n, k;
+    cin >> n >> k;
+
+    // If n <= k, we can pick package size = n, so 1 package is enough.
+    if (n <= k) {
+        cout << 1 << endl;
+        return;
+    }
+
+    vector<ll> factors;
+
+    // Collect all factors of n
+    for (ll i = 1; i * i <= n; i++) {
+        if (n % i == 0) {
+            factors.push_back(i);
+            if (i != n / i) factors.push_back(n / i);
+        }
+    }
+
+    // Sort so we can iterate from largest to smallest
+    sort(factors.begin(), factors.end());
+
+    ll bestFactor = 1;
+
+    // Find the largest factor <= k
+    for (int i = factors.size() - 1; i >= 0; i--) {
+        if (factors[i] <= k) {
+            bestFactor = factors[i];
+            break;
+        }
+    }
+
+    cout << n / bestFactor << endl;
+}
+
+🧠 Why Your Solution Is Perfect
+
+Correct factoring approach
+
+You used great optimization
+
+Works for maximum constraints
+
+Matches editorial reasoning
+
+Clean logic: large divisor → min packages

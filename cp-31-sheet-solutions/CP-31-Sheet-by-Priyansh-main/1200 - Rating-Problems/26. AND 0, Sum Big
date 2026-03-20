@@ -1,0 +1,131 @@
+📘 Problem Summary
+link: https://codeforces.com/problemset/problem/1514/B
+Given two integers n and k, find the number of arrays of length n such that:
+
+Each element is in the range [0, 2^k − 1]
+
+The bitwise AND of all elements is 0
+
+The sum of elements is as large as possible
+
+Return the answer mod (10⁹ + 7).
+
+⚙️ Key Concepts
+1️⃣ Bitwise AND = 0 Condition
+
+For an array’s AND to be 0,
+every bit position (from 0 to k−1) must have at least one element with that bit = 0.
+
+2️⃣ Maximum Sum Condition
+
+The largest element possible = 2^k − 1 (all bits = 1).
+
+But if all are 2^k − 1 → AND = 2^k − 1 ❌
+
+To make AND = 0, we must turn off (set 0) at least one bit somewhere in the array for every bit position.
+
+Turning off only one bit per position keeps the sum maximum.
+
+3️⃣ Counting the Possibilities
+
+Each bit position is independent.
+
+For each of the k bits:
+we can choose which element (among n) will have that bit = 0.
+
+Therefore, for every bit → n choices.
+
+✅ Total Ways
+Total arrays
+=
+𝑛
+𝑘
+Total arrays=n
+k
+
+Since the result can be huge:
+
+Answer=(n
+k
+)mod(10
+9
++7)
+🧮 Example
+
+Input:
+
+2
+2 2
+100000 20
+
+
+Case 1: n = 2, k = 2
+→ Each bit has 2 choices → total = 2² = 4 ✅
+
+Case 2: n = 100000, k = 20
+→ (100000²⁰) mod 1e9+7 = 226732710 ✅
+
+🧾 Code Explanation
+#include <bits/stdc++.h>
+using namespace std;
+const int mod = 1e9 + 7;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    int t;
+    cin >> t;
+    while (t--) {
+        long long n, k;
+        cin >> n >> k;
+        long long ans = 1;
+        for (int i = 0; i < k; i++) {
+            ans *= n;        // multiply by n each bit
+            ans %= mod;      // modulo to avoid overflow
+        }
+        cout << ans << "\n"; // print (n^k % mod)
+    }
+}
+
+🔍 Working
+
+The loop multiplies n exactly k times → computes n^k.
+
+Each step uses % mod to prevent overflow.
+
+Time Complexity: O(k) (since k ≤ 20, this is trivial).
+
+Space Complexity: O(1).
+
+💡 Intuition Summary
+Concept	Meaning
+Every bit position	Needs at least one 0 to make AND = 0
+Each bit	Can choose any of n elements to place the 0
+Independent bits	Multiply the possibilities
+Hence	
+𝑛
+𝑘
+n
+k
+ total arrays
+Final step	Take result mod 1e9 + 7
+🧠 Formula Recap
+
+Answer=(n
+k
+)mod(10
+9
++7)
+	​
+
+✍️ Quick Revision Points
+
+AND = 0 → each bit position must contain at least one 0.
+
+Max sum → make all bits 1 except one 0 per bit position.
+
+Each bit → n choices, so total = n^k.
+
+Take modulo 1e9+7 for large numbers.
+
+Efficient method → modular exponentiation (or simple loop since k ≤ 20).

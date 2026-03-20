@@ -1,0 +1,142 @@
+🧠 Problem Restated (Short)
+
+You have an array a[1…n].
+
+You perform n-1 operations.
+
+Each time:
+
+Remove first child → X += a[i]
+
+Remove second child → X -= a[i]
+
+Exactly one element remains unused.
+
+Goal: maximize X.
+
+🔍 Key Observations
+
+Order matters only at the ends
+At every step, you can only choose:
+
+first element (add it)
+
+second element (subtract it)
+
+Last remaining child does not affect X
+So we want to decide:
+
+which elements contribute positively
+
+which negatively
+
+and which one is left unused
+
+Greedy Insight
+
+If we remove an element using first, we add it directly.
+
+If we remove using second, we subtract it → equivalent to adding -a[i].
+
+So effectively:
+
+Some elements contribute as +a[i]
+
+Some as -|a[i]|
+
+One element contributes 0
+
+💡 Strategy (Core Idea)
+
+Fix the unused element at position i, then:
+
+All elements before i → must be removed as first
+
+Contribution: a[0] + |a[1]| + |a[2]| + ...
+
+All elements after i → must be removed as second
+
+Contribution: -a[j]
+
+So total:
+
+X = sum(abs(a[0..i-1])) - sum(a[i+1..n-1])
+
+
+We try all possible i efficiently.
+
+⚙️ Optimization with Prefix / Suffix
+Suffix negative sum
+
+Define:
+
+pfsum[i] = -(a[i] + a[i+1] + ... + a[n-1])
+
+Prefix absolute sum
+
+Maintain:
+
+sum = a[0] + |a[1]| + |a[2]| + ...
+
+
+Then for each split:
+
+ans = max(ans, sum + pfsum[i+1])
+
+
+Edge cases handled.
+
+⏱ Complexity
+
+Time: O(n) per test case
+
+Space: O(n)
+
+Works for Σn ≤ 2×10^5
+
+✅ Final Code (Accepted)
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+#define fast_io ios::sync_with_stdio(false); cin.tie(nullptr);
+
+void solve() {
+    ll n;
+    cin >> n;
+    
+    vector<ll> v(n);
+    for (auto &x : v) cin >> x;
+
+    // pfsum[i] = -(v[i] + v[i+1] + ... + v[n-1])
+    vector<ll> pfsum(n);
+    pfsum[n-1] = -v[n-1];
+    for (int i = n-2; i >= 1; i--) {
+        pfsum[i] = pfsum[i+1] - v[i];
+    }
+
+    ll sum = v[0];          // prefix absolute sum
+    ll ans = pfsum[1];      // case when first element is unused
+
+    for (int i = 1; i + 1 < n; i++) {
+        ans = max(ans, sum + pfsum[i+1]);
+        sum += abs(v[i]);
+    }
+
+    // case when last element is unused
+    ans = max(ans, sum);
+
+    cout << ans << "\n";
+}
+
+int main() {
+    fast_io
+    int t;
+    cin >> t;
+    while (t--) solve();
+    return 0;
+}
+
+📝 One-Line Summary
+
+Choose a split point where left elements are added optimally using absolute values, right elements are subtracted, and one element is skipped to maximize X.

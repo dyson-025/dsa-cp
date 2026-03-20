@@ -1,0 +1,109 @@
+✅ Strong Vertices — Final Notes
+🎯 Goal
+link: https://codeforces.com/problemset/problem/1857/D
+You have two arrays 
+a and b.
+Directed edge from 
+
+u→v exists if:
+
+𝑎𝑢−𝑎𝑣≥𝑏𝑢−𝑏𝑣au	​−av	​≥bu	​−bv	​A vertex 𝑣
+v is strong if it can reach every other vertex via directed paths.
+
+✅ Key Observation
+
+Rearrange the condition:
+
+𝑎𝑢−𝑏𝑢≥𝑎𝑣−𝑏𝑣au	​−bu	​≥av	​−bv	​
+Let:
+
+𝑐𝑖=𝑎𝑖−𝑏𝑖ci	​=ai	​−bi	​
+Then edge 
+𝑢
+→
+𝑣
+u→v exists if:
+
+𝑐𝑢≥𝑐𝑣
+This means:
+
+A vertex can go to all vertices with smaller or equal 
+𝑐
+c-value.
+
+To reach everyone, a vertex must have the maximum 
+ci	
+.
+Because lower 
+c vertices CANNOT go back up.
+
+✅ Conclusion
+
+Strong vertices = indices where 
+ci ​is maximum in the array.
+
+There can be multiple if the max value repeats.
+
+✅ Steps
+
+Compute c[i] = a[i] - b[i]
+
+Find maximum value mx = max(c)
+
+Answer = all i where c[i] == mx
+
+✅ Time Complexity
+
+O(n) per test case
+
+Fits since total 
+n≤2×105
+
+✅ Example
+Input
+a = [3,1,2,4]
+b = [4,3,2,1]
+c = [-1, -2, 0, 3]
+max(c) = 3
+Strong vertex = index 4
+
+
+Answer: 4
+
+✅ Edge case logic
+
+If all c[i] equal → all vertices are strong
+
+If one vertex has largest c[i] → only that one is strong
+
+✅ Code (Clean CF Style)
+void solve() {
+    int n;
+    cin >> n;
+    vector<long long> a(n), b(n);
+    for(auto &x : a) cin >> x;
+    for(auto &x : b) cin >> x;
+
+    vector<long long> c(n);
+    for(int i = 0; i < n; i++) c[i] = a[i] - b[i];
+
+    long long mx = *max_element(c.begin(), c.end());
+    
+    vector<int> ans;
+    for(int i = 0; i < n; i++)
+        if(c[i] == mx)
+            ans.push_back(i+1);
+
+    cout << ans.size() << "\n";
+    for(int x : ans) cout << x << " ";
+    cout << "\n";
+}
+
+✅ Summary (Memory line)
+
+Compute 
+
+c=a−b.
+Strong vertices = those with maximum 
+𝑐
+c.

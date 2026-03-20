@@ -1,0 +1,176 @@
+📘 Design Exam Scores Tracker – Detailed Notes
+link: https://leetcode.com/problems/design-exam-scores-tracker/description/
+Problem Summary:
+Alice takes exams at certain times and records scores. We need to support:
+
+record(time, score) → add a new exam score.
+
+totalScore(startTime, endTime) → get total score of exams between given times (inclusive).
+
+Constraints:
+
+Times are strictly increasing in record().
+
+totalScore() queries never ask about future times.
+
+Up to 10^5 calls; time and score ≤ 10^9.
+
+1️⃣ Naive Approach
+
+Idea:
+
+Store each record in a map or vector.
+
+For each totalScore, iterate all exams and sum those in range.
+
+Code Example:
+
+#include <unordered_map>
+using namespace std;
+
+class ExamTracker {
+    unordered_map<int,int> mpp;
+public:
+    ExamTracker() {}
+
+    void record(int time, int score) {
+        mpp[time] = score;
+    }
+
+    long long totalScore(int startTime, int endTime) {
+        long long sum = 0;
+        for(auto &it : mpp) {
+            if(it.first >= startTime && it.first <= endTime)
+                sum += it.second;
+        }
+        return sum;
+    }
+};
+
+
+Problems:
+
+totalScore() → O(n) per query → TLE for 10^5 calls.
+
+Unordered map is fast for insert, but cannot efficiently query ranges.
+
+Conclusion: Works for small inputs, inefficient for large inputs.
+
+2️⃣ Efficient Approach: Prefix Sum + Binary Search
+
+Key Insight:
+
+record() is in strictly increasing time order → times are sorted.
+
+We can use a prefix sum array for cumulative scores.
+
+totalScore() can use binary search to find the range indices and compute sum in O(log n).
+
+Data Structures:
+vector<long long> times;   // stores exam times
+vector<long long> prefix;  // prefix sum of scores
+
+record(time, score):
+void record(int time, int score) {
+    times.push_back(time);
+    if(prefix.empty())
+        prefix.push_back(score);
+    else
+        prefix.push_back(prefix.back() + score);
+}
+
+
+Append time to times.
+
+Append cumulative score to prefix.
+
+O(1) per call.
+
+totalScore(startTime, endTime):
+long long totalScore(int startTime, int endTime) {
+    // find first index >= startTime
+    int l = lower_bound(times.begin(), times.end(), startTime) - times.begin();
+    // find last index <= endTime
+    int r = upper_bound(times.begin(), times.end(), endTime) - times.begin() - 1;
+
+    if(l > r) return 0; // no exams in range
+    if(l == 0) return prefix[r];
+    return prefix[r] - prefix[l - 1];
+}
+
+
+lower_bound → first index ≥ startTime.
+
+upper_bound → first index > endTime → subtract 1 to get last ≤ endTime.
+
+Use prefix array to calculate total in O(1) after binary search.
+
+Overall query: O(log n).
+
+Example:
+record(1, 98) → times=[1], prefix=[98]
+record(5, 99) → times=[1,5], prefix=[98,197]
+
+Queries:
+totalScore(1,3) → 98
+totalScore(1,5) → 197
+totalScore(3,4) → 0
+totalScore(2,5) → 99
+
+
+✅ Works perfectly for large inputs.
+
+3️⃣ Time Complexity:
+Function	Complexity
+record()	O(1)
+totalScore()	O(log n) (binary search)
+Space	O(n) for storing times and prefix sums
+
+Efficient for up to 10^5 operations.
+
+4️⃣ Advantages of Prefix Sum Approach
+
+Fast queries: Binary search + prefix sum → O(log n) per query.
+
+Simple implementation: No complicated segment tree needed.
+
+Edge cases handled: No exams in range → return 0; start index = 0 → prefix[r].
+
+5️⃣ Full Working C++ Implementation:
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+class ExamTracker {
+    vector<long long> times;   // exam times
+    vector<long long> prefix;  // cumulative scores
+public:
+    ExamTracker() {}
+
+    void record(int time, int score) {
+        times.push_back(time);
+        if(prefix.empty())
+            prefix.push_back(score);
+        else
+            prefix.push_back(prefix.back() + score);
+    }
+
+    long long totalScore(int startTime, int endTime) {
+        int l = lower_bound(times.begin(), times.end(), startTime) - times.begin();
+        int r = upper_bound(times.begin(), times.end(), endTime) - times.begin() - 1;
+
+        if(l > r) return 0;
+        if(l == 0) return prefix[r];
+        return prefix[r] - prefix[l - 1];
+    }
+};
+
+6️⃣ Key Takeaways
+
+Prefix sum + binary search is a powerful pattern for ordered data + range sum queries.
+
+Always check problem constraints for sorted/monotonic order → can simplify implementation.
+
+Avoid O(n) per query in competitive programming when n = 10^5; think cumulative sum or segment trees.
+
+Handle edge cases carefully: no exams, first element, etc.
