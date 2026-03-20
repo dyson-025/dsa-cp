@@ -1,0 +1,122 @@
+📝 C. Specialty String — Notes (CP Ready)
+🧠 Problem Summary
+
+Given a string s
+
+You can remove two equal characters s[i] == s[j] if:
+
+i < j
+
+All characters between them are already *
+
+👉 After removal → both become *
+👉 Goal → make entire string *
+
+🔥 Key Observation
+
+You can only remove characters if they are effectively adjacent
+
+Because:
+
+Between them must be all *
+
+So after removals → characters become adjacent
+
+💡 Core Idea
+
+👉 This reduces to:
+
+Can we repeatedly remove adjacent equal characters until string becomes empty?
+
+🧩 Pattern Recognition
+
+This is similar to:
+
+Valid Parentheses
+
+Remove Adjacent Duplicates
+
+Stack-based cancellation problems
+
+⚙️ Approach (Stack)
+Algorithm:
+
+Create empty stack
+
+Traverse string:
+
+If stack not empty AND top == current → pop()
+
+Else → push()
+
+At end:
+
+Empty stack → YES
+
+Otherwise → NO
+
+💻 Python Code
+import sys
+input = sys.stdin.readline
+
+t = int(input())
+for _ in range(t):
+    n = int(input())
+    s = input().strip()
+    
+    stack = []
+    
+    for c in s:
+        if stack and stack[-1] == c:
+            stack.pop()
+        else:
+            stack.append(c)
+    
+    print("YES" if not stack else "NO")
+⚡ Complexity
+
+Time: O(n)
+
+Space: O(n)
+
+🔍 Example
+Input:
+abba
+Process:
+a → push → [a]
+b → push → [a, b]
+b → match → pop → [a]
+a → match → pop → []
+
+👉 Result: YES
+
+❌ Common Mistakes
+1. Only checking frequency
+
+Even count ≠ always valid
+
+Order matters ❗
+
+2. Not understanding condition
+
+sk = * for all i < k < j
+
+👉 Means:
+
+No characters between → effectively adjacent
+
+3. Forgetting .strip()
+
+Can include \n → breaks logic
+
+🚀 Key Takeaways
+
+Convert complex condition → adjacency problem
+
+Stack = best tool for pair removal problems
+
+Always simplify problem statement
+
+🧠 One-line Summary
+
+👉 Remove adjacent equal characters using stack — if empty at end → YES
