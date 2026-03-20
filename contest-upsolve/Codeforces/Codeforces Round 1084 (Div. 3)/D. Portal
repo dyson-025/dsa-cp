@@ -1,0 +1,93 @@
+Solution Note: 2200D - Portal
+Problem: 2200D - Portal
+Source: Codeforces Round 1084 (Div. 3)
+
+Problem Description
+Given a permutation p, you can perform operations using two portals. The elements between the portals (let's call this set B) can be cyclically shifted. Elements outside the portals (set A) stay in their relative order. The goal is to find the lexicographically smallest permutation possible by shifting B and choosing its insertion point within A.
+
+Key Observations
+
+  - Set B (Between Portals): Can be rotated but not reordered. To minimize, we find the minimum element in B and rotate it to the front.
+  - Set A (Outside Portals): Their relative order is fixed.
+  - Insertion: Because the input is a permutation (all numbers unique), the minimum of B (m) does not exist in A. To get the smallest result, B should be placed as far left as possible in A without jumping over any number smaller than m.
+
+Logic / Step-by-Step
+
+1.  Partition: Separate the input into vector b (elements from index x to y) and vector a (everything else).
+2.  Optimize B: Use std::min_element to find the smallest value in b and std::rotate to bring it to index 0.
+3.  Find Insertion Point: Iterate through a using a pointer it. Stop as soon as *it > b[0].
+4.  Merge: Insert the rotated vector b into a at that position.
+
+C++ Implementation
+
+```
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void solve() {
+
+    int n, x, y;
+
+    cin >> n >> x >> y;
+
+    x--, y--; // 0-based indexing
+
+    vector a, b;
+
+    for (int i = 0; i < n; i++) {
+
+        int j;
+
+        cin >> j;
+
+        if (i <= x || i > y) a.push_back(j);
+
+        else b.push_back(j);
+
+    }
+
+    if (!b.empty()) {
+
+        // Rotate the minimum element of B to the front
+
+        rotate(b.begin(), min_element(b.begin(), b.end()), b.end());
+
+    }
+
+    int m = b.empty() ? -1 : b[0];
+
+    auto it = a.begin();
+
+    
+
+    // Find the first element in A that is larger than the head of B
+
+    while (it != a.end() && *it < m) it++;
+
+    
+
+    // Insert optimized B into A
+
+    a.insert(it, b.begin(), b.end());
+
+    for (int i = 0; i < n; i++) {
+
+        cout << a[i] << " \n"[i == n-1];
+
+    }
+
+}
+
+int main() {
+
+    int t;
+
+    cin >> t;
+
+    while (t--) solve();
+
+    return 0;
+
+}
