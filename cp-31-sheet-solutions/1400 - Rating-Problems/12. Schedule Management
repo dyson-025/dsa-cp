@@ -1,0 +1,159 @@
+📘 C. Schedule Management —
+🔥 1. Problem Summary
+n workers, m tasks
+Each task has a preferred worker
+Time:
+Preferred worker → 1 hour
+Other worker → 2 hours
+
+👉 Goal:
+
+Minimize the time when all tasks are completed
+🧠 2. Key Insight
+
+👉 Workers work in parallel
+👉 So total time =
+
+maximum time taken by any worker
+⚡ 3. Core Idea
+
+👉 We guess time = T and check:
+
+Can all workers finish all tasks within time T?
+
+👉 If YES → try smaller T
+👉 If NO → increase T
+
+✔️ Binary Search on Answer
+
+🧩 4. Data Representation
+vector<ll> t(n);
+
+👉 t[i] = number of tasks worker i is proficient in
+
+🔍 5. Feasibility Function
+bool pos(time)
+
+👉 Check if all tasks can be completed in given time
+
+🔹 For each worker:
+Case 1: Enough own tasks
+if(t[i] >= time)
+
+👉 Worker can do time tasks (all preferred)
+
+Case 2: Not enough own tasks
+else {
+    // do all own tasks
+    total -= t[i];
+
+    // use remaining time for others
+    total -= (time - t[i]) / 2;
+}
+
+👉 Explanation:
+
+Remaining time = time - t[i]
+Each extra task takes 2 hours
+🔹 Final Check
+if(total <= 0) return true;
+
+👉 All tasks completed
+
+🚀 6. Binary Search
+ll l = 0, r = 2*m;
+
+👉 Worst case: all tasks take 2 hours
+
+while(l <= r)
+If possible → move left
+Else → move right
+💻 7. Code
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+bool pos(ll time, vector<ll>& t, ll total) {
+    for(int i = 0; i < t.size(); i++) {
+
+        if(t[i] >= time) {
+            total -= time;
+        } 
+        else {
+            total -= t[i];
+            total -= (time - t[i]) / 2;
+        }
+
+        if(total <= 0) return true;
+    }
+    return false;
+}
+
+void solve() {
+    ll n, m;
+    cin >> n >> m;
+
+    vector<ll> t(n);
+
+    for(int i = 0; i < m; i++) {
+        ll w;
+        cin >> w;
+        w--;
+        t[w]++;
+    }
+
+    ll l = 0, r = 2*m;
+    ll ans = r;
+
+    while(l <= r) {
+        ll mid = (l + r) / 2;
+
+        if(pos(mid, t, m)) {
+            ans = mid;
+            r = mid - 1;
+        }
+        else {
+            l = mid + 1;
+        }
+    }
+
+    cout << ans << endl;
+}
+
+int main() {
+    int t;
+    cin >> t;
+    while(t--) solve();
+}
+🧠 8. Intuition Summary
+
+👉 Each worker has time budget = T
+
+They:
+
+Do own tasks (fast → 1 hr)
+Help others (slow → 2 hr)
+
+👉 Check if total work done ≥ m
+
+⚠️ 9. Common Mistakes
+
+❌ Trying greedy assignment
+❌ Simulating tasks directly
+❌ Forgetting extra tasks take 2 hours
+❌ Not using binary search
+
+🔥 10. Pattern Recognition
+
+Whenever you see:
+
+Minimize maximum time
+Parallel workers
+Different speeds
+
+👉 Think:
+
+Binary Search on Answer + Feasibility Check
+⚡ 11. One-Line Summary
+
+Guess time and check if workers can complete all tasks within that time.
