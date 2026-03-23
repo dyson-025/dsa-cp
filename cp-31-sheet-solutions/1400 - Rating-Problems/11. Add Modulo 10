@@ -1,0 +1,170 @@
+📘 E. Add Modulo 10 — Complete Notes (Contest Ready)
+🔥 1. Core Operation
+𝑎𝑖=𝑎𝑖+(𝑎𝑖 mod 10)
+
+👉 Only the last digit matters
+
+🧠 2. Key Intuition (Most Important Part)
+👉 Numbers behave in 2 completely different ways
+🔹 Type 1: Numbers ending with 0 or 5
+Last Digit	Behavior
+0	No change possible
+5	One step → becomes multiple of 10
+
+Example:
+
+15 → 20 → 20
+10 → 10
+
+👉 Final state = multiple of 10 (fixed)
+
+🔹 Type 2: Numbers NOT ending with 0 or 5
+
+Example:
+
+6 → 12 → 14 → 18 → 26 → 32 ...
+
+👉 Pattern:
+
+Cycles through: 2 → 4 → 8 → 6
+Every 4 steps → +20
+🚨 CRITICAL OBSERVATION
+
+👉 These two types can NEVER meet
+
+Type 1 → stuck at multiples of 10
+Type 2 → never reaches multiple of 10
+🎯 3. Approach
+🔹 Step 1: Handle numbers ending with 5
+if(i % 10 == 5) i += 5;
+
+👉 Convert all 5 → 0 type
+
+🔹 Step 2: Check if any number ends with 0
+if(i % 10 == 0) zero = true;
+🔸 Case A: If ANY number ends with 0
+
+👉 Then:
+
+All numbers must already be equal
+Because they can’t change anymore
+if (count(begin(v), end(v), v[0]) == n)
+
+✔️ YES
+❌ NO
+
+🔸 Case B: No number ends with 0
+
+👉 All numbers are in cycle type
+
+🔹 Step 3: Normalize all numbers
+
+Bring all numbers to last digit = 2
+
+while(i % 10 != 2) {
+    i = i + (i % 10);
+}
+
+👉 Why 2?
+
+Every cycle passes through 2
+Makes comparison easier
+🔹 Step 4: Check modulo 20
+diff % 20 == 0
+
+👉 Because:
+
+Cycle adds 20
+So valid differences = multiples of 20
+⚡ 4. Final Logic Summary
+✅ Possible if:
+All numbers become equal (for 0-type)
+OR
+All numbers fall into same mod 20 group
+💻 5. Code (Clean + Explained)
+#include <bits/stdc++.h>
+using namespace std;
+
+void solve() {
+    int n;
+    cin >> n;
+    vector <int> v(n);
+
+    bool zero = false;
+
+    // Step 1: preprocess
+    for(int& i: v) {
+        cin >> i;
+
+        // convert 5 → 10 type
+        if(i % 10 == 5) i += 5;
+
+        // check if any becomes multiple of 10
+        if(i % 10 == 0) zero = true;
+    }
+
+    // Case A: contains multiple of 10
+    if(zero) {
+        // all must be equal
+        if (count(begin(v), end(v), v[0]) == n)
+            cout << "YES" << endl;
+        else
+            cout << "NO" << endl; 
+    }
+    else {
+        // Case B: cycle type
+
+        // Step 3: normalize to last digit = 2
+        for(int &i : v) {
+            while(i % 10 != 2) {
+                i = i + (i % 10);
+            }
+        }
+
+        // Step 4: check modulo 20
+        sort(begin(v), end(v));
+
+        for(int i = 1; i < n; i++) {
+            int diff = v[i] - v[i-1];
+
+            if(diff % 20 != 0) {
+                cout<<"NO"<<endl;
+                return;
+            }
+        }
+
+        cout<<"YES"<<endl;
+    }
+}
+
+int main() {
+    int t;
+    cin >> t;
+    while(t--) {
+        solve();
+    }
+    return 0;
+}
+🧠 6. Pattern Recognition (VERY IMPORTANT)
+
+When you see:
+
+% 10
+repeated operations
+
+👉 Think:
+
+last digit cycles
+group separation
+modulo trick (20 here)
+🔥 7. Common Mistakes
+
+❌ Trying brute force
+❌ Ignoring last digit behavior
+❌ Mixing 0-type and cycle-type
+❌ Forgetting %20 condition
+
+⚡ 8. One-Line Summary
+
+Either all numbers freeze at multiples of 10
+OR all must belong to same +20 cycle group
