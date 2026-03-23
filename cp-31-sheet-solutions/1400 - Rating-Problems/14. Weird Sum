@@ -1,0 +1,389 @@
+📘 A. Weird Sum — Full Concept Notes (Deep Understanding)
+🔥 1. Problem in One Line
+
+👉 For each color, compute:
+
+Sum of Manhattan distances between all pairs of cells of that color
+🧠 2. Key Insight (MOST IMPORTANT)
+
+Manhattan distance:
+
+∣
+𝑟
+1
+−
+𝑟
+2
+∣
++
+∣
+𝑐
+1
+−
+𝑐
+2
+∣
+∣r
+1
+	​
+
+−r
+2
+	​
+
+∣+∣c
+1
+	​
+
+−c
+2
+	​
+
+∣
+
+👉 Split into:
+
+Row contribution + Column contribution
+
+So:
+
+Total = Sum(|row differences|) + Sum(|column differences|)
+⚡ 3. Reduce Problem
+
+For each color:
+
+Instead of:
+❌ comparing all pairs (O(k²))
+
+👉 Do:
+✔️ Handle rows separately
+✔️ Handle columns separately
+
+🧩 4. Core Problem Reduced To
+
+Given:
+
+v = [x1, x2, x3, ..., xk]
+
+👉 Compute:
+
+∑
+𝑖
+<
+𝑗
+∣
+𝑥
+𝑖
+−
+𝑥
+𝑗
+∣
+i<j
+∑
+	​
+
+∣x
+i
+	​
+
+−x
+j
+	​
+
+∣
+🔥 5. Summation Trick (VERY IMPORTANT)
+
+After sorting:
+
+x1 ≤ x2 ≤ x3 ≤ ... ≤ xk
+
+We compute:
+
+∑
+𝑖
+<
+𝑗
+(
+𝑥
+𝑗
+−
+𝑥
+𝑖
+)
+i<j
+∑
+	​
+
+(x
+j
+	​
+
+−x
+i
+	​
+
+)
+💡 Derivation (Understand This Deeply)
+
+Fix x[i], contribution with all elements after it:
+
+(
+𝑥
+𝑖
++
+1
+−
+𝑥
+𝑖
+)
++
+(
+𝑥
+𝑖
++
+2
+−
+𝑥
+𝑖
+)
++
+.
+.
+.
++
+(
+𝑥
+𝑘
+−
+𝑥
+𝑖
+)
+(x
+i+1
+	​
+
+−x
+i
+	​
+
+)+(x
+i+2
+	​
+
+−x
+i
+	​
+
+)+...+(x
+k
+	​
+
+−x
+i
+	​
+
+)
+=
+(
+𝑥
+𝑖
++
+1
++
+𝑥
+𝑖
++
+2
++
+.
+.
+.
++
+𝑥
+𝑘
+)
+−
+(
+𝑘
+−
+𝑖
+−
+1
+)
+⋅
+𝑥
+𝑖
+=(x
+i+1
+	​
+
++x
+i+2
+	​
+
++...+x
+k
+	​
+
+)−(k−i−1)⋅x
+i
+	​
+
+👉 That’s exactly what your code does:
+sum -= v[i];
+ans += (sum - (v.size() - i - 1)*v[i]);
+🧠 Meaning:
+Term	Meaning
+sum	sum of remaining elements
+(v.size()-i-1)*v[i]	subtract repeated xi
+
+👉 Final:
+
+Contribution = sum_of_right - count * current
+🚀 6. Full Approach
+🔹 Step 1: Group by color
+row_map[color] → all row indices  
+col_map[color] → all col indices  
+🔹 Step 2: For each color
+Rows:
+Sort
+Apply summation formula
+Columns:
+Same process
+🔹 Step 3: Add both contributions
+💻 7. Your Code (Explained Cleanly)
+void solve() {
+    ll n, m;
+    cin >> n >> m;
+
+    unordered_map<ll, vector<ll>> row_map;
+    unordered_map<ll, vector<ll>> col_map;
+
+    // Step 1: store positions
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            ll col; 
+            cin >> col;
+
+            row_map[col].push_back(i);
+            col_map[col].push_back(j);
+        }
+    }
+
+    ll ans = 0;
+
+    // Step 2: process rows
+    for(auto &r: row_map) {
+        vector<ll> v = r.second;
+
+        sort(v.begin(), v.end());
+
+        ll sum = accumulate(v.begin(), v.end(), 0ll);
+
+        for(int i = 0; i < v.size(); i++) {
+            sum -= v[i]; // remove current
+
+            ans += (sum - (v.size() - i - 1) * v[i]);
+        }
+    }
+
+    // Step 3: process columns
+    for(auto &c: col_map) {
+        vector<ll> v = c.second;
+
+        sort(v.begin(), v.end());
+
+        ll sum = accumulate(v.begin(), v.end(), 0ll);
+
+        for(int i = 0; i < v.size(); i++) {
+            sum -= v[i];
+
+            ans += (sum - (v.size() - i - 1) * v[i]);
+        }
+    }
+
+    cout << ans << endl;
+}
+🧠 8. Alternative Formula (Prefix Version)
+
+Same idea, different implementation:
+
+long long pref = 0;
+
+for(int i = 0; i < v.size(); i++) {
+    ans += v[i]*i - pref;
+    pref += v[i];
+}
+🔥 Why this works?
+
+For each v[i]:
+
+(v[i] - v[0]) + (v[i] - v[1]) + ... + (v[i] - v[i-1])
+=
+𝑣
+[
+𝑖
+]
+∗
+𝑖
+−
+(
+𝑣
+[
+0
+]
++
+𝑣
+[
+1
+]
++
+.
+.
+.
++
+𝑣
+[
+𝑖
+−
+1
+]
+)
+=v[i]∗i−(v[0]+v[1]+...+v[i−1])
+⚡ 9. Complexity
+Step	Complexity
+Grouping	O(n)
+Sorting	O(n log n)
+Processing	O(n)
+
+👉 Total: O(n log n)
+
+⚠️ 10. Common Mistakes
+
+❌ Brute force pairs
+❌ Forgetting to separate rows & columns
+❌ Using int instead of long long
+❌ Not sorting
+
+🧠 11. Pattern Recognition
+
+Whenever you see:
+
+Sum of distances
+Absolute differences
+Same group (color/value)
+
+👉 Think:
+
+Sort + prefix sum / contribution trick
+🔥 12. One-Line Summary
+
+Convert 2D Manhattan distance into two 1D problems and solve using contribution/prefix sum.
+
+🚀 Final Insight (VERY IMPORTANT)
+
+This problem is NOT about grids.
+
+👉 It’s about:
+
+How to compute sum of pairwise absolute differences efficiently
