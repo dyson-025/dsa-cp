@@ -1,0 +1,45 @@
+🧠 Logic
+
+👉 Check all 4 rotations (0°, 90°, 180°, 270°)
+If any matches → return true
+
+🔁 Rotation Formula (90° clockwise)
+new[i][j] = mat[n - j - 1][i]
+⚙️ Approach
+Repeat 4 times:
+Check if mat == target
+If yes → return true
+Else → rotate mat by 90°
+After 4 rotations → return false
+
+💻 Code
+class Solution {
+public:
+    void rotate(vector<vector<int>>& mat) {
+        int n = mat.size();
+        vector<vector<int>> temp(n, vector<int>(n));
+
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < n; j++) {
+                temp[n-j-1][i] = mat[i][j];
+            }
+        }
+
+        mat = temp;
+    }
+
+    bool findRotation(vector<vector<int>>& mat, vector<vector<int>>& target) {
+        for(int i = 0; i < 4; i++) {
+            if(mat == target) return true;
+            rotate(mat);
+        }
+        return false;
+    }
+};
+
+⚡ Complexity
+Time: O(4 * n^2) ≈ O(n^2)
+Space: O(n^2)
+🔥 Pattern
+Matrix rotation
+Simulation
