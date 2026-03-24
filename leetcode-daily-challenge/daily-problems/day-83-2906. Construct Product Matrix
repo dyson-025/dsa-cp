@@ -1,0 +1,42 @@
+https://leetcode.com/problems/construct-product-matrix/description/?envType=daily-question&envId=2026-03-24
+
+🧠 Logic
+Treat grid as 1D traversal
+Prefix product → store in left[i][j]
+Suffix product → compute on reverse and multiply
+No division (mod = 12345, not prime)
+
+💻 Code
+class Solution {
+public:
+    int mod = 12345;
+    typedef long long ll;
+
+    vector<vector<int>> constructProductMatrix(vector<vector<int>>& grid) {
+        int n = grid.size(), m = grid[0].size();
+
+        vector<vector<ll>> left(n, vector<ll>(m, 1));
+        ll prod = 1;
+
+        // Prefix (left)
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                left[i][j] = prod;
+                prod = (prod * grid[i][j]) % mod;
+            }
+        }
+
+        vector<vector<int>> ans(n, vector<int>(m, 1));
+        prod = 1;
+
+        // Suffix (right)
+        for(int i = n - 1; i >= 0; i--) {
+            for(int j = m - 1; j >= 0; j--) {
+                ans[i][j] = (left[i][j] * prod) % mod;
+                prod = (prod * grid[i][j]) % mod;
+            }
+        }
+
+        return ans;
+    }
+};
