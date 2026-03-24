@@ -1,0 +1,106 @@
+https://leetcode.com/problems/maximum-non-negative-product-in-a-matrix/?envType=daily-question&envId=2026-03-23
+
+🧠 Logic (minimal)
+
+Track min & max product at each cell
+Because:
+negative × negative → positive
+From each cell → consider top & left
+💡 Hint (for revision)
+// Hint: track min & max product (sign flip)
+💻 Recursion + Memo
+class Solution {
+public:
+    typedef long long ll;
+    int n, m;
+    int mod = 1e9 + 7;
+
+    pair<ll,ll> solve(int i, int j, vector<vector<int>>& grid,
+                      vector<vector<pair<ll,ll>>>& dp) {
+
+        if(i == n-1 && j == m-1)
+            return {grid[i][j], grid[i][j]};
+
+        if(dp[i][j] != make_pair(LLONG_MIN, LLONG_MAX))
+            return dp[i][j];
+
+        ll mn = LLONG_MAX, mx = LLONG_MIN;
+
+        if(i+1 < n) {
+            auto [dmin, dmax] = solve(i+1, j, grid, dp);
+            mn = min({mn, grid[i][j]*dmin, grid[i][j]*dmax});
+            mx = max({mx, grid[i][j]*dmin, grid[i][j]*dmax});
+        }
+
+        if(j+1 < m) {
+            auto [rmin, rmax] = solve(i, j+1, grid, dp);
+            mn = min({mn, grid[i][j]*rmin, grid[i][j]*rmax});
+            mx = max({mx, grid[i][j]*rmin, grid[i][j]*rmax});
+        }
+
+        return dp[i][j] = {mn, mx};
+    }
+
+    int maxProductPath(vector<vector<int>>& grid) {
+        n = grid.size(); m = grid[0].size();
+
+        vector<vector<pair<ll,ll>>> dp(n,
+            vector<pair<ll,ll>>(m, {LLONG_MIN, LLONG_MAX}));
+
+        auto [mn, mx] = solve(0, 0, grid, dp);
+
+        return (mx < 0) ? -1 : mx % mod;
+    }
+};
+⚡ Bottom-Up DP
+class Solution {
+public:
+    typedef long long ll;
+    int mod = 1e9 + 7;
+
+    int maxProductPath(vector<vector<int>>& grid) {
+        int n = grid.size(), m = grid[0].size();
+
+        vector<vector<pair<ll,ll>>> dp(n, vector<pair<ll,ll>>(m));
+
+        dp[0][0] = {grid[0][0], grid[0][0]};
+
+        // first row
+        for(int j = 1; j < m; j++) {
+            ll val = dp[0][j-1].first * grid[0][j];
+            dp[0][j] = {val, val};
+        }
+
+        // first col
+        for(int i = 1; i < n; i++) {
+            ll val = dp[i-1][0].first * grid[i][0];
+            dp[i][0] = {val, val};
+        }
+
+        // rest
+        for(int i = 1; i < n; i++) {
+            for(int j = 1; j < m; j++) {
+
+                ll lmin = dp[i][j-1].first;
+                ll lmax = dp[i][j-1].second;
+                ll tmin = dp[i-1][j].first;
+                ll tmax = dp[i-1][j].second;
+
+                vector<ll> cand = {
+                    grid[i][j]*lmin,
+                    grid[i][j]*lmax,
+                    grid[i][j]*tmin,
+                    grid[i][j]*tmax
+                };
+
+                dp[i][j] = {
+                    *min_element(cand.begin(), cand.end()),
+                    *max_element(cand.begin(), cand.end())
+                };
+            }
+        }
+
+        ll ans = dp[n-1][m-1].second;
+        return (ans < 0) ? -1 : ans % mod;
+    }
+};
