@@ -1,0 +1,117 @@
+https://leetcode.com/problems/flip-square-submatrix-vertically/description/?envType=daily-question&envId=2026-03-21
+🧠 3643. Flip Square Submatrix Vertically — Notes
+🔹 Problem Essence
+
+You are given:
+
+A matrix grid
+A square defined by:
+top-left corner → (x, y)
+size → k
+
+👉 You need to flip this square vertically
+
+🔹 What does “Flip Vertically” mean?
+
+It means:
+
+👉 Reverse the order of rows inside the square
+
+So:
+
+Row x         ↔ Row x + k - 1  
+Row x + 1     ↔ Row x + k - 2  
+...
+
+Columns remain SAME ❗
+
+🔹 Visualization
+Before:
+A
+B
+C
+D
+After vertical flip:
+D
+C
+B
+A
+🔹 Core Idea 💡
+
+We only need to:
+
+Swap rows inside the square
+But only within columns [y → y+k-1]
+🔹 Algorithm
+Step 1: Iterate half rows
+for (i = 0 → k/2 - 1)
+
+👉 Because each swap handles 2 rows
+
+Step 2: Swap row elements column-wise
+for (j = y → y+k-1)
+    swap(grid[x+i][j], grid[x+k-1-i][j]);
+🔹 Code Understanding (Line-by-Line)
+for(int i = 0; i < k/2; i++)
+
+👉 Traverse top half of square
+
+for(int j = y; j < y+k; j++)
+
+👉 Traverse all columns inside square
+
+swap(grid[x+i][j], grid[x+k-1-i][j]);
+
+👉 Swap:
+
+top row → x+i
+bottom row → x+k-1-i
+🔹 Why k/2?
+
+Because:
+
+Each swap fixes 2 rows
+Middle row (if k odd) stays same
+🔹 Complexity
+Time:
+O(k * k) → only submatrix
+Space:
+O(1) → in-place
+🔹 Edge Cases
+
+✔️ k = 1 → no change
+✔️ Square at boundary → still works
+✔️ Odd k → middle row untouched
+
+🔹 Pattern Recognition 🔥
+
+This is classic:
+
+✅ Matrix Subgrid + Symmetric Swap
+
+Similar to:
+
+reverse rows
+rotate matrix
+flip image
+🔹 Mistakes to Avoid ❌
+Swapping entire row instead of only [y → y+k-1]
+Using full matrix columns
+
+Wrong bottom index:
+
+x+k-1-i  ✅
+x+k-i    ❌
+🔹 Quick Recall ⚡
+
+👉 “Swap row i with row k-1-i inside the square columns”
+
+🔹 Bonus Insight (Interview Level 🧠)
+
+This is essentially:
+
+Vertical reflection of a submatrix
+
+If it was horizontal flip:
+
+You’d swap columns instead
