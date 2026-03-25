@@ -1,0 +1,118 @@
+https://leetcode.com/problems/equal-sum-grid-partition-i/description/?envType=daily-question&envId=2026-03-25
+
+🧠 3546. Equal Sum Grid Partition I — Notes
+🔹 Problem Essence
+
+You are given a grid → need to check:
+
+👉 Can we make ONE cut (horizontal OR vertical)
+👉 Such that both parts:
+
+are non-empty
+have equal sum
+🔹 Key Observations
+1. Total Sum Insight
+Let total sum = S
+For equal partition → each part must be S / 2
+
+👉 If S is odd → impossible immediately
+
+2. Only Straight Cuts Allowed
+
+You are NOT allowed arbitrary partitioning.
+
+Only:
+
+Horizontal cut → between rows
+Vertical cut → between columns
+🔹 Core Idea
+
+We simulate both possibilities:
+
+🟦 Horizontal Cut
+Keep adding rows from top
+After each row → check if sum == target
+
+👉 Cut is between row i and i+1
+
+⚠️ Only go till m-1 (so both parts non-empty)
+
+🟩 Vertical Cut
+Keep adding columns from left
+After each column → check if sum == target
+
+👉 Cut is between col j and j+1
+
+⚠️ Only go till n-1
+
+🔹 Algorithm
+Step 1: Compute Total Sum
+long long total = 0;
+for each cell → add
+Step 2: Check feasibility
+if (total % 2 != 0) return false;
+target = total / 2;
+Step 3: Try Horizontal Cuts
+sum = 0
+for i in [0 → m-2]:
+    add entire row i to sum
+    if sum == target → return true
+Step 4: Try Vertical Cuts
+sum = 0
+for j in [0 → n-2]:
+    add entire column j to sum
+    if sum == target → return true
+Step 5: If nothing works
+return false;
+🔹 Complexity
+Total cells ≤ 1e5
+Time:
+Sum calculation → O(m*n)
+Horizontal → O(m*n)
+Vertical → O(m*n)
+
+👉 Overall: O(m*n)
+
+Space:
+O(1) (no extra structures)
+🔹 Why This Works (Important Insight ⚡)
+
+Instead of checking all partitions:
+
+We only check prefix sums of rows/columns
+
+👉 Because any valid cut must be:
+
+continuous top/bottom OR left/right
+🔹 Edge Cases
+
+✔️ Single row → only vertical cut possible
+✔️ Single column → only horizontal cut possible
+✔️ Minimum grid (2 cells) → still works
+✔️ Large values → use long long
+
+🔹 Pattern Recognition (VERY IMPORTANT 🔥)
+
+This is a classic:
+
+✅ Prefix Sum + Partition Check
+
+Whenever you see:
+
+“cut into two equal parts”
+“continuous split”
+“grid or array”
+
+👉 Think:
+
+Total sum
+Prefix accumulation
+Compare with target
+🔹 Code Intuition Summary
+First ensure equal partition possible
+Then simulate cuts
+Stop early if found
+🔹 Mistakes to Avoid ❌
+Forgetting m-1 / n-1 limit → leads to empty partition
+Using int instead of long long
+Recomputing sums repeatedly (inefficient)
