@@ -1,0 +1,169 @@
+https://www.codechef.com/problems/SUMTWOMAX?tab=statement
+
+📝 Sum of Second Maximum — Notes
+🔹 Problem Restatement
+
+Given a permutation A of size N, compute:
+
+∑𝐿=1𝑁∑𝑅=𝐿+1𝑁
+second max of subarray 
+[𝐿,𝑅]L=1∑N	​R=L+1∑N
+	​
+
+second max of subarray [L,R]
+🔹 Key Shift (Critical)
+
+Instead of:
+
+iterate all subarrays ❌
+
+Do:
+
+fix element x → count subarrays where x is second maximum ✅
+
+🔹 When is x second maximum?
+
+A subarray must:
+
+contain x
+contain exactly one element > x
+
+👉 That element becomes maximum, x becomes second maximum
+
+🔹 Core Idea
+
+Process elements from largest → smallest
+
+At step x:
+
+all elements > x are already processed
+their positions are stored in a set
+
+👉 So we can find nearest greater elements easily
+
+🔹 Data Structure
+
+Maintain a sorted set of positions:
+
+s = positions of elements > x
+
+Initialize:
+
+s = {0, N+1}
+🔹 For each element x
+
+Let:
+
+p = position of x
+
+Find:
+
+l2 < l1 < p < r1 < r2
+
+Where:
+
+l1 = nearest greater on left
+l2 = second nearest greater on left
+r1 = nearest greater on right
+r2 = second nearest greater on right
+🔹 Counting Subarrays
+
+We want subarrays with:
+
+exactly one greater element
+
+✅ Case 1: Greater element on LEFT (l1)
+include l1
+exclude l2
+include x
+
+Choices:
+
+left boundary: (l2+1 → l1) → (l1 - l2) ways
+right boundary: (p → r1-1) → (r1 - p) ways
+
+Total:
+
+(l1 - l2) * (r1 - p)
+✅ Case 2: Greater element on RIGHT (r1)
+include r1
+exclude r2
+include x
+
+Choices:
+
+left boundary: (l1+1 → p) → (p - l1) ways
+right boundary: (r1 → r2-1) → (r2 - r1) ways
+
+Total:
+
+(p - l1) * (r2 - r1)
+🔹 Contribution of x
+x * [ (l1 - l2)*(r1 - p) + (p - l1)*(r2 - r1) ]
+🔹 Algorithm
+Store positions of all values
+Initialize set {0, N+1}
+Loop x = N → 1:
+find p = pos[x]
+find l1, l2, r1, r2 using set
+compute contribution
+insert p into set
+print answer
+🔹 C++ Code
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int T;
+    cin >> T;
+
+    while (T--) {
+        int N;
+        cin >> N;
+
+        vector<int> A(N + 1), pos(N + 1);
+
+        for (int i = 1; i <= N; i++) {
+            cin >> A[i];
+            pos[A[i]] = i;
+        }
+
+        set<int> s;
+        s.insert(0);
+        s.insert(N + 1);
+
+        long long ans = 0;
+
+        for (int x = N; x >= 1; x--) {
+            int p = pos[x];
+
+            auto it = s.lower_bound(p);
+
+            int r1 = *it;
+            int r2 = (next(it) == s.end() ? N + 1 : *next(it));
+
+            int l1 = *prev(it);
+            int l2 = (prev(it) == s.begin() ? 0 : *prev(prev(it)));
+
+            long long left = (long long)(l1 - l2) * (r1 - p);
+            long long right = (long long)(p - l1) * (r2 - r1);
+
+            ans += (long long)x * (left + right);
+
+            s.insert(p);
+        }
+
+        cout << ans << '\n';
+    }
+
+    return 0;
+}
+🔹 Complexity
+Each operation: O(log N)
+Total: O(N log N)
+🔹 Final Mental Model
+
+Fix x → choose exactly one greater element → count valid subarrays using nearest greater boundaries
