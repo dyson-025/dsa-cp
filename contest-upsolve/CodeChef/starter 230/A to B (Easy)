@@ -1,0 +1,90 @@
+https://www.codechef.com/problems/ATOB1?tab=statement
+📝 A → B (Easy) — How to Think
+🔹 Step 1: Ignore Simulation
+
+First instinct might be: “try flips, track cost…” ❌
+But here, operations are too flexible → answer is always small (0 or 1).
+
+So think in terms of properties of the string, not operations.
+
+🔹 Step 2: What makes cost = 0 possible?
+
+Cost 0 happens when:
+
+A[L] ≠ A[R]
+
+👉 This means:
+
+You need at least one '0' and one '1' in the string
+Then you can always pick endpoints smartly and flip for free
+
+💡 So:
+
+If string has both 0 & 1 → you have full control (free operations)
+
+🔹 Step 3: When do you get stuck?
+
+You get stuck when string is:
+
+00000  OR  11111
+
+👉 Why?
+
+Any segment you pick → endpoints are same
+So every flip costs 1
+
+💡 So:
+
+Uniform string = no free moves = forced cost 1
+
+🔹 Step 4: Apply this to A → B
+
+Now think carefully:
+
+Case 1: Already equal
+A == B → cost = 0
+Case 2: A has both 0 & 1 AND B has both
+You have freedom in A
+Target B is also flexible
+
+👉 You can adjust bits using only cost 0 flips
+
+Answer = 0
+Case 3: Either A or B is uniform
+If A is uniform → you can't start with free moves
+If B is uniform → final step forces same endpoints
+
+👉 In both situations, at least one paid move is unavoidable
+
+Answer = 1
+🔹 Final Mental Model (Very Important)
+
+Think like this in contest:
+
+“Do I have both 0 and 1 available to freely manipulate?”
+
+YES (in both A & B) → 0
+NO (any one is uniform) → 1
+🔹 Clean Code Template
+void solve() {
+    int n; string a, b;
+    cin >> n >> a >> b;
+
+    if (a == b) {
+        cout << 0 << endl;
+        return;
+    }
+
+    bool all_a = true, all_b = true;
+
+    for (int i = 1; i < n; i++) {
+        if (a[i] != a[0]) all_a = false;
+        if (b[i] != b[0]) all_b = false;
+    }
+
+    cout << (all_a || all_b ? 1 : 0) << endl;
+}
+⚡ One-line intuition
+
+Variety (0 & 1) = freedom → cost 0
+No variety = restriction → cost 1
