@@ -1,0 +1,106 @@
+https://leetcode.com/problems/minimum-absolute-difference-in-sliding-submatrix/description/?envType=daily-question&envId=2026-03-20
+
+🧠 Minimum Absolute Difference in Sliding Submatrix
+🔹 Intuition
+
+For any k × k submatrix, we only care about:
+
+minimum difference between any two distinct values
+
+Key observation:
+👉 Minimum absolute difference will always be between closest elements after sorting
+So instead of checking all pairs (O(n²)):
+→ just sort / keep ordered structure
+→ check adjacent differences only
+🔹 Approach (Brute but Optimized Enough)
+For each submatrix:
+Collect all elements
+Store in sorted structure (set)
+If only 1 unique element → answer = 0
+Else:
+Traverse sorted set
+Take min of (current - previous)
+🔹 Code (Your Approach - Clean)
+class Solution {
+public:
+    vector<vector<int>> minAbsDiff(vector<vector<int>>& grid, int k) {
+        int m = grid.size();
+        int n = grid[0].size();
+        
+        vector<vector<int>> ans(m-k+1, vector<int>(n-k+1));
+
+        for(int i = 0; i <= m-k; i++) {
+            for(int j = 0; j <= n-k; j++) {
+
+                set<int> st;
+
+                // collect elements of submatrix
+                for(int x = i; x < i + k; x++) {
+                    for(int y = j; y < j + k; y++) {
+                        st.insert(grid[x][y]);
+                    }
+                }
+
+                // compute min diff
+                int diff = INT_MAX;
+
+                if(st.size() == 1) diff = 0;
+                else {
+                    for(auto it = next(st.begin()); it != st.end(); it++) {
+                        diff = min(diff, *it - *prev(it));
+                    }
+                }
+
+                ans[i][j] = diff;
+            }
+        }
+
+        return ans;
+    }
+};
+🔹 Complexity
+Submatrices: O((m-k+1)*(n-k+1))
+Each submatrix:
+Insert: O(k² log k²)
+Traverse: O(k²)
+
+👉 Overall:
+
+~ O(m * n * k² log k)
+
+✔ Works because constraints small (≤ 30)
+
+🔹 Key Tricks 💡
+❌ Don't check all pairs
+✅ Only check adjacent in sorted order
+set automatically maintains sorted order
+🔹 Better Options (Optimization Ideas)
+1. Use Vector + Sort instead of set
+Faster in practice (less overhead)
+vector<int> v;
+for(...) v.push_back(...);
+
+sort(v.begin(), v.end());
+
+for(int i = 1; i < v.size(); i++)
+    diff = min(diff, v[i] - v[i-1]);
+
+👉 Same logic, faster constant
+
+2. Sliding Window + Multiset (Advanced ❗)
+Instead of rebuilding every time:
+Remove left column
+Add right column
+
+👉 But:
+
+Hard to maintain min diff dynamically
+Not worth it for constraints
+3. Frequency Array (if constraints small)
+Not applicable here (range too large: ±1e5)
+🔹 Final Take
+
+👉 This problem is about:
+
+recognizing "min diff ⇒ adjacent after sorting"
+brute force is acceptable due to small constraints
