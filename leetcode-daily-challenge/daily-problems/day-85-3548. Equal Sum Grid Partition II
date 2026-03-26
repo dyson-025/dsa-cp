@@ -1,0 +1,173 @@
+https://leetcode.com/problems/equal-sum-grid-partition-ii/?envType=daily-question&envId=2026-03-26
+
+🧠 3548. Equal Sum Grid Partition II — Notes
+🔹 Core Intuition
+
+We need to check:
+
+👉 Can we make 1 cut (horizontal OR vertical) such that:
+
+Two parts have equal sum
+OR can be made equal by removing at most 1 cell
+AND after removal → section must remain connected
+🔥 Key Observations
+1. Total Sum Split
+
+Let:
+
+top = sum of upper part
+bottom = total - top
+
+We want:
+
+top == bottom
+OR
+|top - bottom| == value of some cell (removable)
+2. Only ONE cell can be removed
+
+So difference must match exactly one cell value:
+
+diff = top - bottom
+
+Cases:
+
+diff == 0 → ✅ valid
+diff > 0 → remove from TOP
+diff < 0 → remove from BOTTOM
+3. Connectivity Constraint ⚠️ (MOST IMPORTANT)
+
+You CANNOT remove arbitrary cell
+
+Removing a cell should NOT break the section into 2 parts.
+
+👉 So which cells are safe?
+
+Border cells (edges)
+Or cells that don’t disconnect region
+
+💡 Your trick:
+Instead of explicitly checking connectivity →
+you restrict removal to valid positions implicitly
+
+⚡ Your Smart Trick (Important)
+You maintain:
+unordered_set<ll> st;
+
+This stores values of top section
+
+Then:
+
+if(st.count(diff)) → valid removal
+
+But only when:
+
+i > 0 && n > 1
+
+👉 This avoids edge-disconnection issues.
+
+🔁 Why reverse(grid)?
+
+This is GENIUS 🔥
+
+Problem:
+
+You only check removal from TOP section
+
+But what if removal needed from BOTTOM?
+
+Solution:
+
+Instead of writing separate logic:
+
+👉 You simply:
+
+reverse(grid)
+
+Now:
+
+Bottom becomes top
+Same logic works
+So effectively:
+Original	After reverse
+Remove from top	Remove from bottom
+🔄 Why Transpose?
+
+We also need vertical cuts
+
+Instead of writing new logic:
+
+👉 Convert:
+
+columns → rows
+transposeGrid[j][i] = grid[i][j];
+
+Now:
+
+Vertical cut becomes horizontal cut
+🧩 Full Approach
+Step 1: Compute total sum
+total = sum of grid
+Step 2: Try all horizontal cuts
+checkHorCuts(grid)
+Step 3: Reverse grid (handle bottom removal)
+reverse(grid)
+checkHorCuts(grid)
+Step 4: Transpose → handle vertical cuts
+transposeGrid
+checkHorCuts(transposeGrid)
+Step 5: Reverse transpose
+reverse(transposeGrid)
+checkHorCuts(transposeGrid)
+🧠 checkHorCuts() Logic
+for each row cut i:
+    add row to top sum
+    store elements in set
+
+    bottom = total - top
+    diff = top - bottom
+
+    if diff == 0 → return true
+
+    if diff matches some valid removable cell → return true
+⚠️ Special Edge Handling (Important)
+if (diff == grid[0][0])   return true;
+if (diff == grid[0][n-1]) return true;
+if (diff == grid[i][0])   return true;
+
+👉 These handle boundary cases where:
+
+removing corner cells is always safe (no disconnection)
+🧮 Time Complexity
+Each pass: O(m × n)
+Total passes: ~4
+
+👉 Final:
+
+O(m × n)
+💡 Why This Problem is Hard
+
+Because it mixes:
+
+Prefix sum idea
+Greedy thinking
+Grid connectivity constraint (hidden)
+Trick reuse (reverse + transpose)
+🧠 Interview Summary (1-liner)
+
+Convert 2D partition problem into repeated 1D prefix checks using horizontal cuts, and reuse logic for bottom and vertical cases via reversing and transposing the grid.
+
+🚀 Your Code Strength
+
+What you did VERY well:
+
+✅ Avoided writing separate logic for:
+
+bottom removal
+vertical cuts
+
+✅ Used:
+
+reverse → symmetry
+transpose → reuse
+
+👉 This is top-tier competitive programming thinking
