@@ -1,0 +1,123 @@
+🧠 Core Idea (Intuition)
+
+We want:
+👉 All '*' (sheep) to become continuous (no gaps)
+
+Equivalent:
+👉 Move sheep so they occupy consecutive positions
+
+❗ Important Observation
+
+Instead of thinking:
+
+“where should each sheep go?”
+
+Think:
+
+“what is the BEST block of consecutive positions?”
+
+🔥 Key Insight — MEDIAN
+
+👉 The optimal strategy is to align around the median sheep
+
+Why?
+
+Moving towards median minimizes total distance
+Classic property:
+👉 Sum of absolute distances is minimized at median
+🧩 Step-by-Step Thinking
+Step 1: Store positions of sheep
+
+Example:
+
+s = "*.*...*.**"
+positions = [0,2,6,8,9]
+Step 2: Find median sheep
+mid index = cnt / 2
+
+👉 This sheep does not move (anchor point)
+
+Step 3: Decide final positions
+
+If median is at position pos, then final arrangement will be:
+
+pos - k, pos - k + 1, ..., pos, ..., pos + k
+
+👉 Basically a continuous block centered at median
+
+Step 4: Calculate starting point
+start = pos - (cnt / 2)
+Step 5: Move each sheep
+
+For each sheep:
+
+cost += abs(current_position - target_position)
+💡 Why This Works
+We preserve relative order of sheep
+Avoid crossing (which increases cost)
+Median minimizes total movement
+⚡ Clean Formula View
+
+If positions are:
+
+p[0], p[1], ..., p[k-1]
+
+Target positions:
+
+start, start+1, ..., start+k-1
+
+Cost:
+
+sum |p[i] - (start + i)|
+🔁 Code Mapping (Your Code Explained)
+Step 1: Count sheep
+ll cnt = count(begin(s), end(s), '*');
+Step 2: Find median position
+if(p == cnt/2) pos = i;
+
+👉 pos = index of median sheep
+
+Step 3: Compute start
+ll start = pos - cnt/2;
+Step 4: Compute cost
+if(s[i] == '*') {
+    ans += abs(start - i);
+    start++;
+}
+
+👉 Assign next target position (start++)
+
+🔁 Dry Run
+Input:
+s = "*.*...*.**"
+positions = [0,2,6,8,9]
+cnt = 5
+median = index 2 → pos = 6
+start = 6 - 2 = 4
+target = [4,5,6,7,8]
+
+Now:
+
+|0-4| + |2-5| + |6-6| + |8-7| + |9-8|
+= 4 + 3 + 0 + 1 + 1 = 9 ✅
+❗ Edge Cases
+1. No sheep
+answer = 0
+2. Already continuous
+answer = 0
+3. All sheep
+answer = 0
+🚀 Pattern Recognition
+
+Whenever you see:
+
+Move elements to consecutive positions
+Minimize total movement
+Absolute differences
+
+👉 Think:
+
+MEDIAN + SHIFT TO CONSECUTIVE BLOCK
+🧠 One-Line Summary
+
+👉 Fix sheep around median, assign consecutive positions, sum distances.
