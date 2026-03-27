@@ -1,0 +1,137 @@
+🧠 Core Idea (Intuition)
+
+We want every element to become divisible by k.
+
+For each element:
+
+remainder = a[i] % k
+
+If remainder = 0 → already fine ✅
+Else → we need to add something to make it divisible
+
+👉 Required addition:
+
+need = k - (a[i] % k)
+⚡ Key Observation (MOST IMPORTANT)
+
+You don’t control exact value added, instead:
+
+You have a global x
+Each time you use operation → you add current x
+x keeps increasing
+
+So effectively:
+👉 You assign different x values to different elements
+
+🔥 Real Insight
+
+Suppose multiple elements need same need = r
+
+Example:
+
+k = 5
+elements need +2 → (r = 2)
+
+Now if:
+
+1st element gets x = 2 → OK
+Next element cannot also take x = 2 ❌ (x already increased)
+
+So next valid x:
+
+2 + k = 7
+then 12, 17, ...
+
+👉 Pattern:
+
+r, r + k, r + 2k, r + 3k ...
+🧩 So What Do We Do?
+
+Group elements by same need
+
+Let:
+
+freq[r] = count of elements needing r
+
+For each group:
+
+max_x_needed = r + (freq[r] - 1) * k
+
+👉 Because last element will take largest x
+
+⏱ Final Answer
+
+We need to wait until maximum x used
+
+So:
+
+answer = max over all r (r + (freq[r] - 1)*k) + 1
+
+👉 +1 because moves count starts from 0
+
+❗ Edge Case
+
+If all elements already divisible:
+
+answer = 0
+🧠 Why Greedy Works?
+Smaller r should be used earlier
+Conflicts only happen between same r
+Different r don’t interfere
+
+So we only care about frequency of each remainder
+
+🧾 Code Mapping (Your Code Explained)
+Step 1: Compute need
+ll r = ((v[i] / k + 1) * k) - v[i];
+
+👉 same as:
+
+r = k - (v[i] % k)
+Step 2: Count frequency
+freq[r]++;
+Step 3: Compute answer
+ll newans = it.first + (it.second - 1) * k;
+Step 4: Final result
+if(ans == 0) cout << ans;
+else cout << ans + 1;
+🔁 Dry Run (Quick)
+Input:
+a = [1,2,1,3], k = 3
+
+Remainders:
+
+1 → need 2
+2 → need 1
+1 → need 2
+3 → ok
+
+freq:
+
+2 → 2 times
+1 → 1 time
+
+Now:
+
+for r=2 → 2 + (2-1)*3 = 5
+for r=1 → 1 + (1-1)*3 = 1
+
+max = 5
+
+Answer:
+
+5 + 1 = 6 ✅
+🚀 Pattern Recognition (IMPORTANT)
+
+Whenever you see:
+
+"operations depend on increasing variable (x)"
+"same requirement conflicts"
+"modulo grouping"
+
+👉 Think:
+
+group by remainder + spacing by k
+🧠 One-Line Summary
+
+👉 For each remainder r, schedule its occurrences at gaps of k, and answer is the last scheduled time.
