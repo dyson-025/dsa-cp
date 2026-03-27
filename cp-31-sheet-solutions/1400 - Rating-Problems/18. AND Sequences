@@ -1,0 +1,331 @@
+🧠 B. AND Sequences — Complete Notes
+📌 Problem Summary
+
+Given array a of size n
+
+A permutation is good if:
+
+𝑎
+𝑝
+1
+ 
+&
+ 
+𝑎
+𝑝
+2
+ 
+&
+ 
+.
+.
+.
+ 
+&
+ 
+𝑎
+𝑝
+𝑖
+=
+𝑎
+𝑝
+(
+𝑖
++
+1
+)
+ 
+&
+ 
+.
+.
+.
+ 
+&
+ 
+𝑎
+𝑝
+𝑛
+a
+p1
+	​
+
+&a
+p2
+	​
+
+&...&a
+pi
+	​
+
+=a
+p(i+1)
+	​
+
+&...&a
+pn
+	​
+
+
+for all i
+
+👉 Count number of such permutations
+
+🧠 Core Intuition (MOST IMPORTANT)
+
+Instead of thinking about all i, think:
+
+What value must BOTH sides always become?
+
+🔥 Key Observation
+
+Let:
+
+𝑋
+=
+𝑎
+1
+ 
+&
+ 
+𝑎
+2
+ 
+&
+ 
+.
+.
+.
+ 
+&
+ 
+𝑎
+𝑛
+X=a
+1
+	​
+
+&a
+2
+	​
+
+&...&a
+n
+	​
+
+
+👉 This value is fixed (global AND)
+
+⚡ CRITICAL INSIGHT
+
+For condition to hold for every split:
+
+👉 Both sides must always equal X
+
+🧠 Meaning
+
+The prefix AND must become X quickly
+and remain X forever
+
+🔥 Key Requirement
+
+We need at least 2 elements equal to X
+
+Why?
+
+First element alone = prefix
+Last element alone = suffix
+
+👉 Both sides must independently achieve X
+
+❌ If freq[X] < 2
+
+👉 Impossible → answer = 0
+
+✅ If freq[X] = x ≥ 2
+
+Now count permutations:
+
+🧮 Counting Logic
+Step 1: Choose positions for X
+
+Pick 2 positions (order matters):
+
+𝑥
+⋅
+(
+𝑥
+−
+1
+)
+x⋅(x−1)
+Step 2: Arrange remaining elements
+(
+𝑛
+−
+2
+)
+!
+(n−2)!
+🔥 Final Formula
+answer
+=
+𝑥
+⋅
+(
+𝑥
+−
+1
+)
+⋅
+(
+𝑛
+−
+2
+)
+!
+answer=x⋅(x−1)⋅(n−2)!
+💻 Clean Code (Optimized)
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+const ll MOD = 1e9 + 7;
+const int MAXN = 200005;
+
+ll fact[MAXN];
+
+// precompute factorial
+void precompute() {
+    fact[0] = 1;
+    for (int i = 1; i < MAXN; i++) {
+        fact[i] = (fact[i-1] * i) % MOD;
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    precompute();
+
+    int t;
+    cin >> t;
+
+    while (t--) {
+        int n;
+        cin >> n;
+
+        vector<int> a(n);
+        for (int &x : a) cin >> x;
+
+        // Step 1: compute global AND
+        int X = a[0];
+        for (int i = 1; i < n; i++) {
+            X &= a[i];
+        }
+
+        // Step 2: count frequency of X
+        int cnt = 0;
+        for (int x : a) {
+            if (x == X) cnt++;
+        }
+
+        // Step 3: check condition
+        if (cnt < 2) {
+            cout << 0 << '\n';
+            continue;
+        }
+
+        // Step 4: compute answer
+        ll ans = (1LL * cnt * (cnt - 1)) % MOD;
+        ans = (ans * fact[n - 2]) % MOD;
+
+        cout << ans << '\n';
+    }
+
+    return 0;
+}
+⏱️ Time Complexity
+AND computation → O(n)
+Counting → O(n)
+Precompute factorial → O(n) once
+
+👉 Final:
+
+𝑂
+(
+𝑛
+)
+O(n)
+	​
+
+❌ Common Mistakes (VERY IMPORTANT)
+❌ 1. Overthinking all splits
+
+Trying:
+
+for(i)
+   check prefix == suffix
+
+👉 Leads to TLE / wrong logic
+
+❌ 2. Not realizing global AND
+
+👉 Whole problem reduces to:
+
+“How many elements equal to global AND?”
+
+❌ 3. Using map unnecessarily
+map<int,int> freq;
+
+👉 Not needed, just count X
+
+❌ 4. Computing factorial every test case
+
+👉 Causes TLE
+
+🔥 Pattern Learned
+🎯 Pattern Name:
+
+Fix global invariant (AND) + count valid placements
+
+When to use:
+Bitwise AND/OR constraints
+Prefix = suffix type problems
+Global value governs all states
+🧠 Mental Model
+
+When you see:
+
+prefix AND = suffix AND for all splits
+
+Think:
+
+👉 “Both must equal SAME GLOBAL VALUE”
+
+⚡ One-Line Memory Trick
+
+Answer depends only on count of global AND
+
+🚀 Key Insight
+
+This problem is NOT about permutations directly
+
+👉 It is about:
+
+“Which elements can control the AND?”
+
+💬 Final Insight
+
+This is a classic CF trick problem:
+
+Looks complex ❌
+Actually simple after insight ✅
+🧠 Real Talk
+
+If you understood this:
+
+👉 You’re learning bitmask reasoning + invariant thinking
+
+This is high-value CP skill
