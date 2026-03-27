@@ -1,80 +1,53 @@
-🧠 C. Berland Regional — Complete Notes
+🧠 C. Ball in Berland — Complete Notes
 📌 Problem Summary
-n students
-Each student:
-university u[i]
-skill s[i]
+Given k valid (boy, girl) pairs
+Need to select 2 pairs such that:
+No same boy ❌
+No same girl ❌
 
-For each k = 1 → n:
-
-Each university forms teams of size k
-Take top k, next k, next k…
-Ignore leftover (< k)
-
-👉 Find total skill of all formed teams
+👉 Count number of valid ways
 
 🧠 Core Intuition
 
-Instead of thinking:
+Instead of:
 
-“Form teams explicitly”
+“Try all pairs and check”
 
 Think:
 
-“For each university → how many students can contribute?”
+“Fix one pair → how many pairs can I combine with it?”
 
-🔥 Key Observation
+⚡ Key Observation
 
-For a university with sz students:
+For a pair (a[i], b[i]), invalid pairs are:
 
-usable=𝑠𝑧−(𝑠𝑧 mod 𝑘)
-usable=sz−(szmodk)
+Same boy → cntB[a[i]] - 1
+Same girl → cntG[b[i]] - 1
+🔥 Final Formula
 
-👉 Only these many students contribute
+For each pair:
 
-⚡ Strategy
-Step 1: Group by university
-u → [skills]
-Step 2: Sort in descending order
+valid=k−cntB[a[i]]−cntG[b[i]]+1
 
-👉 Because we want maximum skill
+👉 Sum for all pairs and divide by 2
 
-Step 3: Prefix sum
+🧠 Why +1 ?
 
-So we can quickly get:
+Because current pair is counted in both:
 
-sum of top x students
-sum of top x students
-Step 4: Contribution
+cntB
+cntG
 
-For each group:
+So we subtract it twice → add back once
 
-usable = (sz / k) * k
-ans[k] += prefix[usable - 1]
-❌ Naive (TLE)
-for k = 1 → n
-   for each university
-
-👉 Worst case: O(n²) ❌
-
-✅ Optimized Idea (VERY IMPORTANT)
-
-👉 Instead of iterating over all k for all groups:
-
-Process each group once, and update all valid k
-
-🧠 Final Efficient Approach
-
-For each group:
-
-sort descending
-prefix sum
-
-Then:
-
-for k = 1 → sz:
-    usable = (sz / k) * k
-    ans[k] += prefix[usable - 1]
+📊 Step-by-Step Approach
+1. Count frequency
+cntB[x] = number of times boy x appears
+cntG[y] = number of times girl y appears
+2. For each pair
+ans += (k - cntB[a[i]] - cntG[b[i]] + 1);
+3. Final answer
+ans /= 2;
 💻 Final Code (Optimal)
 #include <bits/stdc++.h>
 using namespace std;
@@ -88,117 +61,85 @@ int main() {
     cin >> t;
 
     while (t--) {
-        int n;
-        cin >> n;
+        int a, b, k;
+        cin >> a >> b >> k;
 
-        vector<int> u(n), s(n);
-        for (int &x : u) cin >> x;
-        for (int &x : s) cin >> x;
+        vector<int> A(k), B(k);
+        for (int i = 0; i < k; i++) cin >> A[i];
+        for (int i = 0; i < k; i++) cin >> B[i];
 
-        unordered_map<int, vector<ll>> mpp;
+        vector<int> cntA(a + 1, 0), cntB(b + 1, 0);
 
-        // grouping
-        for (int i = 0; i < n; i++) {
-            mpp[u[i]].push_back(s[i]);
+        // count frequencies
+        for (int i = 0; i < k; i++) {
+            cntA[A[i]]++;
+            cntB[B[i]]++;
         }
 
-        vector<ll> ans(n + 1, 0);
+        long long ans = 0;
 
-        for (auto &it : mpp) {
-            auto &v = it.second;
-
-            // sort descending
-            sort(v.rbegin(), v.rend());
-
-            // prefix sum
-            for (int i = 1; i < v.size(); i++) {
-                v[i] += v[i - 1];
-            }
-
-            int sz = v.size();
-
-            // contribute to k
-            for (int k = 1; k <= sz; k++) {
-                int usable = (sz / k) * k;
-                if (usable > 0) {
-                    ans[k] += v[usable - 1];
-                }
-            }
+        for (int i = 0; i < k; i++) {
+            ans += (k - cntA[A[i]] - cntB[B[i]] + 1);
         }
 
-        for (int k = 1; k <= n; k++) {
-            cout << ans[k] << " ";
-        }
-        cout << "\n";
+        cout << ans / 2 << '\n';
     }
 
     return 0;
 }
 ⏱️ Time Complexity
-Sorting all groups → O(n log n)
-Inner loops → O(n) total (amortized)
+Frequency count → O(k)
+Loop → O(k)
 
-👉 Final:
-
-𝑂
-(
-𝑛
-log
-⁡
-𝑛
-)
-O(nlogn)
-	​
+✅ Total: O(k) per test case
 
 ❌ Common Mistakes (VERY IMPORTANT)
-❌ 1. Sorting ascending
-sort(v.begin(), v.end()); ❌
-
-👉 You take weakest students → WRONG
-
-✅ Fix:
-
-sort(v.rbegin(), v.rend());
-❌ 2. Looping k outside
+1. Overcomplicating with maps + nested loops ❌
 for(k)
    for(groups)
 
-👉 Causes TLE
+👉 Leads to TLE
 
-❌ 3. Forgetting prefix sum
+2. Forgetting division by 2 ❌
 
-👉 Leads to O(n²) summation
+👉 Each pair counted twice
 
-❌ 4. Using map inefficiently
+3. Wrong counting logic ❌
+Double subtract without +1
+Missing self-count adjustment
+4. Trying brute force ❌
 
-Better:
+👉 O(k²) → impossible
 
-vector<vector<ll>> groups(n+1);
 🔥 Pattern Learned
 🎯 Pattern Name:
 
-Group + Sort + Prefix + Contribution
+Counting pairs using frequency
 
-When to use:
-Partitioning into teams/groups
-Taking top k repeatedly
-Sum of best elements
-“Ignore leftovers” problems
-🧠 Mental Model
+When to use this pattern:
+Selecting 2 elements with constraints
+“No same X / no same Y”
+Bipartite-like pairing
+🧠 Mental Model (IMPORTANT)
 
-For each group:
+When you see:
 
-“How many FULL teams can I form?”
+“Choose 2 pairs with restrictions”
 
-Then:
+Think:
 
-“Take top students accordingly”
-
+Count total
+Subtract conflicts OR
+Directly count valid using frequency
 ⚡ One-Line Memory Trick
 
-usable = (size / k) * k → take prefix
+Fix a pair → remove same boy + same girl
 
-🚀 Key Difference from Previous Problem
-Problem	Idea
-Ball in Berland	Count valid pairs
-Berland Regional	Sum best groups
+🚀 Takeaway
+
+This problem builds:
+
+Frequency counting mastery
+Pair counting tricks
+Avoiding O(n²)
+Competitive thinking
