@@ -1,0 +1,140 @@
+🧠 Problem: Submatrices with Top-Left & Sum ≤ k
+📌 Key Observation
+Every valid submatrix must start from (0,0)
+So submatrix is defined by bottom-right corner (i, j)
+
+👉 That means:
+
+We only need to check all rectangles from (0,0) to (i,j)
+
+💡 Core Idea
+
+Instead of checking all submatrices → fix top-left = (0,0)
+
+So problem reduces to:
+
+Count how many (i, j) such that
+sum of rectangle (0,0) → (i,j) ≤ k
+
+⚡ Prefix Sum Concept (2D)
+
+We use 2D prefix sum to get sum quickly.
+
+Formula:
+𝑝
+𝑟
+𝑒
+𝑓
+[
+𝑖
+]
+[
+𝑗
+]
+=
+𝑔
+𝑟
+𝑖
+𝑑
+[
+𝑖
+]
+[
+𝑗
+]
++
+𝑝
+𝑟
+𝑒
+𝑓
+[
+𝑖
+−
+1
+]
+[
+𝑗
+]
++
+𝑝
+𝑟
+𝑒
+𝑓
+[
+𝑖
+]
+[
+𝑗
+−
+1
+]
+−
+𝑝
+𝑟
+𝑒
+𝑓
+[
+𝑖
+−
+1
+]
+[
+𝑗
+−
+1
+]
+pref[i][j]=grid[i][j]+pref[i−1][j]+pref[i][j−1]−pref[i−1][j−1]
+
+👉 This gives sum from (0,0) to (i,j)
+
+🚀 Optimized Approach
+Steps:
+Create prefix sum matrix
+Traverse each cell (i, j)
+
+Check:
+
+if pref[i][j] <= k → count++
+⏱️ Complexity
+Time: O(m × n)
+Space: O(1) (if modify grid) or O(m × n)
+🔥 Code (C++)
+class Solution {
+public:
+    int countSubmatrices(vector<vector<int>>& grid, int k) {
+        int m = grid.size(), n = grid[0].size();
+        int count = 0;
+
+        // build prefix sum in-place
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i > 0) grid[i][j] += grid[i-1][j];
+                if (j > 0) grid[i][j] += grid[i][j-1];
+                if (i > 0 && j > 0) grid[i][j] -= grid[i-1][j-1];
+
+                if (grid[i][j] <= k) count++;
+            }
+        }
+
+        return count;
+    }
+};
+🧩 Intuition (Very Important)
+Since top-left is fixed → no need to try all submatrices
+Each cell represents one unique submatrix
+Prefix sum converts:
+O(n⁴) brute → O(n²)
+❌ Common Mistakes
+Forgetting - pref[i-1][j-1]
+Using long long (important if sum large)
+Thinking we need sliding window ❌ (not needed)
+🧠 Pattern Recognition
+
+Whenever you see:
+
+fixed corner (like top-left)
+sum constraint
+
+👉 Think:
+
+Prefix Sum + iterate endpoints
