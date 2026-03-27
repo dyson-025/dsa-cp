@@ -1,0 +1,47 @@
+https://leetcode.com/problems/count-submatrices-with-equal-frequency-of-x-and-y/description/?envType=daily-question&envId=2026-03-19
+✅ Logic
+Only consider submatrices from (0,0) to (i,j)
+Maintain:
+rowX, rowY → prefix count in current row
+colX[j], colY[j] → total count in rectangle (0,0) to (i,j)
+Steps:
+Traverse row by row
+Update row prefix (rowX, rowY)
+
+Add to column arrays:
+
+colX[j] += rowX
+colY[j] += rowY
+
+Check:
+
+if colX[j] > 0 AND colX[j] == colY[j] → valid
+💻 Code
+class Solution {
+public:
+    int numberOfSubmatrices(vector<vector<char>>& grid) {
+        int n = grid.size();
+        int m = grid[0].size();
+
+        vector<int> colX(m, 0), colY(m, 0);
+        int ans = 0;
+
+        for (int i = 0; i < n; i++) {
+            int rowX = 0, rowY = 0;
+
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == 'X') rowX++;
+                else if (grid[i][j] == 'Y') rowY++;
+
+                colX[j] += rowX;
+                colY[j] += rowY;
+
+                if (colX[j] > 0 && colX[j] == colY[j]) {
+                    ans++;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
