@@ -1,0 +1,204 @@
+🧠 C. Berland Regional — Complete Notes
+📌 Problem Summary
+n students
+Each student:
+university u[i]
+skill s[i]
+
+For each k = 1 → n:
+
+Each university forms teams of size k
+Take top k, next k, next k…
+Ignore leftover (< k)
+
+👉 Find total skill of all formed teams
+
+🧠 Core Intuition
+
+Instead of thinking:
+
+“Form teams explicitly”
+
+Think:
+
+“For each university → how many students can contribute?”
+
+🔥 Key Observation
+
+For a university with sz students:
+
+usable=𝑠𝑧−(𝑠𝑧 mod 𝑘)
+usable=sz−(szmodk)
+
+👉 Only these many students contribute
+
+⚡ Strategy
+Step 1: Group by university
+u → [skills]
+Step 2: Sort in descending order
+
+👉 Because we want maximum skill
+
+Step 3: Prefix sum
+
+So we can quickly get:
+
+sum of top x students
+sum of top x students
+Step 4: Contribution
+
+For each group:
+
+usable = (sz / k) * k
+ans[k] += prefix[usable - 1]
+❌ Naive (TLE)
+for k = 1 → n
+   for each university
+
+👉 Worst case: O(n²) ❌
+
+✅ Optimized Idea (VERY IMPORTANT)
+
+👉 Instead of iterating over all k for all groups:
+
+Process each group once, and update all valid k
+
+🧠 Final Efficient Approach
+
+For each group:
+
+sort descending
+prefix sum
+
+Then:
+
+for k = 1 → sz:
+    usable = (sz / k) * k
+    ans[k] += prefix[usable - 1]
+💻 Final Code (Optimal)
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int t;
+    cin >> t;
+
+    while (t--) {
+        int n;
+        cin >> n;
+
+        vector<int> u(n), s(n);
+        for (int &x : u) cin >> x;
+        for (int &x : s) cin >> x;
+
+        unordered_map<int, vector<ll>> mpp;
+
+        // grouping
+        for (int i = 0; i < n; i++) {
+            mpp[u[i]].push_back(s[i]);
+        }
+
+        vector<ll> ans(n + 1, 0);
+
+        for (auto &it : mpp) {
+            auto &v = it.second;
+
+            // sort descending
+            sort(v.rbegin(), v.rend());
+
+            // prefix sum
+            for (int i = 1; i < v.size(); i++) {
+                v[i] += v[i - 1];
+            }
+
+            int sz = v.size();
+
+            // contribute to k
+            for (int k = 1; k <= sz; k++) {
+                int usable = (sz / k) * k;
+                if (usable > 0) {
+                    ans[k] += v[usable - 1];
+                }
+            }
+        }
+
+        for (int k = 1; k <= n; k++) {
+            cout << ans[k] << " ";
+        }
+        cout << "\n";
+    }
+
+    return 0;
+}
+⏱️ Time Complexity
+Sorting all groups → O(n log n)
+Inner loops → O(n) total (amortized)
+
+👉 Final:
+
+𝑂
+(
+𝑛
+log
+⁡
+𝑛
+)
+O(nlogn)
+	​
+
+❌ Common Mistakes (VERY IMPORTANT)
+❌ 1. Sorting ascending
+sort(v.begin(), v.end()); ❌
+
+👉 You take weakest students → WRONG
+
+✅ Fix:
+
+sort(v.rbegin(), v.rend());
+❌ 2. Looping k outside
+for(k)
+   for(groups)
+
+👉 Causes TLE
+
+❌ 3. Forgetting prefix sum
+
+👉 Leads to O(n²) summation
+
+❌ 4. Using map inefficiently
+
+Better:
+
+vector<vector<ll>> groups(n+1);
+🔥 Pattern Learned
+🎯 Pattern Name:
+
+Group + Sort + Prefix + Contribution
+
+When to use:
+Partitioning into teams/groups
+Taking top k repeatedly
+Sum of best elements
+“Ignore leftovers” problems
+🧠 Mental Model
+
+For each group:
+
+“How many FULL teams can I form?”
+
+Then:
+
+“Take top students accordingly”
+
+⚡ One-Line Memory Trick
+
+usable = (size / k) * k → take prefix
+
+🚀 Key Difference from Previous Problem
+Problem	Idea
+Ball in Berland	Count valid pairs
+Berland Regional	Sum best groups
