@@ -1,0 +1,138 @@
+🧠 B. Fortune Telling — FULL NOTES
+⚙️ Problem in one line
+
+You start from a number d and for each ai you can:
+
+d = d + ai
+d = d ^ ai
+
+👉 You need to check: who (Alice or Bob) can reach y
+
+🔥 CORE IDEA (MOST IMPORTANT)
+
+👉 We DON’T care about exact value
+
+👉 We only care about parity (even / odd)
+
+🧪 PARITY RULES (VERY IMPORTANT)
+➕ Addition Rules
+even + even = even
+odd + odd = even
+even + odd = odd
+odd + even = odd
+⊕ XOR Rules
+
+Think in last bit:
+
+even ^ even = even
+odd ^ odd = even
+even ^ odd = odd
+odd ^ even = odd
+⚡ BIG OBSERVATION
+
+👉 Addition and XOR behave EXACTLY SAME for parity
+
+Operation	Result
+even + even	even
+even ^ even	even
+odd + odd	even
+odd ^ odd	even
+even + odd	odd
+even ^ odd	odd
+🧠 FINAL CONCLUSION
+
+👉 Each ai affects parity like this:
+
+if ai is even → no change
+if ai is odd → flips parity
+🔄 TOTAL EFFECT
+
+Let:
+
+odd_count = number of odd elements in array
+
+Then:
+
+if odd_count is even → parity same
+if odd_count is odd → parity flips
+⚡ SHORTCUT (VERY IMPORTANT)
+
+👉 Instead of counting odd:
+
+sum % 2 == odd_count % 2
+
+So just use:
+
+sum = a1 + a2 + ... + an
+👤 ALICE vs BOB
+Alice:
+start = x
+final parity = (x + sum) % 2
+Bob:
+start = x + 3
+
+But:
+
+3 is odd → flips parity
+
+So:
+
+(x + 3) % 2 = x % 2 ^ 1
+
+👉 Bob’s parity is opposite of Alice
+
+🎯 FINAL LOGIC
+
+👉 Only ONE of them can match y
+
+So:
+
+If (x + sum) % 2 == y % 2
+→ Alice
+Else
+→ Bob
+💡 INTUITION (IMPORTANT FOR MEMORY)
+
+👉 Alice can only produce numbers with parity:
+
+(x + sum) % 2
+
+👉 Bob can only produce numbers with opposite parity:
+
+(x + sum + 1) % 2
+🔥 So:
+If y matches Alice → she did it
+Otherwise → Bob did it
+🚀 WHY NO NEED TO CHECK OPERATIONS?
+
+Because:
+
+👉 No matter what sequence of + and ^ you choose
+👉 parity outcome will always be SAME
+
+So:
+
+Order doesn’t matter
+Choice doesn’t matter
+Only parity matters
+🧪 MINI DRY RUN
+x = 0
+a = [1,2,3]
+y = 2
+sum = 6 (even)
+x + sum = 6 → even
+y = 2 → even
+
+👉 Alice ✅
+
+⚡ FINAL CODE
+long long sum = 0;
+for (auto a : arr) sum += a;
+
+if ((x + sum) % 2 == y % 2)
+    cout << "Alice\n";
+else
+    cout << "Bob\n";
+🧠 ONE-LINE MEMORY
+
+👉 “Ignore everything → just match parity”
