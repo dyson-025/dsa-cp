@@ -1,0 +1,151 @@
+🧠 D. Table Cut — Detailed Notes (YOUR LOGIC ONLY)
+🔥 Problem Summary
+Grid n × m with 0/1
+Cut path from (0,0) → (n-1,m-1)
+
+Moves allowed:
+
+R (right), D (down)
+
+Divide grid into 2 parts:
+
+a = ones in one part
+b = ones in other part
+
+Maximize:
+
+a * b
+💡 Core Observation (MOST IMPORTANT)
+
+Total ones:
+
+total = a + b
+
+👉 Product is maximized when:
+
+a ≈ total / 2
+🎯 YOUR GOAL
+
+Build a path such that number of ones collected (cnt) is as close as possible to total/2 without exceeding it
+
+📊 Step 1: Input + Total
+total += grid[i][j];
+
+👉 Counts total number of 1s in grid
+
+📊 Step 2: Column Suffix Sum (pfsum)
+pfsum[i][j] = pfsum[i+1][j] + grid[i][j];
+🧠 Meaning
+pfsum[i][j] = number of 1s in column j from row i → bottom
+💡 Why needed?
+
+When you are at row = level:
+
+👉 pfsum[level][j] tells:
+
+"If I take column j from here, how many 1s I will collect"
+🧠 Step 3: Greedy Path Construction
+Maintain variables
+cnt   = current collected ones
+level = current row
+ans   = path string
+target = total / 2
+🔁 Loop over columns
+for(int j = 0; j < m; j++)
+✅ Case 1: Take full column
+if(cnt + pfsum[level][j] <= target)
+👉 Action:
+ans.push_back('R');
+cnt += pfsum[level][j];
+🧠 Meaning:
+Taking full column does NOT exceed target
+So we greedily take it
+❌ Case 2: Can't take full column
+else
+👉 Strategy:
+
+Move DOWN to reduce contribution
+
+🔽 Inner loop
+for(int i = level; i <= n; i++)
+🔴 Condition 1:
+if(cnt + pfsum[i][j] > target)
+
+👉 Action:
+
+ans.push_back('D');
+🧠 Meaning:
+Still too many 1s
+Go down to reduce suffix sum
+🟢 Condition 2:
+else
+
+👉 Action:
+
+ans.push_back('R');
+level = i;
+cnt += pfsum[i][j];
+break;
+🧠 Meaning:
+Now it fits within target
+Take this column from row i
+Update level
+Stop going down
+🔚 Step 4: Final Down Moves
+while(level != n)
+👉 Action:
+ans.push_back('D');
+level++;
+🧠 Meaning:
+After processing all columns
+Move down to reach bottom
+📤 Output
+cout << total/2 * (total - total/2)
+cout << ans
+🧠 Why product formula works?
+
+We ensured:
+
+cnt ≈ total/2
+
+So:
+
+a = cnt
+b = total - cnt
+
+👉 Output:
+
+a * b
+🔥 Full Intuition (YOUR APPROACH)
+
+👉 For each column:
+
+Try taking full column (greedy)
+If too big → go down until it fits
+Continue
+💣 Important Insights
+1. Column-wise thinking
+
+Instead of region → think:
+
+each column contributes independently
+2. Going down reduces contribution
+
+Because:
+
+higher row → more elements → more 1s
+lower row → fewer elements → fewer 1s
+3. Greedy is safe
+
+Because:
+
+We always stay ≤ target
+Try to get as close as possible
+🚀 What you learned from this
+Greedy with constraints
+Using suffix sums smartly
+Path construction
+Handling dynamic contribution
+🧠 One-line summary
+
+Take as much as possible from each column, if it exceeds → go down until it fits, then continue
