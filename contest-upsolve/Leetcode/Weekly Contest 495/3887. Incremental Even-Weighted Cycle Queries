@@ -1,0 +1,255 @@
+🧩 Problem: Incremental Even-Weighted Cycle Queries
+🎯 0. Problem in One Line
+
+Add edges one by one, but NO cycle should have odd total weight
+
+🔥 1. FIRST BREAKTHROUGH (CRUCIAL)
+
+Weights are:
+
+0 or 1
+
+So instead of sum…
+
+👉 Only care about:
+
+EVEN vs ODD
+💡 Key Identity
+sum % 2 = XOR
+
+👉 So:
+
+Cycle sum EVEN ⇔ XOR = 0
+Cycle sum ODD  ⇔ XOR = 1
+🧠 2. FINAL PROBLEM (AFTER TRANSFORMATION)
+
+We are enforcing:
+
+For every cycle:
+XOR of all edges = 0
+🔥 3. CORE IDEA
+
+When adding edge (u, v, w):
+
+If it creates a cycle:
+
+cycle XOR = (existing path u → v) ^ w
+
+We must ensure:
+
+(existing XOR) ^ w = 0
+
+👉 So:
+
+XOR(u → v) = w
+🧠 4. HOW DO WE GET XOR(u → v)?
+
+👉 This is THE main trick
+
+We store:
+
+parity[x] = XOR from node x → root
+🔍 Why store this?
+
+Because then:
+
+XOR(u → v) = parity[u] ^ parity[v]
+🧠 PROOF (IMPORTANT)
+
+Let root = r
+
+parity[u] = XOR(u → r)
+parity[v] = XOR(v → r)
+
+Now:
+
+u → v = (u → r) ^ (v → r)
+
+Because common path cancels.
+
+🔥 5. TWO CASES (VERY IMPORTANT)
+✅ Case 1: u and v in SAME component
+
+👉 Cycle is formed
+
+We check:
+
+(parity[u] ^ parity[v]) == w
+🧠 Why?
+
+Cycle XOR:
+
+(existing path) ^ w
+= (parity[u] ^ parity[v]) ^ w
+
+We want:
+
+= 0
+
+So:
+
+parity[u] ^ parity[v] = w
+❌ If not satisfied → reject edge
+✅ Case 2: u and v in DIFFERENT components
+
+👉 No cycle → safe to add
+
+BUT…
+
+👉 We must maintain consistency for future
+
+🔥 6. THE HARDEST PART (MERGING LOGIC)
+
+We are adding:
+
+u ——(w)—— v
+
+We want:
+
+XOR(u → v) = w
+🧠 Expand path after merging
+
+After union:
+
+u → root_u → root_v → v
+🧠 Write equation
+(u → root_u) ^ (root_u → root_v) ^ (root_v → v) = w
+
+Substitute:
+
+parity[u] ^ parity[root_v] ^ parity[v] = w
+🔥 Solve it
+parity[root_v] = parity[u] ^ parity[v] ^ w
+💥 THIS IS THE MOST IMPORTANT FORMULA
+parity[root_v] = xu ^ xv ^ w;
+🧠 7. DEEP INTUITION (IMPORTANT)
+
+Think of DSU as:
+
+👉 Each node stores relation to root
+
+Now when connecting two components:
+
+👉 You must fix the relation between roots
+
+So that:
+
+all XOR equations remain consistent
+🔍 8. FULL DRY RUN (VERY IMPORTANT)
+Example:
+n = 3
+edges = [ [0,1,1], [1,2,1], [0,2,1] ]
+Step 1: Add (0,1,1)
+Different components
+Merge
+parity[1] = 0 ^ 0 ^ 1 = 1
+
+Now:
+
+0 → 1 = 1
+Step 2: Add (1,2,1)
+Different components
+Merge
+parity[2] = parity[1] ^ parity[2] ^ w
+          = 1 ^ 0 ^ 1
+          = 0
+Step 3: Add (0,2,1)
+
+Now both in same component
+
+Check:
+
+parity[0] ^ parity[2] = 0 ^ 0 = 0
+
+Expected:
+
+w = 1
+
+❌ Not equal → reject
+
+🧩 9. FINAL ALGORITHM
+
+For each edge:
+
+Step 1:
+find(u), find(v)
+Step 2:
+If same root:
+if ((parity[u] ^ parity[v]) != w)
+    reject
+else
+    accept
+Step 3:
+If different:
+merge
+parity[root_v] = parity[u] ^ parity[v] ^ w
+💻 FINAL CODE
+class Solution {
+public:
+    vector<int> parent, size, parity;
+
+    pair<int,int> find(int x) {
+        if (parent[x] == x)
+            return {x, 0};
+
+        auto [root, par] = find(parent[x]);
+        parent[x] = root;
+        parity[x] ^= par;
+
+        return {parent[x], parity[x]};
+    }
+
+    bool unite(int u, int v, int w) {
+        auto [pu, xu] = find(u);
+        auto [pv, xv] = find(v);
+
+        if (pu == pv) {
+            return ((xu ^ xv) == w);
+        }
+
+        if (size[pu] < size[pv]) {
+            swap(pu, pv);
+            swap(xu, xv);
+        }
+
+        parent[pv] = pu;
+        parity[pv] = xu ^ xv ^ w;
+        size[pu] += size[pv];
+
+        return true;
+    }
+
+    int numberOfEdgesAdded(int n, vector<vector<int>>& edges) {
+        vector<vector<int>> senqavilor = edges;
+
+        parent.resize(n);
+        size.resize(n, 1);
+        parity.resize(n, 0);
+
+        for (int i = 0; i < n; i++)
+            parent[i] = i;
+
+        int count = 0;
+
+        for (auto &e : senqavilor) {
+            if (unite(e[0], e[1], e[2]))
+                count++;
+        }
+
+        return count;
+    }
+};
+⚡ 10. COMPLEXITY
+Time:  O(m α(n)) ≈ O(m)
+Space: O(n)
+🧠 11. MASTER MENTAL MODEL
+
+Whenever you see:
+
+Graph + Cycle constraint + Even/Odd
+
+👉 Think:
+
+1. Convert to XOR
+2. Store relation to root
+3. Use DSU + parity
