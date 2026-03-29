@@ -121,7 +121,8 @@ public:
             if (drops == 1 && nums[i + k - 1] > nums[i]) return false;
 
             // Global ordering check
-            if (nums[i] < prevMax) return false;
+            int currMin = *min_element(nums.begin() + i, nums.begin() + i + k);
+            if (currMin < prevMax) return false;
 
             prevMax = currMax;
         }
