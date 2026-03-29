@@ -1,0 +1,183 @@
+🧩 Problem: Sortable Integers
+
+We are given:
+
+Array nums of size n
+
+We can:
+
+Pick a divisor k of n
+Split into blocks of size k
+Rotate each block independently
+
+👉 Goal:
+Find all such k where the entire array can become non-decreasing
+
+Return sum of all valid k
+
+🔥 Step 1: Key Observation (Most Important)
+❗ Rotation ≠ Sorting
+
+Rotation only shifts elements, it does NOT reorder arbitrarily.
+
+So inside each block:
+
+You can only convert it to sorted if it is already a rotated sorted array
+
+🧠 Step 2: What is a Rotated Sorted Array?
+
+A rotated sorted array looks like:
+
+[1,2,3,4,5] → sorted
+[3,4,5,1,2] → rotated sorted ✅
+[3,1,4,2]   → NOT valid ❌
+✅ Properties
+1. At most ONE drop
+
+A drop means:
+
+nums[i] > nums[i+1]
+
+Example:
+
+[3,4,5,1,2]
+       ↑ drop
+2. If 1 drop exists → must satisfy:
+last <= first
+
+Why?
+
+Because valid structure is:
+
+[big elements][small elements]
+
+Example:
+
+[3,4,5 | 1,2]
+
+So:
+
+last = 2 ≤ first = 3 ✅
+❌ Invalid Example
+[2,5,1,3,4]
+Only 1 drop → looks okay ❗
+But:
+last = 4 > first = 2 ❌
+
+👉 This is NOT a rotated sorted array
+
+⚠️ Step 3: Global Condition (Very Important)
+
+Even if each block is valid…
+
+👉 Blocks must connect properly:
+
+max(previous block) ≤ min(current block)
+
+Otherwise final array can't be sorted.
+
+🧩 Step 4: Full Algorithm
+For every divisor k of n:
+👉 For each block:
+Check 1: Count drops
+if (nums[j-1] > nums[j]) drops++;
+drops > 1 → ❌ invalid
+Check 2: Rotation validity
+if (drops == 1 && last > first) → ❌
+Check 3: Global order
+if (current_block_min < previous_block_max) → ❌
+🧠 Step 5: Why This Works
+
+Because:
+
+Rotation preserves relative order
+Only cyclic shift allowed
+So structure must already be “almost sorted”
+
+👉 This is a validation problem, not a transformation problem
+
+💻 Final Clean Code (Best Version)
+class Solution {
+public:
+    bool check(vector<int>& nums, int k) {
+        int n = nums.size();
+        int prevMax = -1;
+
+        for (int i = 0; i < n; i += k) {
+            int drops = 0;
+            int currMax = nums[i];
+
+            for (int j = i + 1; j < i + k; j++) {
+                if (nums[j - 1] > nums[j]) {
+                    drops++;
+                }
+                currMax = max(currMax, nums[j]);
+            }
+
+            // More than one drop → invalid
+            if (drops > 1) return false;
+
+            // If rotated → must satisfy last <= first
+            if (drops == 1 && nums[i + k - 1] > nums[i]) return false;
+
+            // Global ordering check
+            if (nums[i] < prevMax) return false;
+
+            prevMax = currMax;
+        }
+
+        return true;
+    }
+
+    int sortableIntegers(vector<int>& nums) {
+        int n = nums.size();
+
+        // Required variable (as per problem)
+        vector<int> qelvarodin = nums;
+
+        int ans = 0;
+
+        for (int k = 1; k <= n; k++) {
+            if (n % k == 0) {
+                if (check(qelvarodin, k)) {
+                    ans += k;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+⚡ Complexity
+Divisors ≈ O(√n)
+Each check = O(n)
+
+👉 Total:
+
+O(n √n)
+
+Works for n ≤ 1e5
+
+🧠 Common Mistakes (You Should Avoid)
+
+❌ Thinking rotation = full rearrangement
+❌ Ignoring cross-block ordering
+❌ Not checking last <= first
+❌ Allowing multiple drops
+
+🧠 Mental Model (Super Important)
+
+Whenever you see:
+
+"You can rotate subarrays"
+
+Think:
+
+👉 Only cyclic shift allowed
+👉 Structure must already be valid
+👉 Validate, don't try to build
+🏁 Final Takeaway
+
+This is a classic CP trick problem:
+
+Operation looks powerful → but actually very restrictive
