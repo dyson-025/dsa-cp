@@ -1,0 +1,147 @@
+🧠 INTUITION (CORE IDEA)
+What happens in one transfer?
+Take x from one bank → only y reaches another bank
+
+👉 Loss per transfer:
+
+x - y  (bank profit)
+💡 Key Thought
+
+From a bank with a[i]:
+
+👉 How many times can we transfer?
+
+k[i] = a[i] / x
+
+Each time gives:
+
++ y to some bank
+🔥 So each bank contributes:
+k[i] transfers → contributes k[i] * y money
+🧠 GLOBAL THINKING (IMPORTANT)
+
+We want:
+
+maximize money in ONE bank
+
+So think:
+
+👉 Choose one bank as target
+
+👉 All other banks send money to it
+
+⚡ What can each bank give?
+
+Each bank i:
+
+k[i] = a[i] / x transfers
+
+Total transfers from all banks:
+
+total = sum(k[i])
+🎯 If bank i is target
+It already has:
+a[i]
+It cannot send its own money to itself
+👉 so ignore its own transfers k[i]
+From others it gets:
+(total - k[i]) * y
+💥 Final formula
+cur = a[i] + y * (total - k[i])
+
+Take max over all i
+
+🧠 Why this works (IMPORTANT)
+
+👉 Order of transfers doesn’t matter
+👉 Only count of transfers matters
+
+👉 Always optimal to:
+
+Use all possible transfers
+Send everything to ONE bank
+⚠️ Important Observations
+❌ You cannot partially transfer
+Must send exactly x
+❌ Remaining < x is useless
+✅ Only full transfers matter:
+a[i] / x
+⚡ HOW TO THINK IN CONTEST
+
+When you see:
+
+transfer with loss
+maximize final value
+
+👉 Think:
+
+“Count how many full transfers each source can do”
+
+💻 CLEAN CODE
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+#define fast_io ios::sync_with_stdio(false); cin.tie(nullptr);
+
+void solve() {
+    ll n, x, y;
+    cin >> n >> x >> y;
+
+    vector<ll> a(n);
+    ll total = 0;
+
+    // count total possible transfers
+    for(int i = 0; i < n; i++) {
+        cin >> a[i];
+        total += a[i] / x;
+    }
+
+    ll ans = 0;
+
+    for(int i = 0; i < n; i++) {
+        ll k = a[i] / x;
+
+        // current bank as target
+        ll cur = a[i] + y * (total - k);
+
+        ans = max(ans, cur);
+    }
+
+    cout << ans << '\n';
+}
+
+int main() {
+    fast_io;
+    int t;
+    cin >> t;
+    while(t--) solve();
+}
+🧠 FINAL MEMORY BLOCK
+
+👉 For each bank:
+
+k[i] = a[i] / x
+
+👉 Total transfers:
+
+total = sum(k[i])
+
+👉 Answer:
+
+max(a[i] + y * (total - k[i]))
+💥 ONE LINE SUMMARY
+
+“Each bank gives ⌊a[i]/x⌋ transfers → send all to one bank → maximize result.”
+
+🚀 Pattern Recognition (VERY IMPORTANT FOR YOU)
+
+This pattern appears when:
+
+fixed chunk transfer (x)
+gain per transfer (y)
+maximize one entity
+
+👉 Always think:
+
+count contributions → aggregate → choose best receiver
