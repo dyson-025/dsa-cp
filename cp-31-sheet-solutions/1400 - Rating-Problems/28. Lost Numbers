@@ -1,0 +1,286 @@
+🧠 Core Idea (Intuition First)
+
+You are given a hidden permutation of:
+
+{4, 8, 15, 16, 23, 42}
+
+You can ask:
+
+? i j → returns a[i] * a[j]
+
+👉 Goal: Find the full permutation using ≤ 4 queries.
+
+💡 Key Observation
+
+All numbers are distinct and small.
+
+👉 That means:
+
+If you know the product of two numbers, you can uniquely determine the pair.
+
+Example:
+
+4 × 8 = 32 → only possible pair is (4,8)
+15 × 16 = 240 → only possible pair is (15,16)
+
+👉 So product → unique pair mapping exists.
+
+⚡ Strategy Overview
+
+We divide array into two parts:
+
+First half → indices (1,2,3)
+Second half → indices (4,5,6)
+
+We solve each part using 2 queries.
+
+🧩 APPROACH 1: Brute Thinking with Set (Your First Code)
+🔍 Idea
+
+We query:
+
+x12 = a1 * a2
+x13 = a1 * a3
+
+Now try to find a1.
+
+💡 Key Trick
+
+If a number x is:
+
+divisor of x12 → possible a1
+divisor of x13 → possible a1
+
+Then:
+
+a1 = x
+a2 = x12 / x
+a3 = x13 / x
+🧠 Why it works?
+
+Because:
+
+x12 = a1 * a2
+x13 = a1 * a3
+
+👉 Common element = a1
+
+⚙️ Steps
+Step 1: Find a1, a2, a3
+
+Loop over all values in {4,8,15,16,23,42}:
+
+Check if divides both x12 and x13
+Check if resulting numbers are valid
+Step 2: Remove used numbers
+
+Now remaining set has 3 elements.
+
+Step 3: Repeat same logic
+
+For:
+
+x45 = a4 * a5
+x46 = a4 * a6
+🧾 Code (Approach 1)
+void solve() {
+    set<int> st = {4, 8, 15, 16, 23, 42};
+    vector<int> ans(6);
+
+    cout << "? 1 2" << endl;
+    cout.flush();
+    int x12; cin >> x12;
+
+    cout << "? 1 3" << endl;
+    cout.flush();
+    int x13; cin >> x13;
+
+    int a1 = -1;
+
+    for (auto x : st) {
+        if (x12 % x == 0 && x13 % x == 0) {
+            int a2 = x12 / x;
+            int a3 = x13 / x;
+
+            if (st.count(a2) && st.count(a3) && a2 != x && a3 != x) {
+                ans[0] = x;
+                ans[1] = a2;
+                ans[2] = a3;
+                a1 = x;
+                break;
+            }
+        }
+    }
+
+    st.erase(ans[0]);
+    st.erase(ans[1]);
+    st.erase(ans[2]);
+
+    cout << "? 4 5" << endl;
+    cout.flush();
+    int x45; cin >> x45;
+
+    cout << "? 4 6" << endl;
+    cout.flush();
+    int x46; cin >> x46;
+
+    for (auto x : st) {
+        if (x45 % x == 0 && x46 % x == 0) {
+            int a5 = x45 / x;
+            int a6 = x46 / x;
+
+            if (st.count(a5) && st.count(a6)) {
+                ans[3] = x;
+                ans[4] = a5;
+                ans[5] = a6;
+                break;
+            }
+        }
+    }
+
+    cout << "! ";
+    for (auto x : ans) cout << x << " ";
+    cout << endl;
+    cout.flush();
+}
+🧩 APPROACH 2: Precompute Mapping (Clean + Smart)
+
+This is the best and most elegant solution 💯
+
+🔍 Idea
+
+Precompute:
+
+product → (a, b)
+
+Example:
+
+32 → (4,8)
+120 → (8,15)
+...
+⚡ Why this is powerful?
+
+Now when you query:
+
+? 1 2 → gives product
+
+👉 You instantly know the pair!
+
+💡 Trick
+
+Query:
+
+(1,2) → gives pair (a,b)
+(2,3) → gives pair (b,c)
+
+👉 Common element = a[2]
+
+🧠 Functions
+1. common(a, b)
+
+Find common element between two pairs.
+
+2. other(pair, x)
+
+Return the other element.
+
+⚙️ Steps
+Step 1:
+p1 = product of (1,2)
+p2 = product of (2,3)
+
+Find:
+
+a2 = common(p1, p2)
+a1 = other(p1, a2)
+a3 = other(p2, a2)
+Step 2:
+
+Same for (4,5,6)
+
+🧾 Code (Approach 2 - BEST)
+#include <bits/stdc++.h>
+using namespace std;
+
+int query(int i, int j) {
+    cout << "? " << i + 1 << " " << j + 1 << endl;
+    int x;
+    cin >> x;
+    return x;
+}
+
+int common(pair<int,int> a, pair<int,int> b) {
+    if (a.first == b.first || a.first == b.second)
+        return a.first;
+    return a.second;
+}
+
+int other(pair<int,int> p, int x) {
+    return (p.first == x ? p.second : p.first);
+}
+
+void solve() {
+    vector<int> arr = {4, 8, 15, 16, 23, 42};
+
+    map<int, pair<int,int>> mp;
+
+    for (int i = 0; i < 6; i++) {
+        for (int j = i + 1; j < 6; j++) {
+            mp[arr[i] * arr[j]] = {arr[i], arr[j]};
+        }
+    }
+
+    vector<int> ans(6);
+
+    auto p1 = mp[query(0,1)];
+    auto p2 = mp[query(1,2)];
+
+    ans[1] = common(p1, p2);
+    ans[0] = other(p1, ans[1]);
+    ans[2] = other(p2, ans[1]);
+
+    p1 = mp[query(3,4)];
+    p2 = mp[query(4,5)];
+
+    ans[4] = common(p1, p2);
+    ans[3] = other(p1, ans[4]);
+    ans[5] = other(p2, ans[4]);
+
+    cout << "! ";
+    for (int x : ans) cout << x << " ";
+    cout << endl;
+}
+⚔️ Comparison
+Feature	Approach 1	Approach 2
+Idea	Try divisors	Precompute mapping
+Code	Slightly messy	Clean
+Speed	O(6)	O(1)
+Debug	Harder	Easier
+CF Preferred	❌	✅
+🏆 Which One Should YOU Use?
+
+👉 Always prefer Approach 2
+
+Because:
+
+Cleaner logic
+Less chances of bugs
+Faster thinking in contest
+Standard CF trick
+🧠 Final Mental Model
+
+Whenever you see:
+
+Small fixed set
+Unique values
+Products / XOR / sum queries
+
+👉 Think:
+
+“Can I precompute reverse mapping?”
+
+🔥 Pro Tip (VERY IMPORTANT)
+
+This problem is famous for teaching:
+
+Use structure of constraints, not brute force thinking
