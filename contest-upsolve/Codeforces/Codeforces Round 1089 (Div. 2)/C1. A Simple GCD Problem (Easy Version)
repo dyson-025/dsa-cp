@@ -1,0 +1,137 @@
+📝 C1: Simple GCD Problem — Proper Notes
+🧠 1. Core Observation (MOST IMPORTANT)
+
+👉 We don’t need all subarrays
+
+If all adjacent GCDs are preserved, then all subarray GCDs are preserved.
+
+So only care about:
+
+gcd(a[i-1], a[i])
+⚙️ 2. Operation Meaning
+
+We change:
+
+a[i] → m   (m < a[i])
+
+But must keep:
+
+gcd(a[i-1], m) = gcd(a[i-1], a[i])
+gcd(m, a[i+1]) = gcd(a[i], a[i+1])
+🔥 3. Key Intuition (VERY IMPORTANT)
+
+Let:
+
+A = gcd(a[i-1], a[i])
+B = gcd(a[i], a[i+1])
+
+Then:
+
+m must be divisible by A
+m must be divisible by B
+
+👉 So:
+
+m must be a common multiple of A and B
+
+👉 Smallest such value:
+
+m = lcm(A, B)
+🎯 4. Final Condition
+
+We need:
+
+m < a[i]
+
+So:
+
+lcm(A, B) < a[i]
+
+✔️ If true → operation possible
+❌ Else → not possible
+
+⚠️ 5. Edge Cases
+🔹 First element
+gcd(a[0], a[1]) < a[0]
+🔹 Last element
+gcd(a[n-2], a[n-1]) < a[n-1]
+🧠 6. Why LCM? (Memory Trick)
+
+GCD conditions force divisibility →
+Multiple constraints → take LCM
+
+⚡ 7. Patterns to Recognize
+❌ Cannot change when:
+lcm(A, B) == a[i]
+✅ Can change when:
+lcm(A, B) < a[i]
+🔥 Special Case (important)
+
+If:
+
+a[i-1] | a[i] | a[i+1]
+
+Then:
+
+lcm = a[i]
+
+👉 So no change possible
+
+🚀 8. Final Code (Contest Ready)
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+
+        vector<ll> a(n);
+        for(int i = 0; i < n; i++) cin >> a[i];
+
+        int ans = 0;
+
+        for(int i = 0; i < n; i++) {
+            if(i == 0) {
+                if(gcd(a[0], a[1]) < a[0]) ans++;
+            }
+            else if(i == n - 1) {
+                if(gcd(a[n-2], a[n-1]) < a[n-1]) ans++;
+            }
+            else {
+                ll A = gcd(a[i-1], a[i]);
+                ll B = gcd(a[i], a[i+1]);
+
+                ll L = lcm(A, B);
+
+                if(L < a[i]) ans++;
+            }
+        }
+
+        cout << ans << "\n";
+    }
+}
+🧠 9. Mental Template (for contests)
+
+When you see:
+
+GCD of subarrays
+Modify elements
+
+👉 Think:
+
+“Can I reduce to adjacent pairs?”
+“What constraints does GCD impose?”
+“Multiple constraints → LCM”
+“Check smallest valid value”
+💥 Final One-Line Summary
+
+Replace a[i] with smallest valid value = lcm(A,B)
+If that is smaller → operation possible
