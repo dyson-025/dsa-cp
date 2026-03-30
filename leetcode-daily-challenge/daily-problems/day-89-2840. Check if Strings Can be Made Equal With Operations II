@@ -1,0 +1,114 @@
+🧠 Core Intuition (VERY IMPORTANT)
+🔑 Key Observation:
+
+You can swap indices i and j only if (j - i) is even
+
+👉 That means:
+
+Even index ↔ Even index ✅
+Odd index ↔ Odd index ✅
+Even ↔ Odd ❌ (IMPOSSIBLE)
+💡 So what does this mean?
+
+You are NOT free to rearrange entire string
+
+Instead, you have 2 independent groups:
+
+Group	Indices
+Even positions	0, 2, 4, ...
+Odd positions	1, 3, 5, ...
+
+👉 You can freely permute within each group.
+
+🎯 Final Condition:
+
+For both strings to be equal:
+
+Characters at even indices must match in frequency
+Characters at odd indices must match in frequency
+❌ Problem in Your Code
+
+Your logic is correct, but:
+
+Using map → slower (log n)
+Doing erase operations → unnecessary overhead
+
+We can optimize using arrays (O(1))
+
+🚀 Optimized Approach (BEST)
+
+Instead of map, use 2 arrays:
+
+even[26]
+odd[26]
+⚡ Optimized Code
+class Solution {
+public:
+    bool checkStrings(string s1, string s2) {
+        vector<int> even(26, 0), odd(26, 0);
+
+        for (int i = 0; i < s1.size(); i++) {
+            if (i % 2 == 0)
+                even[s1[i] - 'a']++;
+            else
+                odd[s1[i] - 'a']++;
+        }
+
+        for (int i = 0; i < s2.size(); i++) {
+            if (i % 2 == 0)
+                even[s2[i] - 'a']--;
+            else
+                odd[s2[i] - 'a']--;
+        }
+
+        // check all zero
+        for (int i = 0; i < 26; i++) {
+            if (even[i] != 0 || odd[i] != 0)
+                return false;
+        }
+
+        return true;
+    }
+};
+⚡ Why This is Better?
+Approach	Time	Space
+Your (map)	O(n log n)	O(n)
+Optimized (array)	O(n)	O(1)
+
+👉 Faster + cleaner + contest friendly
+
+🧠 Mental Model (REMEMBER THIS)
+
+Whenever you see:
+
+"swap with condition on indices"
+"parity restriction"
+"distance constraint"
+
+👉 Think:
+
+"Which indices form independent groups?"
+
+🧩 Pattern Name (VERY IMPORTANT FOR CP)
+
+👉 Parity-based grouping + frequency matching
+
+This pattern appears in:
+
+Codeforces Div2 A/B
+LeetCode medium greedy
+String transformation problems
+🔥 One-line Summary
+
+You can only rearrange characters within even indices and within odd indices — so match their frequencies separately.
+
+💪 Contest Tip
+
+If you see:
+
+Swap allowed with (j - i) % k == 0
+
+👉 Then:
+
+Create k groups
+Compare frequencies group-wise
