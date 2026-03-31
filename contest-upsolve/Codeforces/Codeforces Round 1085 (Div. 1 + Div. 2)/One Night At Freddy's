@@ -1,0 +1,138 @@
+🧠 B. One Night At Freddy’s — Notes
+🔹 Problem Simplification
+We have m animatronics (counters)
+Each second → +1 added to exactly one
+At times a[i] → we can reset one counter to 0
+Goal → minimize:
+max(d1, d2, ..., dm) at time l
+🔥 Core Idea
+👉 Worst case:
+
+Adversary tries to increase the same animatronic repeatedly
+
+👉 Our control:
+
+We can:
+
+distribute increments across multiple animatronics
+reset the largest one at given times
+💡 Key Transformation
+
+Instead of thinking about animatronics:
+
+👉 Think:
+
+Maintain k counters (active ones)
+
+Where:
+
+k = min(m, remaining_resets + 1)
+⚡ Greedy Strategy
+
+At every second:
+
+1. Increment smallest counter
+→ balances growth
+2. At reset time:
+→ reset largest counter
+3. Update active counters:
+k = min(k, remaining_resets + 1)
+🧠 Why this works
+Incrementing smallest → avoids one counter blowing up
+Resetting largest → removes worst danger
+Limiting k → optimal number of active threats
+
+👉 This is load balancing + greedy reset
+
+🔄 Simulation Flow
+
+For each second d = 1 → l:
+
+v[0]++ (smallest grows)
+Sort → maintain order
+If d is reset:
+v[k-1] = 0 (kill largest)
+decrease available resets
+update k
+💻 Code (Clean Version)
+#include <bits/stdc++.h>
+using namespace std;
+
+#define fast_io ios::sync_with_stdio(false); cin.tie(nullptr);
+
+void solve() {
+    int n, m, l;
+    cin >> n >> m >> l;
+
+    vector<int> a(n);
+    for (int i = 0; i < n; i++) cin >> a[i];
+
+    int k = min(n + 1, m);
+    vector<int> v(k, 0);
+
+    int idx = 0; // pointer for reset times
+
+    for (int d = 1; d <= l; d++) {
+        // 1. increment smallest
+        v[0]++;
+        sort(v.begin(), v.begin() + k);
+
+        // 2. reset if needed
+        if (idx < n && a[idx] == d) {
+            v[k - 1] = 0;
+            idx++;
+
+            // update k
+            k = min(k, n - idx + 1);
+
+            sort(v.begin(), v.begin() + k);
+        }
+    }
+
+    cout << v[k - 1] << '\n';
+}
+
+int main() {
+    fast_io;
+    int t;
+    cin >> t;
+    while (t--) solve();
+}
+⏱ Complexity
+Per test case:
+Loop runs l times
+Each step:
+sort size k ≤ m
+
+👉 Complexity:
+
+O(l * m log m)
+Given constraint:
+Σ (m * l) ≤ 2e5
+
+👉 So overall:
+
+≈ O(2e5 log m) ✅ safe
+🔥 Key Observations (Revision)
+Only smallest grows → prevents imbalance
+Always reset largest → greedy optimal
+k = min(m, remaining_resets + 1) → critical trick
+Final answer = largest counter
+🧠 Pattern Recognition
+
+This problem =
+
+🔁 “Load balancing with resets”
+
+Appears in:
+
+heap problems
+scheduling
+minimizing maximum
+🚀 Final Takeaway
+
+Balance growth + kill peak = minimize maximum
+
+💬 One-line memory trick
+
+👉 “Increase smallest, reset largest, shrink k”
