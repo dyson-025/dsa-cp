@@ -1,0 +1,322 @@
+🧠 Problem Notes (Div3 E – Game + Number Theory)
+🔍 Core Idea
+
+You are given an array. You simulate a game where:
+
+Each number is analyzed based on:
+Number of distinct prime factors
+Smallest prime factor (spf)
+⚡ Key Observations
+1️⃣ Numbers with ≥ 2 distinct primes → Immediate WIN for Alice
+helper[i].first == true
+
+👉 Why?
+
+Such numbers are “complex”
+They break the structure → Alice gets advantage instantly
+2️⃣ Otherwise (only 1 prime factor)
+
+Each number behaves like:
+
+Either prime
+Or power of a prime
+
+We only care about:
+
+smallest prime factor (spf)
+🎯 Game Reduction
+
+The whole problem reduces to:
+
+👉 Traverse from right to left
+
+Maintain:
+
+prev = smallest allowed spf
+
+For each element:
+
+If multi-prime → Alice wins
+Else:
+if spf > prev → Alice wins
+else update prev = spf
+💡 Intuition (VERY IMPORTANT)
+
+Think of it like:
+
+You are building a non-increasing sequence of smallest primes
+
+If at any point:
+
+current_spf > previous_spf
+
+👉 sequence breaks → Alice wins
+
+🔥 Why reverse traversal?
+
+Because:
+
+Future decisions restrict current choices
+You simulate constraints backward
+🧮 Precomputation (Critical Part)
+
+We precompute for all i ≤ 1e6:
+
+helper[i] = {is_multi_prime, smallest_prime_factor}
+✅ Correct Factorization Logic
+for(ll i = 1; i <= 1e6; i++) {
+    int cnt = 0;
+    ll x = i;
+
+    for(int j = 2; j*j <= x; j++) {
+        if(x % j == 0) {
+            cnt++;
+            if(cnt == 1) helper[i].second = j;
+            while(x % j == 0) x /= j;
+        }
+    }
+
+    if(x > 1) { // VERY IMPORTANT
+        cnt++;
+        if(cnt == 1) helper[i].second = x;
+    }
+
+    if(cnt > 1) helper[i].first = true;
+}
+⚠️ Common Mistake (YOU MADE THIS)
+
+❌ Missing:
+
+if(x > 1)
+
+👉 This ignores large prime factors
+👉 Leads to WA on hidden tests
+
+⚙️ Optimized Approach
+Step-by-step
+Precompute helper array
+For each test case:
+Read array
+If already sorted → Bob wins
+Traverse from right to left
+Apply conditions
+🧾 Final Logic
+for(int i = n-1; i >= 0; i--) {
+    if(helper[v[i]].first) return "Alice";
+
+    ll spf = helper[v[i]].second;
+    if(spf > prev) return "Alice";
+
+    prev = spf;
+}
+return "Bob";
+⏱️ Time Complexity
+Precomputation
+
+Worst case:
+
+𝑂
+(
+𝑁
+𝑁
+)
+O(N
+N
+	​
+
+)
+For 
+𝑁
+=
+10
+6
+N=10
+6
+ → borderline but works
+
+👉 Better approach (optional):
+
+Use SPF sieve → 
+𝑂
+(
+𝑁
+log
+⁡
+log
+⁡
+𝑁
+)
+O(NloglogN)
+Per Test Case
+
+Traversal:
+
+𝑂
+(
+𝑛
+)
+O(n)
+Total
+𝑂
+(
+𝑁
+𝑁
+)
++
+𝑂
+(
+𝑡
+⋅
+𝑛
+)
+O(N
+N
+	​
+
+)+O(t⋅n)
+🚀 Further Optimization (Pro Level)
+
+Instead of factorizing each number:
+
+👉 Use Smallest Prime Factor (SPF Sieve)
+
+Benefits:
+
+Faster preprocessing
+Cleaner logic
+🧠 Pattern Recognition
+
+This problem is a mix of:
+
+✅ Game Theory (Alice vs Bob)
+✅ Greedy (monotonic condition)
+✅ Number Theory (prime factors)
+🔥 Key Pattern
+
+Whenever you see:
+
+Prime factors involved
+Order matters
+Win/lose condition
+
+👉 Think:
+
+“Can I reduce it to a monotonic constraint?”
+
+🧩 Edge Cases
+Single element → Bob
+Already sorted → Bob
+Large primes → handled via x > 1
+Repeated values → fine
+🏁 Final Takeaways
+💥 What you learned
+Reverse greedy thinking
+Importance of smallest prime factor
+Precomputation pitfalls
+Edge-case discipline
+🧠 Golden Rule
+
+“If factorization is involved, always handle leftover x > 1”
+
+🔥 Your Level Insight
+
+You solved:
+
+multi-layer logic
+reverse greedy
+number theory
+
+👉 That’s solid 1500+ thinking
+
+🚀 Optimized Approach: SPF Sieve (Best Way)
+
+Instead of doing O(N√N) factorization, we use:
+
+✅ Smallest Prime Factor (SPF) Sieve
+Time: O(N log log N)
+
+🧠 Idea
+
+We precompute:
+
+spf[i] = smallest prime factor of i
+
+Then for each number:
+
+Count distinct primes using spf
+Get smallest prime in O(1)
+⚙️ Step 1: Build SPF Sieve
+vector<int> spf(1e6 + 1);
+
+void build_spf() {
+    for(int i = 1; i <= 1e6; i++) spf[i] = i;
+
+    for(int i = 2; i * i <= 1e6; i++) {
+        if(spf[i] == i) { // prime
+            for(int j = i * i; j <= 1e6; j += i) {
+                if(spf[j] == j)
+                    spf[j] = i;
+            }
+        }
+    }
+}
+⚙️ Step 2: Build Helper using SPF
+
+Now we compute:
+
+helper[i] = {multi-prime?, smallest prime}
+vector<pair<bool,int>> helper(1e6 + 1);
+
+void build_helper() {
+    for(int i = 1; i <= 1e6; i++) {
+        int x = i;
+        int cnt = 0;
+        int last = -1;
+
+        while(x > 1) {
+            int p = spf[x];
+            if(p != last) {
+                cnt++;
+                if(cnt == 1) helper[i].second = p;
+                last = p;
+            }
+            x /= p;
+        }
+
+        helper[i].first = (cnt > 1);
+        if(cnt == 0) helper[i].second = i; // for i = 1
+    }
+}
+⚡ Why this is better
+Old approach:
+O(N * sqrt(N))  ❌ slow
+SPF approach:
+O(N log log N)  ✅ fast
+
+👉 Much safer for contests
+
+🔥 Full Optimized Flow
+build_spf();
+build_helper();
+
+Then your solve() remains SAME ✅
+
+🧠 Key Insight
+
+Using SPF:
+
+Factorization becomes:
+while(x > 1) x /= spf[x];
+
+👉 Each step reduces x quickly
+👉 Total complexity per number: ~log(n)
+
+⚠️ Common Mistakes
+❌ Forgetting to avoid duplicate primes
+❌ Not tracking last
+❌ Counting same prime multiple times
+🏁 Final Complexity
+Part	Complexity
+SPF build	O(N log log N)
+Helper build	O(N log N)
+Each test	O(n)
