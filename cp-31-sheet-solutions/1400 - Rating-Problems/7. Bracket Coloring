@@ -1,0 +1,186 @@
+🧠 Core Understanding
+🔹 What is a beautiful sequence?
+
+A sequence is beautiful if:
+
+It is a regular bracket sequence (RBS)
+OR
+Its reverse is RBS
+🔹 What is RBS?
+
+Classic:
+
+Balanced brackets
+Prefix never negative
+Total sum = 0
+💡 Key Observation (MOST IMPORTANT)
+
+👉 If total ( ≠ total ) → IMPOSSIBLE
+
+Because:
+
+Even after coloring, each color must form a valid sequence
+Total imbalance cannot be fixed
+🔥 MAIN IDEA
+
+We want to split the string into minimum colors such that:
+
+Each color subsequence is:
+
+either valid RBS
+or reverse RBS
+🧠 Insight That Cracks Problem
+Case 1: String itself is RBS
+
+👉 Answer = 1 color
+
+Case 2: Reverse string is RBS
+
+👉 Answer = 1 color
+
+Case 3: Otherwise
+
+👉 Answer = 2 colors
+
+⚡ WHY 2 COLORS ALWAYS WORK?
+
+We use prefix balance idea:
+
+Traverse string
+Maintain cnt (balance)
+(  → +1  
+)  → -1
+💥 Key Trick
+When prefix becomes negative → invalid forward
+That part can be valid in reverse
+
+👉 So:
+
+Positive prefix → color 1
+Negative prefix → color 2
+🔁 Visualization
+
+Example:
+
+s = ))()((
+
+Balance:
+
+i:   0 1 2 3 4 5
+s:   ) ) ( ) ( (
+cnt: -1 -2 -1 -2 -1 0
+
+👉 Always negative → reverse is valid
+👉 So 1 color enough
+
+⚠️ Important Subtlety
+
+Your logic:
+
+if(cnt < 0) neg = true;
+if(cnt > 0) neg = false;
+
+👉 This is tracking current segment type
+
+🧩 Why your approach works
+You dynamically decide:
+current prefix behaving like forward RBS → color 1
+broken prefix → assign color 2
+
+👉 This ensures:
+
+color 1 → forward valid
+color 2 → reverse valid
+🚨 Edge Case
+if(st.size() == 1 && ans[0] == 2)
+
+👉 Means:
+
+everything assigned color 2
+i.e. full sequence works in reverse
+
+👉 So convert to 1 color
+
+📌 Final Algorithm
+Step 1:
+
+Check total balance
+→ if not 0 → -1
+
+Step 2:
+
+Traverse and assign:
+
+Maintain cnt
+If prefix valid → color 1
+If prefix invalid → color 2
+Step 3:
+
+If only one color used:
+
+return 1
+
+Else:
+
+return 2
+🧾 Clean Code Version (Refined)
+void solve() {
+    int n;
+    cin >> n;
+    string s;
+    cin >> s;
+
+    int cnt = 0;
+    vector<int> ans(n);
+    bool neg = false;
+
+    for(int i = 0; i < n; i++) {
+        if(s[i] == '(') cnt++;
+        else cnt--;
+
+        if(cnt < 0) neg = true;
+        if(cnt > 0) neg = false;
+
+        ans[i] = neg ? 2 : 1;
+    }
+
+    // total balance check
+    if(cnt != 0) {
+        cout << -1 << endl;
+        return;
+    }
+
+    // count colors
+    set<int> st(ans.begin(), ans.end());
+
+    // if all are color 2 → make them 1
+    if(st.size() == 1 && ans[0] == 2) {
+        for(auto &x : ans) x = 1;
+    }
+
+    cout << st.size() << endl;
+    for(auto x : ans) cout << x << " ";
+    cout << endl;
+}
+🧠 Deep Intuition (VERY IMPORTANT)
+
+This problem is NOT about brackets.
+
+It’s about:
+
+Splitting into monotonic prefix segments
+
+Where:
+
+One group never dips below 0 → forward valid
+Other group never rises above 0 → reverse valid
+🚀 Takeaway for You
+
+Bro this is pure 1400-level thinking:
+
+Prefix reasoning ✅
+Greedy partitioning ✅
+Reverse thinking ✅
+
+👉 If you understood this fully:
+You are very close to Pupil now.
