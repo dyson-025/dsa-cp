@@ -1,0 +1,123 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+// ---------- FAST I/O ----------
+#define fast_io ios::sync_with_stdio(false); cin.tie(nullptr);
+
+// ---------- SHORTCUTS ----------
+#define ll long long
+#define all(x) (x).begin(), (x).end()
+#define pb push_back
+#define endl '\n'
+
+// ---------- CONSTANTS ----------
+const ll MOD = 1e9 + 7;
+const ll INF = 1e18;
+
+// ---------- COMMON OUTPUT ----------
+#define YES cout << "YES\n"
+#define NO  cout << "NO\n"
+
+// ---------- SORTING ----------
+#define sortv(v) sort((v).begin(), (v).end())
+#define sortvr(v) sort((v).rbegin(), (v).rend()) // descending
+
+// ===== DSU / Union Find =====
+struct DSU {
+    vector<int> parent, sz;
+    int components;
+
+    DSU(int n) {
+        parent.resize(n+1);
+        sz.assign(n+1, 1);
+        components = n;
+        for(int i=1;i<=n;i++)
+            parent[i] = i;
+    }
+
+    int find(int x) {
+        if(parent[x] == x)
+            return x;
+        return parent[x] = find(parent[x]); // path compression
+    }
+
+    bool unite(int a, int b) {
+        a = find(a);
+        b = find(b);
+        if(a == b) return false;
+
+        if(sz[a] < sz[b]) swap(a,b); // union by size
+        parent[b] = a;
+        sz[a] += sz[b];
+        components--;
+        return true;
+    }
+
+    int size(int x) {
+        return sz[find(x)];
+    }
+
+    bool same(int a, int b) {
+        return find(a) == find(b);
+    }
+};
+
+/*
+========= Usage Reminder =========
+
+DSU dsu(n);            // initialize
+
+dsu.unite(u, v);       // merge sets containing u and v
+
+dsu.same(u, v);        // true if u and v connected
+
+dsu.size(x);           // size of component containing x
+
+dsu.components;        // number of components currently
+
+==================================
+*/
+
+//solve
+void solve() {
+    ll n, h;
+    cin >> n >> h;
+    vector<ll> v(n);
+    for(auto& it: v) cin>>it;
+    vector<ll> water(n,0);
+    for(int i = 0; i < n; i++) {
+        water[i] = h - v[i];
+        ll mx = v[i];
+        for(int j = i - 1; j >= 0; j--) {
+            mx = max(v[j], mx);
+            water[i] += (h - mx);
+        }
+        mx = v[i];
+        for(int j = i + 1; j< n; j++) {
+            mx = max(v[j], mx);
+            water[i] += (h - mx);
+        }
+    }
+    ll ans = 0;
+    for(int i = 0; i < n; i++) {
+        ll mx = v[i];
+        ll idx = i;
+        for(int j = i; j < n; j++) {
+            if ( mx < v[j]) {
+                mx = v[j];
+                idx = j;
+            }
+            ans = max(ans, water[i] + water[j] - water[idx]);
+        }
+    }
+    cout<<ans<<endl;
+}
+
+int main() {
+    fast_io
+    int t = 1;
+    cin >> t;
+    while (t--)
+        solve();
+    return 0;
+}
