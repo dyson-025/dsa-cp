@@ -1,0 +1,182 @@
+🧠 Problem Summary (In Your Words)
+You have n bullets → fixed order
+Each bullet deals damage a[i]
+Enemy health = h
+After firing all n bullets → reload takes k seconds
+You can do at most 1 swap before starting
+
+👉 Goal: Min time to kill enemy
+
+🔥 Key Observations (MOST IMPORTANT)
+1. Full magazine cycles are FIXED
+
+Let:
+
+sum = total damage of one magazine
+
+Then:
+
+cycles = h / sum
+remaining = h % sum
+
+👉 You must use at least cycles full magazines
+
+2. Swap DOES NOT affect full cycles
+
+💡 Why?
+
+Because:
+
+sum of array remains same after swap
+
+👉 So:
+
+Total damage per magazine = SAME
+Time per magazine = SAME
+
+✅ Swap only affects LAST magazine
+
+⚡ Time Calculation
+Case 1: Exact kill
+remaining == 0
+
+Then:
+
+time = cycles * n + (cycles - 1) * k
+
+👉 Last reload not needed
+
+Case 2: Remaining > 0
+time = cycles * n + cycles * k
+
+👉 Now we need extra bullets from last magazine
+
+🎯 Core Problem Reduced To:
+
+Find minimum i (1 ≤ i ≤ n)
+such that we can deal ≥ remaining damage using first i bullets
+(with at most one swap)
+
+🔄 Swap Strategy (CRITICAL INSIGHT)
+
+For a fixed i:
+
+👉 Best swap is:
+
+(min in prefix [0..i]) ↔ (max in suffix [i+1..n-1])
+🤔 Why this works?
+
+We want to:
+
+REMOVE smallest damage from prefix
+ADD largest possible damage from suffix
+
+👉 Maximizes prefix sum → best chance to kill early
+
+📊 Precomputations
+1. Prefix Sum
+pref[i] = sum of a[0..i]
+2. Prefix Minimum
+pref_min[i] = min(a[0..i])
+3. Suffix Maximum
+suff_max[i] = max(a[i..n-1])
+🧪 For Each i (0-based)
+Case 1: No swap
+damage = pref[i]
+Case 2: With swap
+
+Only if:
+
+i + 1 < n AND pref_min[i] < suff_max[i+1]
+
+Then:
+
+damage = pref[i] - pref_min[i] + suff_max[i+1]
+✅ Condition
+if damage ≥ remaining
+    answer = i + 1
+
+Take minimum i
+
+⛔ Why NOT Binary Search?
+
+Because:
+
+prefix sum after swap is NOT monotonic
+
+👉 So:
+
+i=2 might work
+i=3 might NOT
+i=4 might work
+
+❌ Not monotonic → ❌ No binary search
+
+🧾 Final Algorithm
+Step-by-step:
+Compute sum
+Compute:
+cycles = h / sum
+remaining = h % sum
+If remaining == 0 → return directly
+Precompute:
+prefix sum
+prefix min
+suffix max
+Loop i = 0 → n-1
+Try:
+no swap
+swap
+Find smallest i
+Return:
+time + (i + 1)
+⏱ Complexity
+O(n) per test case
+❌ Common Mistakes (YOU DID SOME 👀)
+1. Doing only one full cycle
+h -= total; ❌
+2. Using Binary Search ❌
+3. Wrong prefix min logic
+small = min(v[i], small); // wrong init ❌
+4. Not handling remaining ≤ 0 ❌
+🧠 Intuition Summary (REMEMBER THIS)
+
+Full magazines = fixed
+Last magazine = optimization problem
+
+“How to maximize prefix damage with 1 swap?”
+
+💡 Pattern Recognition
+
+This problem teaches:
+
+✅ Prefix + suffix preprocessing
+✅ Greedy swap optimization
+✅ Breaking problem into:
+
+fixed part
+flexible part
+🚀 Mental Shortcut (FOR CONTEST)
+
+When you see:
+
+“at most 1 swap”
+“minimize prefix length”
+
+👉 Think:
+
+Try every prefix
+Swap min(prefix) with max(suffix)
+💬 Final Words
+
+Bro this problem is classic jump from 1300 → 1500 level
+
+You:
+
+Got idea ✔️
+Tried optimization ✔️
+Just misapplied binary search ❌
+
+👉 Fix this one habit:
+
+“Don’t use BS unless strictly monotonic”
