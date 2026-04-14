@@ -1,0 +1,167 @@
+🧠 📝 FINAL NOTES — Grid L (Both Approaches)
+🎯 CORE IDEA (COMMON)
+Convert everything → edges
+Straight pieces = p
+L-pieces = 2 edges each
+
+👉 Total edges:
+
+x=p+2q
+Grid requirement:
+
+2nm+n+m
+
+MUST condition:
+p+2q=2nm+n+m
+🚀 APPROACH 1 — Corner-based thinking
+🧠 Intuition
+Each L uses a corner (1 horizontal + 1 vertical)
+Count how many such placements possible
+🔥 Maximum L placements
+From cells → nm
+Extra from boundary → + min(n, m)
+
+👉 Final:
+
+q≤nm+min(n,m)
+⚙️ Steps
+Loop over n
+Compute:
+𝑚
+=
+𝑥
+−
+𝑛
+2
+𝑛
++
+1
+m=
+2n+1
+x−n
+	​
+
+Check:
+m > 0
+equation valid
+q ≤ nm + min(n,m)
+💻 Code sketch
+for (int n = 1; n <= 20000; n++) {
+    if ((x - n) % (2*n + 1)) continue;
+
+    int m = (x - n) / (2*n + 1);
+    if (m <= 0) continue;
+
+    if (q <= n*m + min(n, m)) {
+        cout << n << " " << m << endl;
+        return;
+    }
+}
+cout << -1 << endl;
+⚠️ Intuition difficulty
+Harder to think in contest
+Requires geometry visualization
+🚀 APPROACH 2 — Edge-resource thinking (BETTER)
+🧠 Intuition (VERY IMPORTANT)
+
+Each L-piece needs:
+
+1 horizontal edge
+1 vertical edge
+
+👉 Treat like resource consumption
+
+🔥 Available resources
+Horizontal edges = n(m+1)
+Vertical edges = m(n+1)
+⚖️ Constraint
+𝑞
+≤
+𝑛
+(
+𝑚
++
+1
+)
+q≤n(m+1)
+𝑞
+≤
+𝑚
+(
+𝑛
++
+1
+)
+q≤m(n+1)
+
+👉 Must satisfy BOTH
+
+⚙️ Steps
+Loop over m
+Compute:
+𝑛
+=
+𝑥
+−
+𝑚
+2
+𝑚
++
+1
+n=
+2m+1
+x−m
+	​
+
+Check:
+divisible
+n > 0
+both constraints
+💻 Code sketch
+x =  p + 2*q;
+for (ll m = 1; 2*m*m + 2*m <= x; m++) {
+    ll a = x - m;
+    ll b = 2*m + 1;
+
+    if (a % b) continue;
+
+    ll n = a / b;
+    if (n <= 0) continue;
+
+    if (q <= n*(m+1) && q <= m*(n+1)) {
+        cout << n << " " << m << endl;
+        return;
+    }
+}
+cout << -1 << endl;
+✅ Why this is better
+Clear logic
+No geometry confusion
+Pure counting/resources
+⚖️ APPROACH COMPARISON
+Feature	Approach 1	Approach 2
+Thinking style	Geometry	Resource-based ✅
+Ease in contest	Hard	Easier ✅
+Intuition clarity	Medium	High ✅
+Implementation	Similar	Similar
+🔥 KEY INSIGHT (GOLD)
+
+These are equivalent:
+
+q≤n(m+1) AND q≤m(n+1)
+
+👉 Same logic, different perspective
+
+🧠 WHAT YOU SHOULD LEARN
+
+This problem teaches:
+
+💡 1. Convert shapes → numbers
+Geometry → algebra
+💡 2. Try multiple perspectives
+Corners view
+Resource view
+💡 3. Equation solving pattern
+2nm+n+m=constant
+
+👉 Fix one variable → solve other
